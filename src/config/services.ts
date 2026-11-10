@@ -1,0 +1,303 @@
+export interface Service {
+  slug: string;
+  href: string;
+  name: string;
+  short: string;
+  category: "turnover" | "renovation" | "trade" | "program";
+  overview: string;
+  problem: string;
+  typicalScope: string[];
+  deliverables: string[];
+  process: { step: string; detail: string }[];
+  pricing: { model: string; framework: string; illustrativeRange?: string };
+  formFields: string[]; // qualification questions shown on the service intake
+  cta: string;
+  faq: { q: string; a: string }[];
+  upsells: string[]; // slugs
+  seoTitle: string;
+  seoDescription: string;
+}
+
+const stdProcess = (walk: string, exec: string): Service["process"] => [
+  { step: "Request", detail: "Submit the property, unit and photos through the intake form or portal. One record holds everything." },
+  { step: "Scope", detail: walk },
+  { step: "Written estimate", detail: "Line-item scope with quantities, allowances, exclusions and schedule. Nothing proceeds without your written approval." },
+  { step: "Execution", detail: exec },
+  { step: "Punch list & closeout", detail: "Punch walk, photo-documented completion, invoice tied to the approved scope and any signed change orders." },
+];
+
+export const services: Service[] = [
+  {
+    slug: "rental-turnovers",
+    href: "/rental-turnovers",
+    name: "Rental Turnovers & Make-Ready",
+    short: "Move-out to move-in readiness, coordinated as one scope.",
+    category: "turnover",
+    overview:
+      "A complete make-ready service between tenants: condition walkthrough, priced scope, coordinated trades, cleaning and a documented, rent-ready unit.",
+    problem:
+      "A unit sits empty while you chase a painter, a flooring installer, a handyman and a cleaner—each on their own schedule. Every vacant day costs rent, and nobody owns the punch list.",
+    typicalScope: [
+      "Move-out condition walkthrough with photos",
+      "Patch and paint (walls, ceilings, trim as scoped)",
+      "Drywall and plaster repair",
+      "Flooring repair or replacement",
+      "Bathroom refresh: caulk, grout, fixtures, vanity hardware",
+      "Kitchen refresh: hardware, fixtures, cabinet touch-up, appliance connections",
+      "Doors, blinds, outlet covers, smoke/CO device check",
+      "Cleaning coordination",
+      "Punch list and final photo set",
+    ],
+    deliverables: [
+      "Line-item turnover scope with per-item pricing",
+      "Committed schedule with a target rent-ready date",
+      "Before/after photo set organized by room",
+      "Completion record: work performed, materials, paint colors and flooring SKUs for the next turn",
+    ],
+    process: stdProcess(
+      "Walkthrough in person or by photo/video intake. Damage is classified (normal wear vs. tenant damage) so you can support deposit decisions.",
+      "One project coordinator sequences trades in the right order—repairs, paint, flooring, fixtures, clean—so nobody waits on anybody.",
+    ),
+    pricing: {
+      model: "Fixed price per approved scope",
+      framework:
+        "Priced per line item from a market price sheet. Standard-package pricing available for repeat units with identical finishes.",
+      illustrativeRange: "Light refresh to heavy turn; use the Unit Turn Estimator for a preliminary range",
+    },
+    formFields: ["Move-out date", "Target move-in date", "Bedrooms / bathrooms", "Condition level", "Photos"],
+    cta: "Get Your Unit Ready for the Next Tenant",
+    faq: [
+      { q: "Can you scope from photos?", a: "Often, yes, for light and moderate turns. Heavy damage, water issues or flooring replacement usually need a site walk to measure and confirm conditions." },
+      { q: "Do you document tenant damage?", a: "Yes. Every turnover starts with a dated photo set and condition notes by room. We describe what we find; deposit decisions remain yours." },
+      { q: "Can you match the finishes from the last turn?", a: "Completion records store paint colors, sheen and flooring products so repeat turns match without guesswork." },
+      { q: "What if you find something unexpected?", a: "Work outside the approved scope is written up as a change order with photos and price. Nothing is added without your approval." },
+    ],
+    upsells: ["painting-drywall", "flooring", "bathroom-remodeling", "property-maintenance"],
+    seoTitle: "Rental Turnover & Make-Ready Contractors | PortfolioWorks",
+    seoDescription:
+      "One accountable contractor for apartment turnovers: walkthrough, priced scope, paint, flooring, repairs, cleaning coordination and documented completion.",
+  },
+  {
+    slug: "painting-drywall",
+    href: "/services/painting-drywall",
+    name: "Painting & Drywall",
+    short: "Unit repaints, common areas, drywall and plaster repair.",
+    category: "trade",
+    overview: "Interior painting and wall/ceiling repair for occupied and vacant units, hallways and common areas.",
+    problem:
+      "Painters who skip prep, mismatch colors or leave patches flashing through the finish create a second visit you pay for in vacancy days.",
+    typicalScope: ["Full unit repaint or touch-up", "Drywall and plaster patching", "Ceiling repair and stain blocking", "Trim and doors", "Common-area and stairwell painting", "Lead-safe practices on pre-1978 surfaces"],
+    deliverables: ["Color and sheen schedule saved to the property record", "Prep standard defined in writing", "Before/after photos"],
+    process: stdProcess("Measure, identify wall/ceiling conditions and confirm the color schedule.", "Prep, prime where needed, two-coat finish as specified, cleanup."),
+    pricing: { model: "Fixed price per room/area or per unit", framework: "Priced by room count and condition, or by square foot for common areas." },
+    formFields: ["Rooms / areas", "Occupied or vacant", "Year built", "Ceiling work needed"],
+    cta: "Request a Painting Scope",
+    faq: [
+      { q: "Do you use a standard paint spec?", a: "We recommend a portfolio paint standard (one wall color, one trim, one sheen) to make future touch-ups fast. Your spec wins if you have one." },
+      { q: "Can you work in occupied units?", a: "Yes, with tenant notice coordinated through you or your property manager." },
+    ],
+    upsells: ["flooring", "carpentry", "rental-turnovers"],
+    seoTitle: "Rental Property Painting & Drywall Contractor | PortfolioWorks",
+    seoDescription: "Unit repaints, common-area painting and drywall repair for landlords and property managers, with color records saved for every turn.",
+  },
+  {
+    slug: "flooring",
+    href: "/services/flooring",
+    name: "Flooring",
+    short: "LVP, hardwood, tile, repairs and transitions.",
+    category: "trade",
+    overview: "Flooring repair and replacement selected for rental durability: luxury vinyl plank, hardwood refinishing and repair, tile, transitions and trim.",
+    problem: "Mismatched patches, lifted seams and the wrong product for a rental all show up again at the next turnover.",
+    typicalScope: ["LVP installation", "Hardwood repair, sanding and refinishing", "Tile floors", "Subfloor repair where found", "Transitions, base and shoe moulding", "Demolition and disposal"],
+    deliverables: ["Measured square footage", "Product SKU recorded for future repairs", "Photo documentation"],
+    process: stdProcess("Measure, check subfloor and moisture, confirm product.", "Remove, prep, install, trim out and clean."),
+    pricing: { model: "Fixed price per square foot + prep allowances", framework: "Material allowance per sq ft plus installation; subfloor repair priced as an identified allowance." },
+    formFields: ["Approx. square footage", "Current flooring", "Desired flooring", "Rooms"],
+    cta: "Request a Flooring Estimate",
+    faq: [
+      { q: "What flooring do you recommend for rentals?", a: "Commercial-grade LVP is usually the best balance of cost, water resistance and repairability. We record the product so damaged planks can be swapped later." },
+      { q: "Can you refinish existing hardwood instead?", a: "Often, if there is enough wear layer left. We check before recommending replacement." },
+    ],
+    upsells: ["painting-drywall", "carpentry"],
+    seoTitle: "Rental Flooring Installation & Repair | PortfolioWorks",
+    seoDescription: "LVP, hardwood and tile flooring for rental units, with product records for future repairs.",
+  },
+  {
+    slug: "bathroom-remodeling",
+    href: "/services/bathroom-remodeling",
+    name: "Bathroom Renovation",
+    short: "From cosmetic refresh to full remodel.",
+    category: "renovation",
+    overview: "Bathroom work scaled to the asset: regrout and refresh, vanity and fixture swaps, tile and shower renovations, or complete remodels.",
+    problem: "Bathrooms drive tenant complaints, water damage and rent ceilings. Partial fixes by separate trades often leave the real problem behind the tile.",
+    typicalScope: ["Tile and grout repair or replacement", "Shower and tub surround renovation", "Vanity, mirror, lighting and accessories", "Fixture replacement (licensed plumbing)", "Ventilation fan replacement", "Flooring", "Full gut remodel"],
+    deliverables: ["Tiered options (refresh / upgrade / remodel) priced side by side", "Finish selections sheet", "Waterproofing and plumbing documentation photos before close-up"],
+    process: stdProcess("Site walk to check substrate, ventilation and plumbing condition.", "Demo, rough plumbing by licensed trade, waterproofing, tile and finish, inspection where required."),
+    pricing: { model: "Fixed price per tier", framework: "Three-tier pricing so you can match the scope to the rent the unit can command." },
+    formFields: ["Refresh, upgrade or full remodel", "Shower / tub type", "Known leaks or damage", "Photos"],
+    cta: "Get Bathroom Options",
+    faq: [
+      { q: "Do you handle plumbing?", a: "Plumbing is performed by licensed plumbers we coordinate and schedule as part of your single scope." },
+      { q: "How long does a rental bathroom remodel take?", a: "A cosmetic refresh may take a few days; a full remodel usually takes longer depending on inspections and materials. Your estimate includes a schedule." },
+    ],
+    upsells: ["kitchen-remodeling", "flooring", "plumbing-electrical-hvac-coordination"],
+    seoTitle: "Bathroom Renovation for Rental Properties | PortfolioWorks",
+    seoDescription: "Rental bathroom refreshes, tile and shower renovations and full remodels with tiered pricing and documented waterproofing.",
+  },
+  {
+    slug: "kitchen-remodeling",
+    href: "/services/kitchen-remodeling",
+    name: "Kitchen Renovation",
+    short: "Refacing, counters, backsplash, full kitchen rehab.",
+    category: "renovation",
+    overview: "Kitchen upgrades scoped for rent premium and durability: cabinet refacing or replacement, countertops, backsplash, flooring, fixtures and layout changes where feasible.",
+    problem: "Kitchens are the most expensive room to get wrong. Over-improving kills returns; under-improving caps the rent.",
+    typicalScope: ["Cabinet refacing or replacement", "Countertops", "Backsplash", "Sink and faucet", "Appliance package coordination and connections", "Lighting", "Flooring", "Layout changes subject to design and permits"],
+    deliverables: ["Good / better / best options tied to target rent", "Cabinet and counter shop drawings where applicable", "Appliance and finish schedule"],
+    process: stdProcess("Measure, document utilities and confirm what can move.", "Demo, utilities by licensed trades, install, finish, inspection where required."),
+    pricing: { model: "Fixed price per tier", framework: "Tiered scopes with material allowances listed separately so selections can change without re-bidding labor." },
+    formFields: ["Refresh, upgrade or full rehab", "Keep layout?", "Appliances included?", "Photos"],
+    cta: "Get Kitchen Options",
+    faq: [
+      { q: "Can you reuse existing cabinet boxes?", a: "If the boxes are sound, refacing or painting plus new doors and hardware is often the best rental value." },
+      { q: "Do you supply appliances?", a: "We can coordinate an appliance package or install owner-supplied units." },
+    ],
+    upsells: ["bathroom-remodeling", "flooring", "painting-drywall"],
+    seoTitle: "Rental Kitchen Renovation & Refacing | PortfolioWorks",
+    seoDescription: "Kitchen renovation scoped to rent premium: refacing, counters, backsplash and full kitchen rehabs for rental owners.",
+  },
+  {
+    slug: "carpentry",
+    href: "/services/carpentry",
+    name: "Carpentry & General Repairs",
+    short: "Doors, trim, cabinets, windows and the repair list.",
+    category: "trade",
+    overview: "The repair list that holds up a turnover or annoys a tenant: doors, locks, trim, closets, cabinet repairs, window hardware and minor carpentry.",
+    problem: "Small repairs rarely get bid because they are small—so they pile up until they become a vacancy problem.",
+    typicalScope: ["Interior and entry doors", "Trim and baseboard", "Closet systems and shelving", "Cabinet repair", "Window hardware and sash repair where qualified", "Safety-related repairs referred to appropriate specialists"],
+    deliverables: ["Itemized repair list with prices", "Photo per completed item"],
+    process: stdProcess("Repair list built from your notes, photos or a walkthrough.", "Batched into one visit wherever possible."),
+    pricing: { model: "Fixed price per item or time-and-materials with a cap", framework: "Itemized pricing for known items; T&M with a not-to-exceed for diagnostic work." },
+    formFields: ["Repair list", "Photos", "Occupied or vacant"],
+    cta: "Send Your Repair List",
+    faq: [{ q: "Is there a minimum?", a: "Small repair lists are batched with other work at the same property where possible. Your market's price sheet sets any trip minimum." }],
+    upsells: ["painting-drywall", "exterior-repairs"],
+    seoTitle: "Carpentry & Repair Services for Landlords | PortfolioWorks",
+    seoDescription: "Doors, trim, cabinets and general repairs for rental properties, itemized and batched into one visit.",
+  },
+  {
+    slug: "exterior-repairs",
+    href: "/services/exterior-repairs",
+    name: "Exterior Improvements",
+    short: "Decks, porches, stairs, railings, fencing.",
+    category: "trade",
+    overview: "Exterior carpentry and safety repairs: decks, porches, stairs, railings, fencing and seasonal exterior maintenance.",
+    problem: "Exterior defects are liability issues. A soft stair tread or loose railing is not a cosmetic item.",
+    typicalScope: ["Deck and porch repair", "Stairs and railings", "Fencing", "Exterior trim and carpentry", "Seasonal exterior maintenance"],
+    deliverables: ["Condition report with photos", "Prioritized scope (safety first)", "Permit coordination where required"],
+    process: stdProcess("Site walk with structural and safety items flagged first.", "Repair or rebuild; structural work subject to qualified design and approvals."),
+    pricing: { model: "Fixed price per approved scope", framework: "Safety items priced separately from cosmetic items so you can sequence spend." },
+    formFields: ["Exterior element", "Safety concern?", "Photos"],
+    cta: "Request an Exterior Assessment",
+    faq: [{ q: "Do you rebuild porches?", a: "Yes, subject to structural review, permits and the licensing that applies in your market." }],
+    upsells: ["carpentry", "property-maintenance"],
+    seoTitle: "Deck, Porch & Exterior Repairs for Rentals | PortfolioWorks",
+    seoDescription: "Deck, porch, stair, railing and fencing repairs for rental properties, prioritized for safety.",
+  },
+  {
+    slug: "plumbing-electrical-hvac-coordination",
+    href: "/services/plumbing-electrical-hvac-coordination",
+    name: "MEP Trade Coordination",
+    short: "Licensed plumbing, electrical and HVAC—scheduled inside your scope.",
+    category: "trade",
+    overview:
+      "PortfolioWorks coordinates licensed plumbing, electrical, HVAC, lighting and appliance-connection work as part of one schedule. Licensed work is performed by properly authorized trades.",
+    problem: "Turnovers stall waiting on the plumber or electrician—the trades most likely to be booked out and least likely to coordinate with each other.",
+    typicalScope: ["Fixture replacement", "Leak repair", "Water heater coordination", "Outlet, switch and fixture replacement", "Panel and circuit work by licensed electricians", "HVAC service and replacement coordination", "Appliance connections"],
+    deliverables: ["Licensed-trade documentation and permits where required", "Inspection sign-offs recorded to the property"],
+    process: stdProcess("Diagnose and scope with the licensed trade.", "Licensed trade performs work; we sequence it with the rest of the scope."),
+    pricing: { model: "Fixed price or T&M with not-to-exceed", framework: "Licensed-trade pricing passed through with coordination fee disclosed in the proposal." },
+    formFields: ["Trade(s) needed", "Issue description", "Photos"],
+    cta: "Request Trade Coordination",
+    faq: [{ q: "Are your plumbers and electricians licensed?", a: "Licensed work is only performed by trades holding the license required in that state and municipality. Credentials are kept on file per job." }],
+    upsells: ["bathroom-remodeling", "kitchen-remodeling"],
+    seoTitle: "Plumbing, Electrical & HVAC Coordination for Rentals | PortfolioWorks",
+    seoDescription: "Licensed plumbing, electrical and HVAC work coordinated inside one rental property scope and schedule.",
+  },
+  {
+    slug: "full-rehab",
+    href: "/services/full-rehab",
+    name: "Full Residential Rehabilitation",
+    short: "Acquisition rehab, gut renovation, value-add repositioning.",
+    category: "renovation",
+    overview:
+      "Complete renovation for acquired, distressed or underperforming residential property: scope development, budget, permits, trade coordination and closeout.",
+    problem: "A rehab plan in a spreadsheet is not an executable scope. Budgets slip when the scope was never detailed enough to bid.",
+    typicalScope: ["Pre-acquisition or post-acquisition walkthrough", "Scope of work and budget", "Gut renovation", "Structural changes subject to qualified design and approvals", "Permit coordination", "Multifamily unit renovation programs", "Capital improvements"],
+    deliverables: ["Detailed scope of work by room and trade", "Budget with contingency and allowances", "Schedule with milestones and inspections", "Draw/payment schedule tied to milestones", "Weekly photo progress reports"],
+    process: stdProcess("Walkthrough, measurements, as-built notes and design needs identified.", "Milestone-based execution with weekly reporting and change-order control."),
+    pricing: {
+      model: "Fixed price, or cost-plus with GMP for complex scopes",
+      framework: "Fixed price where scope is definable; cost-plus with a guaranteed maximum price and open-book reporting where conditions are uncertain.",
+    },
+    formFields: ["Property type and units", "Acquisition status", "Budget range", "Target completion", "Existing plans or scope"],
+    cta: "Turn Your Renovation Plan Into an Executable Scope",
+    faq: [
+      { q: "Can you scope before I close?", a: "Yes. A pre-acquisition scope and budget helps you underwrite the deal and negotiate." },
+      { q: "Do you provide architectural or engineering design?", a: "Design and engineering are performed by licensed professionals we coordinate where the scope requires them." },
+    ],
+    upsells: ["capital-improvements", "property-maintenance"],
+    seoTitle: "Rental Property Rehab & Value-Add Renovation | PortfolioWorks",
+    seoDescription: "Acquisition rehabs and value-add renovations with detailed scopes, budgets, permits and milestone reporting.",
+  },
+  {
+    slug: "capital-improvements",
+    href: "/services/capital-improvements",
+    name: "Capital Improvements",
+    short: "Planned capex programs across units and buildings.",
+    category: "renovation",
+    overview: "Multi-year and multi-unit capital improvement programs: unit interior upgrades on turnover, common areas, building systems coordination and repositioning.",
+    problem: "Capex happens in bursts when something breaks, instead of on a plan that matches cash flow and turnover timing.",
+    typicalScope: ["Unit interior upgrade packages applied at turnover", "Common area renovations", "Building envelope and exterior programs", "Systems replacement coordination", "Cost-per-unit tracking"],
+    deliverables: ["Capex plan by property and year", "Standard unit upgrade package with fixed pricing", "Cost-per-unit and schedule reporting"],
+    process: stdProcess("Portfolio walkthrough and prioritization.", "Upgrades executed as units turn or in planned phases."),
+    pricing: { model: "Program pricing", framework: "Fixed per-unit package pricing for repeatable scopes; individual pricing for one-off building work." },
+    formFields: ["Units / properties", "Planned budget", "Priorities", "Timeline"],
+    cta: "Plan Your Capital Program",
+    faq: [{ q: "Can upgrades be done only as units turn over?", a: "That is usually the most efficient approach: the upgrade package is applied during the make-ready so no unit is vacant twice." }],
+    upsells: ["full-rehab", "property-maintenance"],
+    seoTitle: "Multifamily Capital Improvement Programs | PortfolioWorks",
+    seoDescription: "Capex planning and execution for multifamily owners: unit upgrade packages, common areas and cost-per-unit reporting.",
+  },
+  {
+    slug: "property-maintenance",
+    href: "/services/property-maintenance",
+    name: "Portfolio Maintenance Programs",
+    short: "Priority vendor service, inspections and recurring turns.",
+    category: "program",
+    overview: "A recurring relationship for owners and managers who want one accountable vendor across their properties: priority scheduling, annual inspections, recurring turns and planned improvements.",
+    problem: "Every new work order starts from zero: find someone, explain the property, wait for a bid.",
+    typicalScope: ["Priority scheduling", "Annual or semi-annual property inspections", "Recurring turnover service at agreed package pricing", "Scheduled improvement programs", "Maintenance budgeting"],
+    deliverables: ["Master service agreement with agreed rate card", "Property records for every building and unit", "Monthly activity and spend report", "Annual inspection reports"],
+    process: [
+      { step: "Discovery", detail: "Review your portfolio, current vendors and pain points." },
+      { step: "Pilot unit", detail: "One turnover or project to prove the system before any commitment." },
+      { step: "Approved vendor setup", detail: "Insurance, W-9, vendor compliance and rate card." },
+      { step: "Recurring work", detail: "Work requests through the portal, one coordinator, consistent pricing." },
+      { step: "Quarterly review", detail: "Spend, cycle times, open items and the next quarter's plan." },
+    ],
+    pricing: { model: "Rate card + program pricing", framework: "Agreed unit-package and line-item rate card; no retainer required to start." },
+    formFields: ["Units", "Properties", "Annual turnover estimate", "Current vendor challenges"],
+    cta: "Request a Portfolio Partnership Consultation",
+    faq: [
+      { q: "Do I need to commit to a contract?", a: "No. Partnerships start with a pilot unit. A master service agreement follows only if the pilot meets your standard." },
+      { q: "Can my property manager submit requests directly?", a: "Yes. Portal users can be added per company with access only to the properties you assign." },
+    ],
+    upsells: ["rental-turnovers", "capital-improvements"],
+    seoTitle: "Property Maintenance Programs for Portfolio Owners | PortfolioWorks",
+    seoDescription: "Recurring turnovers, inspections and improvement programs with one accountable vendor and a fixed rate card.",
+  },
+];
+
+export const getService = (slug: string) => services.find((s) => s.slug === slug);
+export const tradeServices = () => services.filter((s) => s.href.startsWith("/services/"));
