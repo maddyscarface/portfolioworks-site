@@ -1,0 +1,25 @@
+# Render Blueprint — free preview deploy (test mode, no real credentials).
+services:
+  - type: web
+    name: portfolioworks-site
+    runtime: node
+    plan: free
+    region: virginia
+    branch: main
+    autoDeploy: true
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24"
+      - key: OPENAI_ADS_VALIDATE_ONLY
+        value: "true"
+      - key: LEAD_ALLOW_MEMORY_STORE
+        value: "1"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://portfolioworks-site.onrender.com
