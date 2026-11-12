@@ -38,7 +38,8 @@ export const kvConfigured = () => Boolean(env("UPSTASH_REDIS_REST_URL") && env("
  */
 export const memoryStoreBlocked = () =>
   process.env.NODE_ENV === "production" && !kvConfigured() && process.env.LEAD_ALLOW_MEMORY_STORE !== "1";
-async function redis(cmd: (string | number)[]): Promise<unknown> {
+/** Low-level Redis command (Upstash REST, or the in-memory fallback in dev/preview). */
+export async function redis(cmd: (string | number)[]): Promise<unknown> {
   const url = env("UPSTASH_REDIS_REST_URL");
   const token = env("UPSTASH_REDIS_REST_TOKEN");
   if (!url || !token) {
@@ -110,13 +111,6 @@ export async function verifyTurnstile(token: string | undefined, ip: string): Pr
 }
 
 /* ───── GoHighLevel (API v2, Private Integration token) ───── */
-const GHL = "https://services.leadconnectorhq.com";
-const ghlHeaders = () => ({
-  Authorization: `Bearer ${env("GHL_PRIVATE_TOKEN")}`,
-  Version: "2021-07-28",
-  "Content-Type": "application/json",
-  Accept: "application/json",
-});
 
 /** Custom field keys must match the fields created in docs/11-gohighlevel-crm.md */
 export function ghlContactPayload(l: Lead, s: Score) {
@@ -172,35 +166,11 @@ export function ghlContactPayload(l: Lead, s: Score) {
   };
 }
 
+/** @deprecated Phase 2: use syncLeadToGhl from "@/lib/crm/ghl" (duplicate-safe, scoring + follow-up hooks, log mode). */
 export async function pushToGhl(l: Lead, s: Score, pipeline: "main" | "partnership"): Promise<AdapterResult> {
-  if (!integrationStatus().ghl) return { ok: false, skipped: "not-configured" };
-  try {
-    const c = await fetch(`${GHL}/contacts/upsert`, { method: "POST", headers: ghlHeaders(), body: JSON.stringify(ghlContactPayload(l, s)) });
-    if (!c.ok) return { ok: false, error: `contact ${c.status}: ${await c.text()}` };
-    const contactId = ((await c.json()) as { contact?: { id: string } }).contact?.id;
-    const pipelineId = pipeline === "partnership" ? env("GHL_PIPELINE_PARTNERSHIP") : env("GHL_PIPELINE_MAIN");
-    const stageId = pipeline === "partnership" ? env("GHL_STAGE_PARTNERSHIP_PROSPECT") : env("GHL_STAGE_MAIN_NEW_LEAD");
-    if (contactId && pipelineId && stageId) {
-      const o = await fetch(`${GHL}/opportunities/`, {
-        method: "POST",
-        headers: ghlHeaders(),
-        body: JSON.stringify({
-          locationId: env("GHL_LOCATION_ID"),
-          pipelineId,
-          pipelineStageId: stageId,
-          contactId,
-          name: `${l.company || `${l.firstName} ${l.lastName}`} — ${l.funnel}${l.propertyAddress ? ` — ${l.propertyAddress}` : ""}`,
-          status: "open",
-          monetaryValue: s.estimatedValue,
-          source: l.attribution.utm_source ?? "website",
-        }),
-      });
-      if (!o.ok) return { ok: false, id: contactId, error: `opportunity ${o.status}` };
-    }
-    return { ok: true, id: contactId };
-  } catch (e) {
-    return { ok: false, error: (e as Error).message };
-  }
+  const { syncLeadToGhl } = await import("@/lib/crm/ghl");
+  const r = await syncLeadToGhl(l, s, pipeline);
+  return r.skipped ? { ok: false, skipped: "not-configured" } : { ok: r.ok, id: r.contactId, error: r.error };
 }
 
 /* ───── Meta Conversions API ───── */

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { marketFromZip, type MarketId } from "@/config/markets";
+import { scoringWeights } from "@/config/lead-scoring";
 
 export const FUNNELS = ["turnover", "portfolio", "rehab", "trade", "urgent", "walkthrough", "contact"] as const;
 export type Funnel = (typeof FUNNELS)[number];
@@ -25,6 +26,20 @@ const attribution = z
     ga_client_id: z.string().max(80).optional(),
     openai_obref: z.string().max(300).optional(),
     openai_oppref: z.string().max(300).optional(),
+    // Phase 2: more click IDs + last-touch (first-touch fields above are never overwritten)
+    msclkid: z.string().max(300).optional(),
+    ttclid: z.string().max(300).optional(),
+    li_fat_id: z.string().max(300).optional(),
+    gclid_at: z.string().max(40).optional(),
+    last_utm_source: z.string().max(200).optional(),
+    last_utm_medium: z.string().max(200).optional(),
+    last_utm_campaign: z.string().max(200).optional(),
+    last_utm_term: z.string().max(200).optional(),
+    last_utm_content: z.string().max(200).optional(),
+    last_landing_page: z.string().max(500).optional(),
+    last_referrer: z.string().max(500).optional(),
+    last_touch_at: z.string().max(40).optional(),
+    touches: z.coerce.number().int().min(0).max(100000).optional(),
   })
   .partial()
   .default({});
@@ -73,23 +88,8 @@ export const leadSchema = z.object({
 export type LeadInput = z.input<typeof leadSchema>;
 export type Lead = z.output<typeof leadSchema>;
 
-/* ───── Scoring (weights are owner-editable) ───── */
-export const scoringWeights = {
-  customerType: { "property-manager": 25, "portfolio-owner": 25, investor: 20, hoa: 15, landlord: 10, broker: 10, other: 0 },
-  units: [
-    { min: 100, pts: 25 },
-    { min: 25, pts: 20 },
-    { min: 10, pts: 15 },
-    { min: 3, pts: 8 },
-    { min: 0, pts: 3 },
-  ],
-  budget: { "150k-plus": 20, "50-150k": 16, "15-50k": 12, "5-15k": 8, "under-5k": 4, unknown: 2 },
-  timeline: { asap: 12, "2-weeks": 12, "30-days": 9, "60-90-days": 5, planning: 2 },
-  contractType: { recurring: 10, "single-project": 3, unsure: 2 },
-  inMarket: 8,
-  photos: 3,
-  thresholds: { hot: 60, warm: 35 },
-};
+/* ───── Scoring: weights live in src/config/lead-scoring.ts (owner-editable) ───── */
+export { scoringWeights };
 
 export interface Score {
   score: number;
