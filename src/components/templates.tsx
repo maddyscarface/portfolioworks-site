@@ -4,7 +4,9 @@ import { getService, services, type Service } from "@/config/services";
 import { getAudience, type AudienceId } from "@/config/audiences";
 import { markets, type Market, type Town } from "@/config/markets";
 import { credentialsByMarket } from "@/config/site";
-import { Btn, Check, CtaBand, Faq, FaqJsonLd, Heading, MarketStatusNote, PageHero, Section } from "@/components/ui";
+import Image from "next/image";
+import { Btn, Check, CtaBand, Faq, FaqJsonLd, Heading, MarketStatusNote, PageHero, Photo, Section } from "@/components/ui";
+import { photos, marketPhoto, servicePhoto, type PhotoKey } from "@/config/photos";
 import LeadForm from "@/components/LeadForm";
 import type { Funnel } from "@/lib/leads";
 
@@ -29,15 +31,16 @@ export function ServiceTemplate({ slug }: { slug: string }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <PageHero eyebrow={s.category === "program" ? "Portfolio program" : "Service"} title={s.name} sub={s.overview} aside={<LeadForm funnel={funnelForService(s)} defaultServices={[s.slug]} />}>
+      <PageHero image={servicePhoto(s.slug)} eyebrow={s.category === "program" ? "Portfolio program" : "Service"} title={s.name} sub={s.overview} aside={<LeadForm funnel={funnelForService(s)} defaultServices={[s.slug]} />}>
         <Btn href="#scope" variant="ghost-light">See the typical scope</Btn>
       </PageHero>
 
       <Section tone="white">
         <div className="grid lg:grid-cols-2 gap-12">
           <div>
-            <p className="eyebrow mb-3">The problem</p>
+            <p className="eyebrow eyebrow-rule mb-4">The problem</p>
             <p className="display text-2xl sm:text-3xl text-navy leading-snug">{s.problem}</p>
+            <Photo k={servicePhoto(s.slug)} className="aspect-[16/10] mt-10" sizes="(min-width: 1024px) 45vw, 100vw" />
           </div>
           <div id="scope">
             <p className="eyebrow mb-3">Typical scope</p>
@@ -108,12 +111,16 @@ export function ServiceTemplate({ slug }: { slug: string }) {
   );
 }
 
+const AUDIENCE_PHOTO: Record<string, PhotoKey> = {
+  landlord: "bostonBrickApartments", "portfolio-owner": "bostonNorthEnd", "property-manager": "inspectionChecklist", investor: "scopePlanning", broker: "rentReadyOpenPlan", hoa: "bostonBrickStreet",
+};
+
 export function AudienceTemplate({ id, extra }: { id: AudienceId; extra?: React.ReactNode }) {
   const a = getAudience(id);
   const funnel: Funnel = a.formVariant === "portfolio" ? "portfolio" : a.formVariant === "rehab" ? "rehab" : a.formVariant === "trade" ? "trade" : "turnover";
   return (
     <>
-      <PageHero eyebrow={`${a.label} · ${a.who}`} title={a.headline} sub={a.sub} aside={<LeadForm funnel={funnel} defaultType={a.id === "broker" ? "broker" : a.id} />}>
+      <PageHero image={AUDIENCE_PHOTO[a.id] ?? "heroRentReadyLivingRoom"} eyebrow={`${a.label} · ${a.who}`} title={a.headline} sub={a.sub} aside={<LeadForm funnel={funnel} defaultType={a.id === "broker" ? "broker" : a.id} />}>
         <Btn href={a.cta.href}>{a.cta.label}</Btn>
       </PageHero>
       <Section tone="white">
@@ -158,7 +165,7 @@ export function MarketTemplate({ m }: { m: Market }) {
   const verified = Object.entries(cred).filter(([, v]) => v);
   return (
     <>
-      <PageHero eyebrow={`Market · ${m.state}`} title={m.headline} sub={m.intro} aside={<LeadForm funnel="walkthrough" />} />
+      <PageHero image={marketPhoto(m.id)} eyebrow={`Market · ${m.state}`} title={m.headline} sub={m.intro} aside={<LeadForm funnel="walkthrough" />} />
       <Section tone="white">
         <div className="max-w-3xl mb-8"><MarketStatusNote m={m} /></div>
         <div className="grid lg:grid-cols-2 gap-12">
@@ -197,6 +204,7 @@ export function TownTemplate({ m, t }: { m: Market; t: Town }) {
   return (
     <>
       <PageHero
+        image={m.id === "massachusetts" ? "bostonBrickStreet" : marketPhoto(m.id)}
         eyebrow={`${m.short} · ${t.name}`}
         title={`Rental turnovers and renovations in ${t.name}, ${m.state}`}
         sub={`PortfolioWorks coordinates turnovers, repairs and renovations for landlords, property managers and investors with property in ${t.name}. One scope, one schedule, one accountable partner.`}
@@ -232,16 +240,23 @@ export interface FunnelConfig {
   proof: { t: string; d: string }[];
   defaultServices?: string[];
   defaultType?: "landlord" | "portfolio-owner" | "property-manager" | "investor" | "hoa";
+  image?: PhotoKey;
 }
+
+const FUNNEL_PHOTO: Partial<Record<Funnel, PhotoKey>> = {
+  turnover: "livingRoomGreen", urgent: "painterWall", rehab: "kitchenRenovated", trade: "flooringCutting", portfolio: "bostonNorthEnd", walkthrough: "siteWalkthrough",
+};
 
 /** Dedicated conversion page: no top-nav distractions beyond the header, single offer, form above the fold. */
 export function FunnelTemplate({ c }: { c: FunnelConfig }) {
   return (
     <>
-      <section className="bg-navy text-paper grid-bg">
-        <div className="mx-auto max-w-6xl px-5 sm:px-8 py-14 sm:py-20 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-start">
+      <section className="relative isolate overflow-hidden bg-navy text-paper">
+        <Image src={photos[c.image ?? FUNNEL_PHOTO[c.funnel] ?? "heroRentReadyLivingRoom"].src} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
+        <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
+        <div className="wrap py-14 sm:py-20 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-start">
           <div>
-            <p className="eyebrow !text-bronze-2 mb-4">{c.eyebrow}</p>
+            <p className="eyebrow eyebrow-rule !text-bronze-2 mb-5">{c.eyebrow}</p>
             <h1 className="text-4xl sm:text-[3.2rem] leading-[1.05]">{c.offer}</h1>
             <p className="mt-5 text-lg text-paper/80 leading-relaxed">{c.sub}</p>
             <ul className="mt-8 space-y-3">{c.bullets.map((b) => <Check key={b}>{b}</Check>)}</ul>
@@ -253,11 +268,31 @@ export function FunnelTemplate({ c }: { c: FunnelConfig }) {
       <Section tone="white">
         <div className="grid md:grid-cols-3 gap-6">
           {c.proof.map((p) => (
-            <div key={p.t} className="border-t-2 border-bronze pt-5">
+            <div key={p.t} className="border-t border-bronze pt-6">
               <h3 className="text-xl text-navy">{p.t}</h3>
               <p className="text-slate text-sm mt-2 leading-relaxed">{p.d}</p>
             </div>
           ))}
+        </div>
+      </Section>
+      <Section tone="paper">
+        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-14 items-center">
+          <Photo k={c.funnel === "portfolio" ? "scopePlanning" : c.funnel === "rehab" ? "siteWalkthrough" : "inspectionChecklist"} className="aspect-[4/3]" sizes="(min-width: 1024px) 50vw, 100vw" />
+          <div>
+            <Heading eyebrow="What happens next" title="A real person reviews every request." />
+            <ol className="space-y-6">
+              {[
+                ["Review", "A coordinator reads your request and replies by email or phone with next steps."],
+                [c.funnel === "portfolio" ? "Discovery call" : "Photos or site walk", c.funnel === "portfolio" ? "A short call about your portfolio, current vendors and where turns stall." : "We ask for photos or book a walkthrough to document conditions."],
+                [c.funnel === "portfolio" ? "Pilot proposal" : "Written scope", c.funnel === "portfolio" ? "A pilot unit or property with an agreed rate card, before any long-term commitment." : "A line-item scope with schedule. Nothing proceeds without your written approval."],
+              ].map(([t, d], i) => (
+                <li key={t} className="flex gap-5">
+                  <span className="num grid h-10 w-10 shrink-0 place-items-center bg-navy text-paper">{i + 1}</span>
+                  <div><p className="display text-xl text-navy">{t}</p><p className="text-slate mt-1 leading-relaxed">{d}</p></div>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       </Section>
     </>

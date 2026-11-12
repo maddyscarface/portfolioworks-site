@@ -45,7 +45,7 @@ export const audiences: Audience[] = [
     needs: ["Repeatable scopes", "Multiple crews", "Consistent pricing", "Scheduling", "Vacancy reduction", "Recurring maintenance and improvements", "Portfolio reporting"],
     howWeHelp: [
       { title: "Standard unit packages", body: "Define a light, standard and heavy turn package once; every unit after that is priced from the same sheet." },
-      { title: "Portfolio dashboard", body: "Every property, unit, open project and invoice in one portal." },
+      { title: "Portfolio reporting", body: "Every property, unit, open project and invoice summarized in one regular report." },
       { title: "Cost-per-unit reporting", body: "Spend by property, unit and scope category to support budgeting." },
     ],
     cta: { label: "Request a Portfolio Partnership Consultation", href: "/portfolio-programs#consultation" },
