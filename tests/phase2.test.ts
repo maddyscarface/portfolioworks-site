@@ -27,7 +27,7 @@ describe("GoHighLevel plan", () => {
     const pipeline = pipelineFor(l);
     expect(pipeline).toBe("partnership");
     const plan = buildGhlPlan(l, s, pipeline);
-    expect(plan.pipelineLabel).toContain("Portfolio Partnerships");
+    expect(plan.pipelineLabel).toContain("Portfolio Partnership");
     expect(plan.tags).toContain("co:portfolioworks");
     expect(plan.tags).toContain(`pw-tier:${s.tier}`);
     expect(plan.tags).toContain("pw-fu:partnership");

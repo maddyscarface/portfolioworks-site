@@ -36,6 +36,7 @@ export default function Home() {
       <section className="relative isolate overflow-hidden bg-navy text-paper">
         <Image src={photos.heroRentReadyLivingRoom.src} alt="" fill priority sizes="100vw" className="-z-20 object-cover object-center" />
         <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
+        <div className="absolute inset-0 -z-10 grid-bg grid-fade" aria-hidden />
         <div className="wrap py-14 sm:py-20 lg:py-24 grid lg:grid-cols-[1.15fr_1fr] gap-12 items-start">
           <div className="pt-2 lg:pt-10">
             <p className="eyebrow eyebrow-rule !text-bronze-2 mb-6">Rental turnovers · Renovations · Portfolio programs</p>
@@ -45,10 +46,10 @@ export default function Home() {
               <Btn href={site.ctas.primary.href}>{site.ctas.primary.label}</Btn>
               <Btn href={site.ctas.secondary.href} variant="ghost-light">{site.ctas.secondary.label}</Btn>
             </div>
-            <dl className="mt-14 grid grid-cols-3 gap-6 max-w-lg border-t border-white/20 pt-6">
-              <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Accountability</dt><dd className="display text-2xl mt-1.5">1 partner</dd></div>
-              <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Pricing</dt><dd className="display text-2xl mt-1.5">Line-item</dd></div>
-              <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Closeout</dt><dd className="display text-2xl mt-1.5">Photo record</dd></div>
+            <dl className="mt-10 sm:mt-14 grid grid-cols-3 gap-3 sm:gap-6 max-w-lg border-t border-white/20 pt-6">
+              <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Accountability</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">1 partner</dd></div>
+              <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Pricing</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Line&#8209;item</dd></div>
+              <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Closeout</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Photo record</dd></div>
             </dl>
           </div>
           <LeadForm funnel="walkthrough" />
@@ -207,7 +208,7 @@ export default function Home() {
         <div className="grid md:grid-cols-3 gap-6">
           {[
             { k: "wallRepair" as PhotoKey, t: "Light turn", d: "Good condition, normal wear", items: ["Patch & touch-up paint", "Caulk and grout refresh", "Hardware and fixture fixes", "Make-ready clean"] },
-            { k: "painterRoller" as PhotoKey, t: "Standard turn", d: "Typical 2–4 year tenancy", items: ["Full repaint, walls & trim", "LVP in high-wear rooms", "Bath and kitchen refresh", "Repair list & clean"] },
+            { k: "flooringCutting" as PhotoKey, t: "Standard turn", d: "Typical 2–4 year tenancy", items: ["Full repaint, walls & trim", "LVP in high-wear rooms", "Bath and kitchen refresh", "Repair list & clean"] },
             { k: "kitchenBoston" as PhotoKey, t: "Heavy turn / renovation", d: "Long tenancy or damage", items: ["Full repaint incl. ceilings", "Flooring most of unit", "Kitchen or bath upgrade", "Carpentry and licensed trade work"] },
           ].map((s) => (
             <div key={s.t} className="card overflow-hidden">
@@ -305,7 +306,7 @@ export default function Home() {
 
       {/* 14. CASE STUDIES */}
       <Section tone="paper2">
-        <Heading eyebrow="Case studies" title="Real projects, documented." sub="We publish case studies only from completed PortfolioWorks projects with verified numbers and owner permission. Each one follows the same format:" />
+        <Heading eyebrow="Case studies" title="How every case study will be documented." sub="Case studies are published only from completed PortfolioWorks projects, with verified numbers and owner permission. Each one follows the same format:" />
         <div className="grid md:grid-cols-4 gap-4 text-sm">
           {["Property & starting condition", "Scope and budget approved", "Schedule: planned vs. actual", "Outcome with before/after photos"].map((x, i) => (
             <div key={x} className="card p-6"><p className="num text-bronze text-2xl">{String(i + 1).padStart(2, "0")}</p><p className="mt-3 text-navy text-base">{x}</p></div>
