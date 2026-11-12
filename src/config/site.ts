@@ -15,9 +15,15 @@ export const site = {
   campaignTagline: "We Handle the Hard Part.",
   heroHeadline: "Your Next Tenant Shouldn't Be Waiting on Five Different Contractors.",
   heroSub:
-    "PortfolioWorks provides one point of accountability for rental turnovers, repairs and residential renovations—coordinating the work from scope through completion.",
+    "One accountable team for turnovers, renovations and recurring property work—scoped in writing, sequenced by one coordinator and closed out with a documented record.",
   supporting:
     "From single-unit turnovers to complete residential rehabilitation, PortfolioWorks coordinates the trades, scopes, schedules and project execution landlords need to keep properties performing.",
+  /** The three homepage pathways (specs/03 §1). Each opens its own funnel, form and GHL routing. */
+  pathways: [
+    { label: "Plan a Unit Turnover", href: "/request-a-turnover" },
+    { label: "Request Renovation Estimate", href: "/request-a-renovation-estimate" },
+    { label: "Discuss a Portfolio Program", href: "/portfolio-programs#consultation" },
+  ],
   ctas: {
     primary: { label: "Get a Property Project Plan", href: "/request-a-property-walkthrough" },
     secondary: { label: "Explore Portfolio Services", href: "/services" },

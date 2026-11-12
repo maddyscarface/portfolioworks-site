@@ -4,7 +4,7 @@
  * (src/config/ghl.ts). Change numbers here, run `npm test`, redeploy.
  */
 export const scoringWeights = {
-  customerType: { "property-manager": 25, "portfolio-owner": 25, investor: 20, hoa: 15, landlord: 10, broker: 10, other: 0 },
+  customerType: { "property-manager": 25, "portfolio-owner": 25, investor: 20, hoa: 15, landlord: 10, broker: 10, homeowner: 8, other: 0 },
   units: [
     { min: 100, pts: 25 },
     { min: 25, pts: 20 },

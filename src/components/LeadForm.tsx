@@ -8,6 +8,7 @@ import { oaiqLead } from "@/lib/openai-ads/client";
 import { trackLeadConversion } from "@/lib/tracking/pixels";
 import Turnstile, { TURNSTILE_SITE_KEY } from "@/components/Turnstile";
 import type { Qualifiers } from "@/lib/estimate/qualifiers";
+import { FUNNEL_FIELDS, funnelGroup } from "@/config/funnel-fields";
 
 /** First service ticked → estimate project type (pre-selects the Budget & walkthrough step). */
 const SERVICE_TO_PROJECT: Record<string, string> = {
@@ -16,7 +17,7 @@ const SERVICE_TO_PROJECT: Record<string, string> = {
 };
 import type { Funnel } from "@/lib/leads";
 
-type CustomerType = "landlord" | "portfolio-owner" | "property-manager" | "investor" | "broker" | "hoa" | "other";
+type CustomerType = "landlord" | "portfolio-owner" | "property-manager" | "investor" | "broker" | "hoa" | "homeowner" | "other";
 
 const SERVICE_OPTIONS = [
   ["rental-turnovers", "Turnover / make-ready"],
@@ -30,21 +31,24 @@ const SERVICE_OPTIONS = [
   ["full-rehab", "Full rehab"],
   ["capital-improvements", "Capital improvements"],
   ["property-maintenance", "Recurring maintenance program"],
+  ["handyman", "Handyman punch list"],
+  ["cleaning", "Make-ready cleaning"],
 ] as const;
 
 const TYPE_OPTIONS: [CustomerType, string][] = [
-  ["landlord", "Landlord (1–10 units)"],
+  ["landlord", "Independent landlord (1–10 units)"],
   ["portfolio-owner", "Portfolio owner (10+ units)"],
   ["property-manager", "Property manager"],
-  ["investor", "Investor / operator"],
-  ["hoa", "HOA / condo association"],
+  ["investor", "Multifamily investor / operator"],
+  ["hoa", "HOA / condo board"],
+  ["homeowner", "Homeowner (my own residence)"],
   ["broker", "Realtor / broker"],
   ["other", "Other"],
 ];
 
 const FUNNEL_COPY: Record<Funnel, { title: string; step2: string }> = {
   turnover: { title: "Turnover request", step2: "Unit & timing" },
-  portfolio: { title: "Portfolio partnership", step2: "Portfolio details" },
+  portfolio: { title: "Portfolio program consultation", step2: "Portfolio details" },
   rehab: { title: "Renovation estimate request", step2: "Project details" },
   trade: { title: "Trade work request", step2: "Scope details" },
   urgent: { title: "Time-sensitive turnover", step2: "Unit & deadline" },
@@ -116,6 +120,13 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
   const last = steps.length - 1;
   const qStep = withQ ? 2 : -1;
   const [q, setQ] = useState<Qualifiers>({});
+  const [details, setDetails] = useState<Record<string, string>>({});
+  const group = funnelGroup(funnel);
+  const setD = (k: string, v: string) => setDetails((d) => ({ ...d, [k]: v }));
+  const toggleD = (k: string, v: string) => setDetails((d) => {
+    const cur = (d[k] ?? "").split(",").filter(Boolean);
+    return { ...d, [k]: (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]).join(",") };
+  });
   const qErrors = useMemo(() => (withQ ? validateQualifiers(estimateConfig, q, ["address"]) : {}), [withQ, q]);
   const isTurn = funnel === "turnover" || funnel === "urgent";
   const isPortfolio = funnel === "portfolio" || ["property-manager", "portfolio-owner", "hoa"].includes(f.customerType);
@@ -155,6 +166,7 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
       timeline: withQ && q.start ? q.start : f.timeline,
       budget: withQ && q.budget ? BUDGET_TO_LEGACY[q.budget] ?? "unknown" : f.budget,
       qualifiers: withQ ? withPricingSeen(q) : undefined,
+      details: group ? details : undefined,
       adsConsent: adsConsentGranted(),
       contractType: f.contractType,
       description: f.description,
@@ -260,7 +272,7 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
             <input id="zip" name="zip" className="input" inputMode="numeric" maxLength={5} value={f.zip} onChange={(e) => set("zip", e.target.value.replace(/\D/g, ""))} required />
           </div>
           <div>
-            <label className="label" htmlFor="addr">Property address</label>
+            <label className="label" htmlFor="addr">{funnel === "portfolio" ? "Primary property or office address" : "Property address"}</label>
             <input id="addr" className="input" value={f.propertyAddress} onChange={(e) => set("propertyAddress", e.target.value)} />
           </div>
           <div>
@@ -278,14 +290,43 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
                 <input id="mo" type="date" className="input" value={f.moveOutDate} onChange={(e) => set("moveOutDate", e.target.value)} />
               </div>
               <div>
-                <label className="label" htmlFor="mi">Target move-in date</label>
+                <label className="label" htmlFor="mi">Next tenant move-in date</label>
                 <input id="mi" type="date" className="input" value={f.targetMoveIn} onChange={(e) => set("targetMoveIn", e.target.value)} />
               </div>
             </>
           )}
+          {group && FUNNEL_FIELDS[group].map((fd) => (
+            <div key={fd.key} className={fd.full || fd.type === "chips" || fd.type === "textarea" ? "sm:col-span-2" : undefined}>
+              {fd.type === "chips" ? (
+                <>
+                  <span className="label">{fd.label}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {fd.options!.map(([v, l]) => {
+                      const on = (details[fd.key] ?? "").split(",").includes(v);
+                      return <button type="button" key={v} className="chip" data-on={on} aria-pressed={on} onClick={() => toggleD(fd.key, v)}>{l}</button>;
+                    })}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <label className="label" htmlFor={`d-${fd.key}`}>{fd.label}</label>
+                  {fd.type === "select" ? (
+                    <select id={`d-${fd.key}`} className="input" value={details[fd.key] ?? ""} onChange={(e) => setD(fd.key, e.target.value)}>
+                      <option value="">Select…</option>
+                      {fd.options!.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                    </select>
+                  ) : fd.type === "textarea" ? (
+                    <textarea id={`d-${fd.key}`} rows={2} className="input" value={details[fd.key] ?? ""} placeholder={fd.placeholder} onChange={(e) => setD(fd.key, e.target.value)} />
+                  ) : (
+                    <input id={`d-${fd.key}`} className="input" value={details[fd.key] ?? ""} placeholder={fd.placeholder} onChange={(e) => setD(fd.key, e.target.value)} />
+                  )}
+                </>
+              )}
+            </div>
+          ))}
           {!withQ && (<>
           <div>
-            <label className="label" htmlFor="tl">Timeline</label>
+            <label className="label" htmlFor="tl">{funnel === "portfolio" ? "When do you need coverage?" : "Timeline"}</label>
             <select id="tl" className="input" value={f.timeline} onChange={(e) => set("timeline", e.target.value)}>
               <option value="asap">As soon as possible</option>
               <option value="2-weeks">Within 2 weeks</option>
@@ -315,11 +356,11 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
             </div>
           </div>
           <div className="sm:col-span-2">
-            <label className="label" htmlFor="desc">{isTurn ? "Unit condition & what needs doing" : "Describe the project"}</label>
+            <label className="label" htmlFor="desc">{isTurn ? "Unit condition & what needs doing" : funnel === "portfolio" ? "Anything else we should know before the consultation?" : "Describe the scope"}</label>
             <textarea id="desc" rows={3} className="input" value={f.description} onChange={(e) => set("description", e.target.value)} placeholder={isTurn ? "e.g. 2BR, tenant out 30 days, walls need patch/paint, kitchen floor damaged" : "Scope, condition, constraints, decision timeline"} />
           </div>
           <div className="sm:col-span-2">
-            <label className="label" htmlFor="ph">Photo or video links <span className="font-normal text-slate">(Google Drive, Dropbox, iCloud—optional)</span></label>
+            <label className="label" htmlFor="ph">{funnel === "rehab" ? "Photo, video or plan links" : "Photo or video links"} <span className="font-normal text-slate">(Google Drive, Dropbox, iCloud—optional)</span></label>
             <input id="ph" className="input" value={f.photoLinks} onChange={(e) => set("photoLinks", e.target.value)} placeholder="Paste links, or we'll send you a secure upload link" />
           </div>
         </div>

@@ -7,6 +7,7 @@ import { markets } from "@/config/markets";
 import { Btn, Check, Container, CtaBand, Faq, FaqJsonLd, Heading, IllustrativeNote, Photo, Placeholder, Section } from "@/components/ui";
 import LeadForm from "@/components/LeadForm";
 import { TurnoverEstimator } from "@/components/Tools";
+import { CASE_STUDY_SECTIONS } from "@/config/case-studies";
 
 const pains = [
   ["Calling five contractors", "One for paint, one for floors, one for the bathroom, a handyman for everything else—and a cleaner to finish."],
@@ -39,13 +40,20 @@ export default function Home() {
         <div className="absolute inset-0 -z-10 grid-bg grid-fade" aria-hidden />
         <div className="wrap py-14 sm:py-20 lg:py-24 grid lg:grid-cols-[1.15fr_1fr] gap-12 items-start">
           <div className="pt-2 lg:pt-10">
-            <p className="eyebrow eyebrow-rule !text-bronze-2 mb-6">Rental turnovers · Renovations · Portfolio programs</p>
+            <p className="eyebrow eyebrow-rule !text-bronze-2 mb-6">Unit turnovers · Renovations · Portfolio programs</p>
             <h1 className="text-[2.5rem] sm:text-6xl lg:text-[4.1rem] leading-[1.02] text-paper">{site.heroHeadline}</h1>
             <p className="mt-7 text-lg sm:text-xl text-paper/85 leading-relaxed max-w-xl">{site.heroSub}</p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Btn href={site.ctas.primary.href}>{site.ctas.primary.label}</Btn>
-              <Btn href={site.ctas.secondary.href} variant="ghost-light">{site.ctas.secondary.label}</Btn>
-            </div>
+            <nav aria-label="Choose a pathway" className="mt-9 grid gap-px max-w-md border border-white/25 bg-white/25">
+              {site.pathways.map((c, i) => (
+                <Link key={c.href} href={c.href} className={`group flex items-center justify-between gap-4 px-5 py-4 transition ${i === 0 ? "bg-bronze hover:bg-bronze-2" : "bg-navy/70 backdrop-blur hover:bg-navy"}`}>
+                  <span className="flex items-baseline gap-4">
+                    <span className={`num text-xs ${i === 0 ? "text-paper/80" : "text-bronze-2"}`}>{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-semibold text-paper">{c.label}</span>
+                  </span>
+                  <span aria-hidden className="text-paper transition group-hover:translate-x-1">→</span>
+                </Link>
+              ))}
+            </nav>
             <dl className="mt-10 sm:mt-14 grid grid-cols-3 gap-3 sm:gap-6 max-w-lg border-t border-white/20 pt-6">
               <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Accountability</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">1 partner</dd></div>
               <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Pricing</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Line&#8209;item</dd></div>
@@ -119,23 +127,25 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* 5. THREE PATHWAYS */}
+      {/* 5. AUDIENCES — five buyer types, three pathways (specs/03 §1) */}
       <Section tone="paper2">
-        <Heading eyebrow="Who we work with" title="Three ways in, depending on how you own and operate." />
-        <div className="grid md:grid-cols-3 gap-6">
+        <Heading eyebrow="Who we work with" title="Built for the way you own and operate." sub="Landlord, PM and association work runs in a business pipeline; owner-occupied renovations run separately, so each gets the right process and paperwork." />
+        <div className="grid md:grid-cols-6 gap-6">
           {[
-            { k: "bostonBrickApartments" as PhotoKey, t: "Landlords", s: "1–10 units", d: "Fast turns, clear estimates and one contractor for every unit.", href: "/landlords", cta: "For landlords" },
-            { k: "bostonNorthEnd" as PhotoKey, t: "Property managers & portfolio owners", s: "10–1,000+ units", d: "Approved-vendor relationship, rate card and owner-separated invoicing.", href: "/property-managers", cta: "For portfolios" },
-            { k: "scopePlanning" as PhotoKey, t: "Investors & HOAs", s: "Rehab, capex, common areas", d: "Executable rehab scopes, unit renovation programs and association-ready paperwork.", href: "/real-estate-investors", cta: "For investors & HOAs" },
+            { k: "bostonBrickApartments" as PhotoKey, t: "Independent landlords", s: "1–10 units", d: "Fast turns, line-item estimates and one contractor for every unit.", href: "/landlords", cta: "Plan a unit turnover", span: "md:col-span-3" },
+            { k: "scopePlanning" as PhotoKey, t: "Multifamily investors", s: "Value-add, rehab, capex", d: "Executable rehab scopes and unit renovation programs, priced line by line.", href: "/real-estate-investors", cta: "Request renovation estimate", span: "md:col-span-3" },
+            { k: "inspectionChecklist" as PhotoKey, t: "Property managers", s: "10–1,000+ doors", d: "Approved-vendor onboarding, rate cards and owner-separated invoicing.", href: "/property-managers", cta: "Discuss a portfolio program", span: "md:col-span-2" },
+            { k: "bostonNorthEnd" as PhotoKey, t: "HOA & condo boards", s: "Common areas, unit work", d: "Association-ready COIs, board-friendly proposals and access compliance.", href: "/hoa-condos", cta: "For associations", span: "md:col-span-2" },
+            { k: "kitchenRenovated" as PhotoKey, t: "Residential owner renovations", s: "Kitchens, baths, whole-home", d: "Your own home, run like a managed project with a written scope.", href: "/home-renovations", cta: "Request renovation estimate", span: "md:col-span-2" },
           ].map((p) => (
-            <Link key={p.t} href={p.href} className="group relative isolate flex min-h-[26rem] flex-col justify-end overflow-hidden bg-navy text-paper lift zoom">
-              <Image src={photos[p.k].src} alt={photos[p.k].alt} fill sizes="(min-width: 768px) 33vw, 100vw" className="-z-20 object-cover" />
+            <Link key={p.t} href={p.href} className={`group relative isolate flex ${p.span.includes("3") ? "min-h-[24rem]" : "min-h-[22rem]"} flex-col justify-end overflow-hidden bg-navy text-paper lift zoom ${p.span}`}>
+              <Image src={photos[p.k].src} alt={photos[p.k].alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="-z-20 object-cover" />
               <div className="absolute inset-0 -z-10 scrim-bottom" aria-hidden />
               <span className="tag-illustrative !top-3 !bottom-auto">Illustrative</span>
               <div className="p-7">
                 <p className="text-xs uppercase tracking-[0.14em] text-bronze-2">{p.s}</p>
                 <h3 className="text-[1.6rem] leading-tight mt-2">{p.t}</h3>
-                <p className="text-paper/80 mt-2 text-sm leading-relaxed">{p.d}</p>
+                <p className="text-paper/80 mt-2 text-sm leading-relaxed max-w-md">{p.d}</p>
                 <p className="mt-5 text-sm font-semibold text-paper group-hover:text-bronze-2">{p.cta} →</p>
               </div>
             </Link>
@@ -229,7 +239,7 @@ export default function Home() {
           <div>
             <Heading eyebrow="Portfolio Partner program" title="One vendor relationship for your portfolio's renovation needs." sub="For owners and managers with recurring work across many units." />
             <ul className="space-y-3">{["Pilot one unit before any commitment", "Agreed rate card and standard unit packages", "Approval thresholds by user and owner", "Owner-separated invoicing", "Quarterly spend and cycle-time reviews"].map((x) => <Check key={x}>{x}</Check>)}</ul>
-            <div className="mt-9 flex gap-3 flex-wrap"><Btn href={site.ctas.commercial.href} variant="dark">{site.ctas.commercial.label}</Btn></div>
+            <div className="mt-9 flex gap-3 flex-wrap"><Btn href={site.pathways[2].href} variant="dark">{site.pathways[2].label}</Btn></div>
           </div>
           <div className="relative">
             <Photo k="bostonBrickStreet" className="aspect-[4/5] sm:aspect-[5/6]" sizes="(min-width: 1024px) 45vw, 100vw" />
@@ -307,12 +317,12 @@ export default function Home() {
       {/* 14. CASE STUDIES */}
       <Section tone="paper2">
         <Heading eyebrow="Case studies" title="How every case study will be documented." sub="Case studies are published only from completed PortfolioWorks projects, with verified numbers and owner permission. Each one follows the same format:" />
-        <div className="grid md:grid-cols-4 gap-4 text-sm">
-          {["Property & starting condition", "Scope and budget approved", "Schedule: planned vs. actual", "Outcome with before/after photos"].map((x, i) => (
-            <div key={x} className="card p-6"><p className="num text-bronze text-2xl">{String(i + 1).padStart(2, "0")}</p><p className="mt-3 text-navy text-base">{x}</p></div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 hairline-grid border border-line text-sm">
+          {CASE_STUDY_SECTIONS.map(([t, d], i) => (
+            <div key={t} className="bg-paper p-6"><p className="num text-bronze text-2xl">{String(i + 1).padStart(2, "0")}</p><p className="mt-3 text-navy text-lg display">{t}</p><p className="mt-1.5 text-slate leading-relaxed">{d}</p></div>
           ))}
+          <Link href="/projects" className="bg-navy text-paper p-6 flex flex-col justify-end hover:bg-navy-2 transition"><p className="display text-lg">View projects</p><p className="text-paper/70 mt-1.5">Published as projects close out →</p></Link>
         </div>
-        <Link href="/projects" className="inline-block mt-8 text-sm font-semibold text-navy underline decoration-bronze underline-offset-4">View projects</Link>
       </Section>
 
       {/* 15. MARKETS */}
@@ -358,7 +368,7 @@ export default function Home() {
         </div>
       </Section>
 
-      <CtaBand />
+      <CtaBand title="Three ways to start. One accountable team." primary={site.pathways[0]} secondary={site.pathways[1]} tertiary={site.pathways[2]} />
     </>
   );
 }
