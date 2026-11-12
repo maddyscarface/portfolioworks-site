@@ -1,14 +1,14 @@
-import { founder, site } from "@/config/site";
+import { founder, site, verifiedFounderCredentials } from "@/config/site";
 import { Check, CtaBand, Heading, PageHero, Placeholder, Section } from "@/components/ui";
 
 export const metadata = { title: "About PortfolioWorks | Founder & Approach", description: "PortfolioWorks was built by a rental owner and construction project manager to give landlords one accountable contractor.", alternates: { canonical: "/about" } };
 
 export default function Page() {
-  const ld = { "@context": "https://schema.org", "@type": "Person", name: founder.name, jobTitle: founder.title, worksFor: { "@type": "Organization", name: site.legalName }, alumniOf: ["Cornell University", "Worcester Polytechnic Institute"] };
+  const ld = { "@context": "https://schema.org", "@type": "Person", name: founder.name, jobTitle: founder.title, worksFor: { "@type": "Organization", name: site.legalName }, ...(founder.credentialsVerified ? { alumniOf: ["Cornell University", "Worcester Polytechnic Institute"] } : {}) };
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <PageHero eyebrow="About" title={site.tagline} sub={site.supporting} />
+      <PageHero image="bostonBrickApartments" eyebrow="About" title={site.tagline} sub={site.supporting} />
       <Section tone="white">
         <div className="grid lg:grid-cols-[1fr_1.5fr] gap-12">
           <Placeholder label="Founder portrait" className="aspect-[4/5]" />
@@ -16,7 +16,7 @@ export default function Page() {
             <Heading eyebrow={founder.title} title={founder.name} />
             {founder.bio.map((p) => <p key={p} className="text-slate leading-relaxed mb-4 text-lg">{p}</p>)}
             <p className="eyebrow mt-8 mb-3">Background</p>
-            <ul className="space-y-2">{["Real estate development and rental ownership across Greater Boston", "Residential renovation and rehabilitation", "Multifamily project management", "Contractor coordination, budgeting and execution", ...founder.credentials.filter((c) => !c.includes("VERIFY"))].map((x) => <Check key={x}>{x}</Check>)}</ul>
+            <ul className="space-y-2">{["Real estate development and rental ownership across Greater Boston", "Residential renovation and rehabilitation", "Multifamily project management", "Contractor coordination, budgeting and execution", ...verifiedFounderCredentials()].map((x) => <Check key={x}>{x}</Check>)}</ul>
           </div>
         </div>
       </Section>
