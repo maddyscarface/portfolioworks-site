@@ -83,3 +83,11 @@ export function trackLeadConversion(c: LeadConversion) {
   }
   if (window.fbq && TAG_IDS.metaPixel) window.fbq("track", "Lead", { content_category: c.funnel, ...value }, { eventID: c.eventId });
 }
+
+/** docs/11 event map: browser funnel events that GA4 receives directly when tags are not managed in GTM. */
+export const GA4_FUNNEL_EVENTS = new Set(["view_service", "form_start", "property_intake_completed", "estimator_used", "estimator_cta"]);
+export function forwardFunnelEventToGa4(event: string, params: Record<string, unknown>) {
+  if (typeof window === "undefined" || !GA4_FUNNEL_EVENTS.has(event) || !window.__pwTagsLoaded || TAG_IDS.viaGtm || !TAG_IDS.ga4 || !window.gtag) return false;
+  window.gtag("event", event, params);
+  return true;
+}

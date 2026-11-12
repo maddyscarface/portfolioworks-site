@@ -13,7 +13,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { claimEvent, getLead, sendGa4Event, sendMetaEvent } from "@/lib/integrations";
 import { openAiStageEvent, sendOpenAiEvent } from "@/lib/openai-ads/server";
-import { buildRevenueRecord, recordRevenue, REVENUE_STAGES } from "@/lib/attribution/revenue";
+import { buildRevenueRecord, OFFLINE_STAGES, recordRevenue, REVENUE_STAGES } from "@/lib/attribution/revenue";
+import { CRM_STAGE_TO_KEY, ghlPipelines } from "@/config/ghl";
+import { pipelineFor } from "@/lib/leads";
 
 export const runtime = "nodejs";
 
@@ -46,9 +48,14 @@ export async function POST(req: NextRequest) {
   if (b.eventId && !(await claimEvent(`stage:${stageEventId}`))) return NextResponse.json({ ok: true, duplicate: true });
   if (b.stage === "lost") return NextResponse.json({ ok: true, recorded: "lost" });
 
+
   const lead = b.eventId ? await getLead(b.eventId) : null;
   const attribution = { ...(lead?.attribution ?? {}), ...(b.gclid ? { gclid: b.gclid } : {}) };
-  const revenue = REVENUE_STAGES.has(b.stage) && b.eventId && value ? buildRevenueRecord(b.eventId, b.stage, value, attribution) : null;
+  // Revenue stages with a value → revenue ledger; every offline stage (docs/11) → Google Ads offline conversion feed.
+  const revenue = OFFLINE_STAGES.has(b.stage) && b.eventId ? buildRevenueRecord(b.eventId, b.stage, REVENUE_STAGES.has(b.stage) ? value ?? 0 : 0, attribution) : null;
+  const pipeline = lead ? pipelineFor(lead) : "main";
+  const stageKey = CRM_STAGE_TO_KEY[pipeline][b.stage];
+  const crmStage = { pipeline, stage: stageKey, label: stageKey ? ghlPipelines[pipeline].stageNames[stageKey] : undefined };
   const oa = openAiStageEvent(b.stage);
   const [meta, ga4, openai, ledger] = await Promise.all([
     sendMetaEvent({
@@ -73,5 +80,5 @@ export async function POST(req: NextRequest) {
       : Promise.resolve({ sent: false, skipped: oa ? "no ad consent" : "no mapping" }),
     revenue ? recordRevenue(revenue) : Promise.resolve(false),
   ]);
-  return NextResponse.json({ ok: true, meta, ga4, openai, revenue: revenue ? { recorded: ledger, firstChannel: revenue.firstChannel, lastChannel: revenue.lastChannel } : null });
+  return NextResponse.json({ ok: true, crmStage, meta, ga4, openai, revenue: revenue ? { recorded: ledger, ledger: REVENUE_STAGES.has(b.stage) && revenue.value > 0 ? "revenue" : "conversions", firstChannel: revenue.firstChannel, lastChannel: revenue.lastChannel } : null });
 }
