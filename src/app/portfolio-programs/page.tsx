@@ -18,7 +18,7 @@ export default function Page() {
   const s = getService("property-maintenance")!;
   return (
     <>
-      <PageHero eyebrow="Portfolio programs" title="Your portfolio needs a system, not another contractor phone number." sub="Three ways to work with PortfolioWorks—from a single turnover to a recurring partnership—plus custom à la carte pricing whenever you need it.">
+      <PageHero image="bostonNorthEnd" eyebrow="Portfolio programs" title="Your portfolio needs a system, not another contractor phone number." sub="Three ways to work with PortfolioWorks—from a single turnover to a recurring partnership—plus custom à la carte pricing whenever you need it.">
         <Btn href="#consultation">Request a Portfolio Partnership Consultation</Btn>
       </PageHero>
       <Section tone="white">

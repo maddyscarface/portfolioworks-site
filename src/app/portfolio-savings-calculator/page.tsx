@@ -8,7 +8,7 @@ export const metadata = {
 export default function Page() {
   return (
     <>
-      <PageHero eyebrow="Tools · Vacancy cost & portfolio planning" title="Put a number on vacancy—and a plan on the year." sub="Two planning tools for owners and managers. Every assumption is labeled; nothing here is a promise of rent or a guarantee of results." />
+      <PageHero image="scopePlanning" eyebrow="Tools · Vacancy cost & portfolio planning" title="Put a number on vacancy—and a plan on the year." sub="Two planning tools for owners and managers. Every assumption is labeled; nothing here is a promise of rent or a guarantee of results." />
       <Section tone="paper" id="vacancy">
         <Heading eyebrow="Tool B" title="Vacancy cost calculator" sub="Compare the gross rent equivalent of your current renovation timeline against an accelerated one." />
         <VacancyCalculator />

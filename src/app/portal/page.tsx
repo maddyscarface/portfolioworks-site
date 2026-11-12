@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { accountOwners, accountProjects, accountProperties, demoData, type Project } from "@/lib/portal-data";
 import { getService } from "@/config/services";
-import { Container } from "@/components/ui";
+import { Btn, Container, PageHero, Section } from "@/components/ui";
+import { flags } from "@/config/flags";
+import { site } from "@/config/site";
 
 export const metadata = { title: "Client Portal | PortfolioWorks", robots: { index: false } };
 
@@ -15,6 +17,8 @@ const stagePct: Record<string, number> = { requested: 5, estimating: 10, proposa
  * that each account sees exclusively its own properties.
  */
 export default async function Portal({ searchParams }: { searchParams: Promise<{ acct?: string }> }) {
+  // Phase 2: the demo-data prototype is hidden unless NEXT_PUBLIC_PORTAL_PREVIEW=true (never on production).
+  if (!flags.portalPreview) return <PortalHolding />;
   const { acct } = await searchParams;
   const account = demoData.accounts.find((a) => a.id === acct) ?? demoData.accounts[0];
   const props = accountProperties(account.id);
@@ -120,5 +124,22 @@ export default async function Portal({ searchParams }: { searchParams: Promise<{
         </div>
       </Container>
     </div>
+  );
+}
+
+function PortalHolding() {
+  return (
+    <>
+      <PageHero image="scopePlanning" eyebrow="Client access" title="Project records for active clients." sub="Active PortfolioWorks clients receive estimates, approvals, progress photos and completion records directly from their coordinator. Online account access is being prepared and will be offered to clients first." />
+      <Section tone="white">
+        <div className="max-w-2xl">
+          <p className="text-lg text-slate leading-relaxed">Already working with us and need a document? Email <a className="text-navy underline decoration-bronze underline-offset-4" href={`mailto:${site.email}`}>{site.email}</a> with the property address and we&apos;ll send it over.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Btn href={site.ctas.primary.href}>{site.ctas.primary.label}</Btn>
+            <Btn href="/contact" variant="ghost">Contact a coordinator</Btn>
+          </div>
+        </div>
+      </Section>
+    </>
   );
 }
