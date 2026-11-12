@@ -143,7 +143,7 @@ export function AudienceTemplate({ id, extra }: { id: AudienceId; extra?: React.
       <Section tone="paper">
         <Heading eyebrow="Services" title="Request one trade or a full scope." />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {services.map((s) => (
+          {services.filter((s) => a.id !== "homeowner" || HOMEOWNER_SERVICES.includes(s.slug)).map((s) => (
             <Link key={s.slug} href={s.href} className="card p-4 hover:border-bronze text-sm">
               <span className="text-navy font-semibold">{s.name}</span>
             </Link>
@@ -155,10 +155,13 @@ export function AudienceTemplate({ id, extra }: { id: AudienceId; extra?: React.
         <Faq items={a.faq} />
         <FaqJsonLd items={a.faq} />
       </Section>
-      <CtaBand primary={a.cta} />
+      <CtaBand primary={a.cta} secondary={a.id === "homeowner" ? { label: "Request a Property Walkthrough", href: "/request-a-property-walkthrough" } : undefined} />
     </>
   );
 }
+
+/** Owner-occupied renovations: no rental turnover / portfolio maintenance offers. */
+const HOMEOWNER_SERVICES = ["painting-drywall", "flooring", "bathroom-remodeling", "kitchen-remodeling", "carpentry", "exterior-repairs", "plumbing-electrical-hvac-coordination", "full-rehab"];
 
 export function MarketTemplate({ m }: { m: Market }) {
   const cred = credentialsByMarket[m.id];

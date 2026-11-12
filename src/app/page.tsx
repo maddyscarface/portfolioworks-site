@@ -55,9 +55,9 @@ export default function Home() {
               ))}
             </nav>
             <dl className="mt-10 sm:mt-14 grid grid-cols-3 gap-3 sm:gap-6 max-w-lg border-t border-white/20 pt-6">
-              <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Accountability</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">1 partner</dd></div>
-              <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Pricing</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Line&#8209;item</dd></div>
-              <div><dt className="text-[0.7rem] uppercase tracking-[0.14em] text-paper/60">Closeout</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Photo record</dd></div>
+              <div><dt className="text-[0.6rem] sm:text-[0.7rem] uppercase tracking-[0.06em] sm:tracking-[0.14em] text-paper/60">Accountability</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">1 partner</dd></div>
+              <div><dt className="text-[0.6rem] sm:text-[0.7rem] uppercase tracking-[0.06em] sm:tracking-[0.14em] text-paper/60">Pricing</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Line&#8209;item</dd></div>
+              <div><dt className="text-[0.6rem] sm:text-[0.7rem] uppercase tracking-[0.06em] sm:tracking-[0.14em] text-paper/60">Closeout</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Photo record</dd></div>
             </dl>
           </div>
           <LeadForm funnel="walkthrough" />
@@ -140,12 +140,12 @@ export default function Home() {
           ].map((p) => (
             <Link key={p.t} href={p.href} className={`group relative isolate flex ${p.span.includes("3") ? "min-h-[24rem]" : "min-h-[22rem]"} flex-col justify-end overflow-hidden bg-navy text-paper lift zoom ${p.span}`}>
               <Image src={photos[p.k].src} alt={photos[p.k].alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="-z-20 object-cover" />
-              <div className="absolute inset-0 -z-10 scrim-bottom" aria-hidden />
+              <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/95 via-ink/70 via-45% to-ink/10" aria-hidden />
               <span className="tag-illustrative !top-3 !bottom-auto">Illustrative</span>
               <div className="p-7">
-                <p className="text-xs uppercase tracking-[0.14em] text-bronze-2">{p.s}</p>
+                <p className="text-xs uppercase tracking-[0.14em] text-bronze-2 font-semibold">{p.s}</p>
                 <h3 className="text-[1.6rem] leading-tight mt-2">{p.t}</h3>
-                <p className="text-paper/80 mt-2 text-sm leading-relaxed max-w-md">{p.d}</p>
+                <p className="text-paper/85 mt-2 text-sm leading-relaxed max-w-md">{p.d}</p>
                 <p className="mt-5 text-sm font-semibold text-paper group-hover:text-bronze-2">{p.cta} →</p>
               </div>
             </Link>

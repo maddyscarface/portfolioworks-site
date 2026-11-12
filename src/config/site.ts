@@ -27,7 +27,7 @@ export const site = {
   ctas: {
     primary: { label: "Get a Property Project Plan", href: "/request-a-property-walkthrough" },
     secondary: { label: "Explore Portfolio Services", href: "/services" },
-    commercial: { label: "Request a Portfolio Partnership Consultation", href: "/portfolio-programs#consultation" },
+    commercial: { label: "Discuss a Portfolio Program", href: "/portfolio-programs#consultation" },
   },
   phone: process.env.NEXT_PUBLIC_PHONE ?? null, // VERIFY: tracking number per market
   email: "projects@portfolioworkscontracting.com", // VERIFY: mailbox exists
