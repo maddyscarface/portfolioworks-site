@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/config/site";
+import { flags } from "@/config/flags";
 
 export default function robots(): MetadataRoute.Robots {
+  if (flags.noindex) return { rules: [{ userAgent: "*", disallow: "/" }] };
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow: ["/api/", "/portal", "/admin", "/lp/", "/thank-you"] },

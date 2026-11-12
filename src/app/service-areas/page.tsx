@@ -7,7 +7,7 @@ export const metadata = { title: "Service Areas | Greater Boston, Southeast Flor
 export default function Page() {
   return (
     <>
-      <PageHero eyebrow="Service areas" title="Where we work—and where we're opening." sub="We list a community only when we can actually staff it. Each market has its own licensing, pricing, calendars and crews." />
+      <PageHero image="bostonBrickStreet" eyebrow="Service areas" title="Where we work—and where we're opening." sub="We list a community only when we can actually staff it. Each market has its own licensing, pricing, calendars and crews." />
       {markets.map((m, i) => (
         <Section key={m.id} tone={i % 2 ? "paper" : "white"}>
           <div className="grid lg:grid-cols-[1fr_1.4fr] gap-10">

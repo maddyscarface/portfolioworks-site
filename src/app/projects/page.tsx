@@ -1,4 +1,4 @@
-import { CtaBand, Heading, PageHero, Placeholder, Section } from "@/components/ui";
+import { Check, CtaBand, Heading, PageHero, Placeholder, Section } from "@/components/ui";
 
 export const metadata = { title: "Projects & Case Studies | PortfolioWorks", description: "Documented rental turnovers and renovations with scopes, schedules and before/after photography.", alternates: { canonical: "/projects" } };
 
@@ -11,13 +11,19 @@ const caseStudies: { title: string; location: string; scope: string; planned: st
 export default function Page() {
   return (
     <>
-      <PageHero eyebrow="Projects" title="Documented work, not stock photos." sub="Each case study shows the starting condition, the approved scope and budget, planned vs. actual schedule, and the finished result." />
+      <PageHero image={null} eyebrow="Projects" title="Documented work, published only when it’s real." sub="Each case study will show the starting condition, the approved scope and budget, planned vs. actual schedule, and the finished result, photographed on the job." />
       <Section tone="white">
         {caseStudies.length === 0 ? (
           <>
             <Heading title="Case studies are being documented." sub="We publish only completed PortfolioWorks projects with verified numbers and owner permission. The first case studies will appear here as projects close out." />
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {["Turnover — before", "Turnover — after", "Bathroom — before", "Bathroom — after", "Kitchen — before", "Kitchen — after"].map((l) => <Placeholder key={l} label={l} className="aspect-[4/3]" />)}
+            <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 items-start">
+              <div>
+                <p className="eyebrow eyebrow-rule mb-4">Every case study includes</p>
+                <ul className="space-y-3">{["Property type, unit count and starting condition", "The approved line-item scope and budget", "Schedule: planned vs. actual, with reasons for any variance", "Change orders, if any, and why", "Before and after photography from the job file", "Owner permission to publish"].map((x) => <Check key={x}>{x}</Check>)}</ul>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {["Turnover — before", "Turnover — after", "Kitchen — before", "Kitchen — after"].map((l) => <Placeholder key={l} label={l} className="aspect-[4/3]" />)}
+              </div>
             </div>
           </>
         ) : (

@@ -7,7 +7,7 @@ export const metadata = { title: "Resources for Landlords & Property Managers | 
 export default function Page() {
   return (
     <>
-      <PageHero eyebrow="Resources" title="Guides for owners who run their rentals like a business." sub="Practical guidance on turnovers, renovation scopes, contracts and planning. Articles are published as they are written and reviewed." />
+      <PageHero image="scopePlanning" eyebrow="Resources" title="Guides for owners who run their rentals like a business." sub="Practical guidance on turnovers, renovation scopes, contracts and planning. Articles are published as they are written and reviewed." />
       <Section tone="white">
         <div className="grid md:grid-cols-3 gap-4 mb-12">
           <Link href="/unit-turn-estimator" className="card p-6 hover:border-bronze"><p className="eyebrow">Tool</p><p className="text-xl text-navy mt-2 display">Unit Turn Estimator</p></Link>
