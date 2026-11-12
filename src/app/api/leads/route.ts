@@ -6,6 +6,7 @@ import { summarizeTouches } from "@/lib/attribution";
 import { forwardLeadToIntent } from "@/lib/intent";
 import { sendOpenAiEvent } from "@/lib/openai-ads/server";
 import { budgetFit, qualifierScore, sanitizeQualifiers } from "@/lib/estimate/qualifiers";
+import { sanitizeDetails } from "@/config/funnel-fields";
 import { renderLeadBrief, sendLeadBrief } from "@/lib/estimate/lead-brief";
 import { briefTheme, estimateConfig } from "@/config/estimate";
 import { site } from "@/config/site";
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
 
   const q = sanitizeQualifiers(estimateConfig, lead.qualifiers);
   lead.qualifiers = q;
+  lead.details = sanitizeDetails(lead.funnel, lead.details);
   const score = scoreLead(lead);
   const qPts = qualifierScore(estimateConfig, q);
   if (qPts) {

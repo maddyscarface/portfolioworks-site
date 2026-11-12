@@ -3,7 +3,8 @@
  *
  * Configure a GHL workflow ("Opportunity stage changed") to POST here with header
  * `x-pw-webhook-secret: $CRM_WEBHOOK_SECRET` and body:
- *   { "eventId": "...", "stage": "qualified_lead" | "site_walk_booked" | "proposal_sent" | "contract_signed" | "purchase" | "lost",
+ *   { "eventId": "...", "stage": "qualified_lead" | "walkthrough_scheduled" (= site_walk_booked) | "walkthrough_completed" |
+ *       "estimate_sent" (= proposal_sent) | "proposal_won" (= contract_signed) | "realized_revenue" (= purchase) | "lost",
  *     "value": 12500, "email": "...", "phone": "...", "gaClientId": "...", "gclid": "..." }
  *
  * Phase 2: each (eventId, stage) is processed ONCE (GHL retries are acknowledged, not re-sent), and
@@ -14,7 +15,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { claimEvent, getLead, sendGa4Event, sendMetaEvent } from "@/lib/integrations";
 import { openAiStageEvent, sendOpenAiEvent } from "@/lib/openai-ads/server";
 import { buildRevenueRecord, OFFLINE_STAGES, recordRevenue, REVENUE_STAGES } from "@/lib/attribution/revenue";
-import { CRM_STAGE_TO_KEY, ghlPipelines } from "@/config/ghl";
+import { CRM_EVENT_ALIASES, CRM_STAGE_TO_KEY, ghlPipelines } from "@/config/ghl";
 import { pipelineFor } from "@/lib/leads";
 
 export const runtime = "nodejs";
@@ -22,6 +23,7 @@ export const runtime = "nodejs";
 const STAGE_TO_META: Record<string, string> = {
   qualified_lead: "QualifiedLead",
   site_walk_booked: "Schedule",
+  walkthrough_completed: "WalkthroughCompleted",
   proposal_sent: "ProposalSent",
   contract_signed: "ContractSigned",
   purchase: "Purchase",
@@ -39,6 +41,8 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ ok: false, error: "invalid json" }, { status: 400 });
   }
+  // specs/03 §4 names (walkthrough_scheduled, estimate_sent, proposal_won, realized_revenue) are accepted as aliases.
+  if (b.stage && CRM_EVENT_ALIASES[b.stage]) b.stage = CRM_EVENT_ALIASES[b.stage];
   if (!b.stage || !(b.stage in STAGE_TO_META)) return NextResponse.json({ ok: false, error: "unknown stage" }, { status: 400 });
   const value = b.value != null && b.value !== "" ? Number(b.value) : undefined;
   if (value != null && (!Number.isFinite(value) || value < 0)) return NextResponse.json({ ok: false, error: "invalid value" }, { status: 400 });

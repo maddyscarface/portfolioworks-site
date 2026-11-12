@@ -9,12 +9,14 @@ import { summarizeTouches, type Attribution, type Channel } from "@/lib/attribut
 
 export const REVENUE_STAGES = new Set(["contract_signed", "purchase"]);
 /** docs/11 event map: stages that go to Google Ads as offline conversions (value only on contract_signed / purchase). */
-export const OFFLINE_STAGES = new Set(["qualified_lead", "site_walk_booked", "contract_signed", "purchase"]);
+/** specs/03 §4: qualified, walkthrough scheduled, estimate sent, proposal won, realized revenue. */
+export const OFFLINE_STAGES = new Set(["qualified_lead", "site_walk_booked", "proposal_sent", "contract_signed", "purchase"]);
 const DEFAULT_CONVERSION_NAMES: Record<string, string> = {
   qualified_lead: "PortfolioWorks - Qualified Lead",
-  site_walk_booked: "PortfolioWorks - Site Walk Booked",
-  contract_signed: "PortfolioWorks - Contract Signed",
-  purchase: "PortfolioWorks - Paid",
+  site_walk_booked: "PortfolioWorks - Walkthrough Scheduled",
+  proposal_sent: "PortfolioWorks - Estimate Sent",
+  contract_signed: "PortfolioWorks - Proposal Won",
+  purchase: "PortfolioWorks - Realized Revenue",
 };
 /** Conversion action name per stage. Override with GOOGLE_ADS_CONV_<STAGE> (e.g. GOOGLE_ADS_CONV_QUALIFIED_LEAD). */
 export function conversionNameFor(stage: string) {
@@ -78,7 +80,9 @@ export function summarize(records: RevenueRecord[]) {
       acc[key].deals += 1;
       return acc;
     }, {})).map(([key, v]) => ({ key, ...v })).sort((a, b) => b.revenue - a.revenue);
-  return { total: records.reduce((s, r) => s + r.value, 0), deals: records.length, byFirstTouch: by("firstChannel"), byLastTouch: by("lastChannel"), byCampaign: by("campaign") };
+  // Deal value (proposal won / contract signed) vs. actual final revenue (realized) are reported separately.
+  const sum = (stage: string) => records.filter((r) => r.stage === stage).reduce((s, r) => s + r.value, 0);
+  return { total: records.reduce((s, r) => s + r.value, 0), dealValue: sum("contract_signed"), realizedRevenue: sum("purchase"), deals: records.length, byFirstTouch: by("firstChannel"), byLastTouch: by("lastChannel"), byCampaign: by("campaign") };
 }
 
 /** Google Ads offline conversion import CSV (click-based). Conversion name must match the action created in Google Ads. */
