@@ -17,12 +17,16 @@ Mode: `GHL_MODE=live|log|off`.
 - If unset, the mode is `live` when both `GHL_PRIVATE_TOKEN` and `GHL_LOCATION_ID` exist, and `log` otherwise.
 - `log` mode writes the redacted plan to the function logs and calls nothing.
 
-Create these two pipelines and paste their IDs into the env vars listed in `.env.example`:
+Create these two pipelines with exactly the stages in docs/08 (`MAIN_STAGES` / `PARTNERSHIP_STAGES` in `src/config/ghl.ts`), then paste each ID into `GHL_STAGE_<PIPELINE>_<STAGE>`. The full list is in `.env.example`.
 
-| Pipeline | Stages (env) |
+| Pipeline | Stages |
 |---|---|
-| PortfolioWorks · Turnovers & Projects (`GHL_PIPELINE_MAIN`) | New lead → Qualified → Walkthrough booked → Proposal sent → Won / Lost |
-| PortfolioWorks · Portfolio Partnerships (`GHL_PIPELINE_PARTNERSHIP`) | Prospect → Qualified → Discovery booked → Pilot proposed → Approved vendor / Lost |
+| PortfolioWorks · Turnovers & Projects (`GHL_PIPELINE_MAIN`) | New Lead → Qualified → Scope Intake → Site Walk → Estimate → Proposal → Negotiation → Won → Scheduled → In Progress → Punch List → Complete → Paid → Repeat/Nurture, plus Lost and Waitlist – Non-launch Market |
+| PortfolioWorks · Portfolio Partnership (`GHL_PIPELINE_PARTNERSHIP`) | Prospect → Contact Verified → Outreach → Discovery → Vendor Prequalification → Pilot Property → Approved Vendor → Recurring Work → Expansion, plus Not a Fit |
+
+- Lead intake needs only `GHL_STAGE_MAIN_NEW_LEAD` and `GHL_STAGE_PARTNERSHIP_PROSPECT`.
+- With `GHL_STAGE_MAIN_WAITLIST` set, leads from non-launch markets (Southeast Florida and Southern Maine today) land in the Waitlist stage (docs/03, docs/08 workflow 14).
+- The remaining stage IDs let `moveOpportunityStage()` move deals by key.
 
 Routing (`pipelineFor` in `src/lib/leads.ts`):
 - The `portfolio` funnel goes to the partnership pipeline.
@@ -36,11 +40,15 @@ What one website lead does:
 3. **Opportunity.** Searches for an existing open opportunity for the contact in that pipeline and updates it. Creates one only if none exists, so a re-submission never duplicates.
 4. **Note.** Adds a note with the score, the reasons, and first- and last-touch attribution.
 5. **Follow-up hooks.** Adds a tag. If `GHL_WORKFLOW_*` is set, it also enrolls the contact in that workflow directly:
-   - `pw-fu:speed-to-lead`: hot lead in a served market.
+   - `pw-fu:instant-response`: every lead in a launch market (docs/08 workflow 1).
+   - `pw-fu:speed-to-lead`: hot leads only (workflow 1, hot branch).
+   - `pw-fu:photo-request`: turnover, trade or urgent leads with no photos (workflow 2).
    - `pw-fu:warm-nurture` / `pw-fu:long-nurture`: warm and nurture tiers.
    - `pw-fu:partnership`: partnership pipeline.
-   - `pw-fu:urgent`: urgent-turnover funnel.
-   - `pw-fu:out-of-area`: outside the launch markets.
+   - `pw-fu:urgent`: urgent-turnover funnel. This is an internal priority alert only; no response time is promised on the site.
+   - `pw-fu:waitlist`: Florida or Maine (workflow 14).
+   - `pw-fu:out-of-area`: outside all markets (workflow 15).
+   - Workflows 3–13 are triggered by stage changes inside GHL, so the site needs no hook for them.
 
    Build each GHL workflow with the trigger "Tag added = <tag>". SMS steps must check `sms-consent`.
 
@@ -50,6 +58,8 @@ Scoring weights are owner-editable in `src/config/lead-scoring.ts`.
 - Header: `x-pw-webhook-secret: $CRM_WEBHOOK_SECRET`.
 - Body: `{eventId, stage, value, email, phone, gaClientId, gclid}`.
 - `stage` is one of: `qualified_lead`, `site_walk_booked`, `proposal_sent`, `contract_signed`, `purchase`, `lost`.
+- These map to the main pipeline's Qualified / Site Walk / Proposal / Won / Paid / Lost stages. For partnership leads they map to Contact Verified / Discovery / Pilot Property / Approved Vendor / Recurring Work / Not a Fit.
+- The response reports the stage in `crmStage`.
 - Each (eventId, stage) pair is processed once.
 - Won and paid stages are written to the revenue ledger with first- and last-touch attribution. They are also sent to Meta CAPI and to GA4 (`purchase` with `transaction_id`).
 
@@ -67,6 +77,11 @@ All of these load only after the visitor accepts the cookie banner. Global Priva
 Deduplication:
 - The browser pixel and the server event share the lead `eventId`: Meta `eventID`/`event_id`, Google Ads `transaction_id`, GA4 `transaction_id`.
 
+Browser funnel events:
+- `view_service`: on `/services/*` and `/rental-turnovers`.
+- `form_start`, `property_intake_completed`, `estimator_used`.
+- Each one is pushed to the dataLayer for GTM. It is also sent straight to GA4 when GA4 is loaded directly rather than through GTM.
+
 Attribution:
 - UTMs and click IDs (gclid, gbraid, wbraid, fbclid, msclkid, ttclid, li_fat_id) persist for 90 days.
 - First touch is kept; last touch and the touch count are updated on each visit.
@@ -75,7 +90,12 @@ Attribution:
 ## 4. Revenue attribution reports
 Set `ATTRIBUTION_EXPORT_SECRET` to enable these. Without it they return 404. Send the secret in the header `x-pw-report-key` or as `?key=`.
 - `/api/attribution/summary`: revenue by channel and campaign (first and last touch).
-- `/api/attribution/google-ads-offline`: CSV for a Google Ads **scheduled upload** (offline conversions with a gclid from the last 90 days). The conversion action name comes from `GOOGLE_ADS_OFFLINE_CONVERSION_NAME`.
+- `/api/attribution/google-ads-offline`: CSV for a Google Ads **scheduled upload**. It covers the last 90 days of conversions that have a Google click ID, one conversion action per stage, following the docs/11 event map:
+  - "PortfolioWorks - Qualified Lead"
+  - "PortfolioWorks - Site Walk Booked"
+  - "PortfolioWorks - Contract Signed" (with value)
+  - "PortfolioWorks - Paid" (with value)
+  - Rename any of them with `GOOGLE_ADS_CONV_<STAGE>`. `proposal_sent` is not uploaded, per the spec.
 
 Upstash Redis (`UPSTASH_REDIS_REST_URL/TOKEN`) is required in production for the lead store, the dedup keys and the ledger.
 

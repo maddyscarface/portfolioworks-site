@@ -44,8 +44,12 @@ export interface GhlPlan {
 }
 
 /** Market-specific pipeline (GHL_PIPELINE_MA / _FL / _ME + GHL_STAGE_<MA|FL|ME>_NEW_LEAD) overrides the main one when set. */
-function resolvePipeline(pipeline: PipelineKey, s: Score) {
+function resolvePipeline(pipeline: PipelineKey, s: Score, waitlist = false) {
   const def = ghlPipelines[pipeline];
+  // Non-launch market (docs/08 workflow 14): main-pipeline "Waitlist – Non-launch Market" stage when its ID is set.
+  if (waitlist && def.stages.waitlist && env(def.stages.waitlist)) {
+    return { label: `${def.label} · Waitlist`, pipelineId: env(def.pipelineEnv), stageId: env(def.stages.waitlist), envs: [def.pipelineEnv, def.stages.waitlist] };
+  }
   const m = s.market ? getMarket(s.market) : null;
   if (pipeline === "main" && m && env(m.ghlPipelineEnv)) {
     const code = m.ghlPipelineEnv.replace("GHL_PIPELINE_", "");
@@ -59,7 +63,10 @@ export function buildGhlPlan(l: Lead, s: Score, pipeline: PipelineKey): GhlPlan 
   const base = ghlContactPayload(l, s);
   const t = summarizeTouches(l.attribution);
   const tierTag = `pw-tier:${s.tier}`;
-  const fuCtx = { tier: s.tier, pipeline, funnel: l.funnel, inMarket: Boolean(s.market), smsConsent: l.consentSms };
+  const m = s.market ? getMarket(s.market) : null;
+  const inMarket = m?.status === "launch";
+  const waitlist = Boolean(m) && !inMarket;
+  const fuCtx = { tier: s.tier, pipeline, funnel: l.funnel, inMarket, waitlist, hasPhotos: l.photoUrls.length > 0, smsConsent: l.consentSms };
   const fus = followUps.filter((f) => f.when(fuCtx)).map((f) => ({ id: f.id, tag: f.tag, workflowId: env(f.workflowEnv) }));
   const tags = Array.from(new Set([...(base.tags ?? []), GHL_COMPANY_TAG, tierTag, `pw-pipeline:${pipeline}`, `ch:${t.lastChannel}`, ...fus.map((f) => f.tag)]));
   const contact = {
@@ -67,6 +74,7 @@ export function buildGhlPlan(l: Lead, s: Score, pipeline: PipelineKey): GhlPlan 
     tags,
     customFields: [
       ...base.customFields,
+      { key: "pw_property_addresses", field_value: l.propertyAddress },
       { key: "pw_score_reasons", field_value: s.reasons.join(", ") },
       { key: "pw_pipeline", field_value: pipeline },
       { key: "pw_first_channel", field_value: t.firstChannel },
@@ -81,7 +89,7 @@ export function buildGhlPlan(l: Lead, s: Score, pipeline: PipelineKey): GhlPlan 
       { key: "pw_sms_consent", field_value: l.consentSms ? "yes" : "no" },
     ],
   };
-  const p = resolvePipeline(pipeline, s);
+  const p = resolvePipeline(pipeline, s, waitlist);
   const missingIds = env("GHL_LOCATION_ID") ? [] : ["GHL_LOCATION_ID"];
   if (!p.pipelineId) missingIds.push(p.envs[0]);
   if (!p.stageId) missingIds.push(p.envs[1]);
@@ -196,15 +204,18 @@ export async function syncLeadToGhl(l: Lead, s: Score, pipeline: PipelineKey): P
 /** Move an opportunity to a stage (used by CRM webhooks / internal tools). */
 export async function moveOpportunityStage(opportunityId: string, pipeline: PipelineKey, stage: StageKey, monetaryValue?: number) {
   if (ghlMode() !== "live") return { ok: false, skipped: "not-configured" as const };
-  const stageId = env(ghlPipelines[pipeline].stages[stage]);
-  if (!stageId) return { ok: false, error: `missing ${ghlPipelines[pipeline].stages[stage]}` };
-  const r = await ghlFetch(`/opportunities/${opportunityId}`, { method: "PUT", body: JSON.stringify({ pipelineStageId: stageId, ...(stage === "won" ? { status: "won" } : stage === "lost" ? { status: "lost" } : {}), ...(monetaryValue != null ? { monetaryValue } : {}) }) });
+  const stageEnv = ghlPipelines[pipeline].stages[stage];
+  if (!stageEnv) return { ok: false, error: `stage ${stage} does not exist in the ${pipeline} pipeline` };
+  const stageId = env(stageEnv);
+  if (!stageId) return { ok: false, error: `missing ${stageEnv}` };
+  const status = stage === "won" || stage === "paid" || stage === "approved_vendor" ? "won" : stage === "lost" ? "lost" : undefined;
+  const r = await ghlFetch(`/opportunities/${opportunityId}`, { method: "PUT", body: JSON.stringify({ pipelineStageId: stageId, ...(status ? { status } : {}), ...(monetaryValue != null ? { monetaryValue } : {}) }) });
   return { ok: r.ok, error: r.ok ? undefined : `stage ${r.status}` };
 }
 
 /** Status for /api/health (booleans only). */
 export function ghlStatus() {
-  const all = Object.values(ghlPipelines).flatMap((p) => [p.pipelineEnv, ...Object.values(p.stages)]);
+  const all = Object.values(ghlPipelines).flatMap((p) => [p.pipelineEnv, ...Object.values(p.stages)]) as string[];
   return {
     mode: ghlMode(),
     pipelines: Object.fromEntries(Object.entries(ghlPipelines).map(([k, p]) => [k, Boolean(env(p.pipelineEnv) && env(p.stages.new_lead))])),
