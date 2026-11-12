@@ -198,7 +198,7 @@ export function PortfolioPlanner() {
         </div>
         <details className="text-xs text-slate"><summary className="cursor-pointer">Assumptions used</summary><ul className="list-disc pl-4 mt-2 space-y-1">{r.assumptions.map((a) => <li key={a}>{a}</li>)}</ul></details>
         <div className="border-l-4 border-bronze pl-4 text-sm">{r.nextStep}</div>
-        <Link href="/portfolio-programs#consultation" className="btn btn-primary w-full">Request a Portfolio Partnership Consultation →</Link>
+        <Link href="/portfolio-programs#consultation" className="btn btn-primary w-full">Discuss a Portfolio Program →</Link>
       </div>
     </div>
   );

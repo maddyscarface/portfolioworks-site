@@ -19,7 +19,7 @@ export default function Page() {
   return (
     <>
       <PageHero image="bostonNorthEnd" eyebrow="Portfolio programs" title="Your portfolio needs a system, not another contractor phone number." sub="Three ways to work with PortfolioWorks—from a single turnover to a recurring partnership—plus custom à la carte pricing whenever you need it.">
-        <Btn href="#consultation">Request a Portfolio Partnership Consultation</Btn>
+        <Btn href="#consultation">Discuss a Portfolio Program</Btn>
       </PageHero>
       <Section tone="white">
         <div className="grid md:grid-cols-3 gap-6">

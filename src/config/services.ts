@@ -288,7 +288,7 @@ export const services: Service[] = [
     ],
     pricing: { model: "Rate card + program pricing", framework: "Agreed unit-package and line-item rate card; no retainer required to start." },
     formFields: ["Units", "Properties", "Annual turnover estimate", "Current vendor challenges"],
-    cta: "Request a Portfolio Partnership Consultation",
+    cta: "Discuss a Portfolio Program",
     faq: [
       { q: "Do I need to commit to a contract?", a: "No. Partnerships start with a pilot unit. A master service agreement follows only if the pilot meets your standard." },
       { q: "Can my property manager submit requests directly?", a: "Yes. Portal users can be added per company with access only to the properties you assign." },
