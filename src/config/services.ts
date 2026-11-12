@@ -19,7 +19,7 @@ export interface Service {
 }
 
 const stdProcess = (walk: string, exec: string): Service["process"] => [
-  { step: "Request", detail: "Submit the property, unit and photos through the intake form or portal. One record holds everything." },
+  { step: "Request", detail: "Submit the property, unit and photos through the intake form. One record holds everything." },
   { step: "Scope", detail: walk },
   { step: "Written estimate", detail: "Line-item scope with quantities, allowances, exclusions and schedule. Nothing proceeds without your written approval." },
   { step: "Execution", detail: exec },
@@ -283,7 +283,7 @@ export const services: Service[] = [
       { step: "Discovery", detail: "Review your portfolio, current vendors and pain points." },
       { step: "Pilot unit", detail: "One turnover or project to prove the system before any commitment." },
       { step: "Approved vendor setup", detail: "Insurance, W-9, vendor compliance and rate card." },
-      { step: "Recurring work", detail: "Work requests through the portal, one coordinator, consistent pricing." },
+      { step: "Recurring work", detail: "Work requests through one intake channel, one coordinator, consistent pricing." },
       { step: "Quarterly review", detail: "Spend, cycle times, open items and the next quarter's plan." },
     ],
     pricing: { model: "Rate card + program pricing", framework: "Agreed unit-package and line-item rate card; no retainer required to start." },

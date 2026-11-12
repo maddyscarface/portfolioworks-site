@@ -33,6 +33,11 @@ export const site = {
 export const founder = {
   name: "Gary Acquah",
   title: "Founder & Managing Director",
+  /**
+   * LAUNCH GATE: degrees, licences and certifications below are hidden site-wide (and left out of
+   * schema.org) until the owner confirms each string and flips this to true.
+   */
+  credentialsVerified: false,
   // VERIFY each credential string before launch (wording appears exactly as written here).
   credentials: [
     "MBA, Cornell University",
@@ -59,3 +64,6 @@ export const credentialsByMarket: Record<
   florida: { license: null, hicRegistration: null, insurance: null, entity: null },
   maine: { license: null, hicRegistration: null, insurance: null, entity: null },
 };
+
+/** Founder credentials safe to display: none until `founder.credentialsVerified` is true, and never a VERIFY string. */
+export const verifiedFounderCredentials = () => (founder.credentialsVerified ? founder.credentials.filter((c) => !c.includes("VERIFY")) : []);
