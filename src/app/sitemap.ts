@@ -6,7 +6,7 @@ import { markets, isIndexable } from "@/config/markets";
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const staticPaths = [
-    "/", "/rental-turnovers", "/property-managers", "/landlords", "/portfolio-owners", "/real-estate-investors", "/hoa-condos",
+    "/", "/rental-turnovers", "/property-managers", "/landlords", "/portfolio-owners", "/real-estate-investors", "/hoa-condos", "/home-renovations",
     "/general-contracting", "/services", "/portfolio-programs", "/unit-turn-estimator", "/portfolio-savings-calculator",
     "/request-a-turnover", "/request-a-property-walkthrough", "/request-a-renovation-estimate", "/how-it-works", "/projects",
     "/about", "/service-areas", "/resources", "/contact", "/privacy", "/terms",

@@ -112,7 +112,7 @@ export function ServiceTemplate({ slug }: { slug: string }) {
 }
 
 const AUDIENCE_PHOTO: Record<string, PhotoKey> = {
-  landlord: "bostonBrickApartments", "portfolio-owner": "bostonNorthEnd", "property-manager": "inspectionChecklist", investor: "scopePlanning", broker: "rentReadyOpenPlan", hoa: "bostonBrickStreet",
+  landlord: "bostonBrickApartments", "portfolio-owner": "bostonNorthEnd", "property-manager": "inspectionChecklist", investor: "scopePlanning", broker: "rentReadyOpenPlan", hoa: "bostonBrickStreet", homeowner: "kitchenRenovated",
 };
 
 export function AudienceTemplate({ id, extra }: { id: AudienceId; extra?: React.ReactNode }) {

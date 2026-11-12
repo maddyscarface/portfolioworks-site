@@ -1,4 +1,4 @@
-export type AudienceId = "landlord" | "portfolio-owner" | "property-manager" | "investor" | "broker" | "hoa";
+export type AudienceId = "landlord" | "portfolio-owner" | "property-manager" | "investor" | "broker" | "hoa" | "homeowner";
 
 export interface Audience {
   id: AudienceId;
@@ -120,6 +120,26 @@ export const audiences: Audience[] = [
     cta: { label: "Request a Property Walkthrough", href: "/request-a-property-walkthrough" },
     formVariant: "portfolio",
     faq: [{ q: "Can you work with unit owners directly?", a: "Yes, under the association's rules for contractor access and approvals." }],
+  },
+  {
+    id: "homeowner",
+    href: "/home-renovations",
+    label: "Residential Owner Renovations",
+    who: "Owners renovating the home they live in",
+    headline: "Kitchen, bath and whole-home renovations, run like a managed project.",
+    sub: "One accountable team for the scope, the trades and the schedule—with a written, line-item estimate before any work starts.",
+    needs: ["Kitchen and bathroom remodels", "Whole-floor flooring and paint", "Repairs bundled into one scope", "Licensed plumbing, electrical and HVAC coordination", "A clear schedule while you live in the home"],
+    howWeHelp: [
+      { title: "Scope before price", body: "A walkthrough produces a written scope with quantities, allowances and exclusions, so you compare like for like." },
+      { title: "Occupied-home sequencing", body: "Work areas, dust control and daily access windows are agreed in writing before the start date." },
+      { title: "Change orders in writing", body: "Nothing is added on site without a signed change order and a price." },
+    ],
+    cta: { label: "Request Renovation Estimate", href: "/request-a-renovation-estimate" },
+    formVariant: "rehab",
+    faq: [
+      { q: "Do you handle permits?", a: "Where a permit is required we identify it in the scope and coordinate it with the licensed trade or designer responsible for pulling it." },
+      { q: "Is the online estimate a quote?", a: "No. Online ranges are nonbinding planning figures; the price is set by a written scope after a walkthrough." },
+    ],
   },
 ];
 
