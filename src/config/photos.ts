@@ -32,18 +32,41 @@ export type PhotoKey = keyof typeof photos;
 /** Art direction: which illustrative photo leads each service page / card. */
 export const SERVICE_PHOTO: Record<string, PhotoKey> = {
   "rental-turnovers": "livingRoomGreen",
-  "painting-drywall": "painterRoller",
+  "painting-drywall": "wallPlastering",
   flooring: "flooringInstall",
   "bathroom-remodeling": "bathroomVanity",
   "kitchen-remodeling": "kitchenRenovated",
   carpentry: "measuringDetail",
   "exterior-repairs": "bostonBrickStreet",
   "plumbing-electrical-hvac-coordination": "drywallBathroom",
-  "full-rehab": "wallPlastering",
+  "full-rehab": "wallRepair",
   "capital-improvements": "bostonBrickApartments",
   "property-maintenance": "inspectionChecklist",
 };
 export const servicePhoto = (slug: string): PhotoKey => SERVICE_PHOTO[slug] ?? "rentReadyOpenPlan";
+
+/** Service page hero: darker/mid-tone frames read better under the navy scrim than near-white walls. */
+const SERVICE_HERO: Record<string, PhotoKey> = { "painting-drywall": "painterWall", "full-rehab": "kitchenBoston" };
+export const serviceHeroPhoto = (slug: string): PhotoKey => SERVICE_HERO[slug] ?? servicePhoto(slug);
+
+/** Second, different frame for the "problem" section so a service page never repeats its hero image. */
+const SERVICE_DETAIL: Record<string, PhotoKey> = {
+  "rental-turnovers": "rentReadyOpenPlan",
+  "painting-drywall": "wallPlastering",
+  flooring: "flooringCutting",
+  "bathroom-remodeling": "drywallBathroom",
+  "kitchen-remodeling": "kitchenBoston",
+  carpentry: "wallRepair",
+  "exterior-repairs": "bostonBrickApartments",
+  "plumbing-electrical-hvac-coordination": "inspectionChecklist",
+  "full-rehab": "wallRepair",
+  "capital-improvements": "scopePlanning",
+  "property-maintenance": "measuringDetail",
+};
+export const serviceDetailPhoto = (slug: string): PhotoKey => {
+  const d = SERVICE_DETAIL[slug];
+  return d && d !== serviceHeroPhoto(slug) ? d : "siteWalkthrough";
+};
 
 /** Market art direction. Boston imagery is used ONLY for Massachusetts; other markets get neutral interiors. */
 export const MARKET_PHOTO: Record<string, PhotoKey> = { massachusetts: "bostonNorthEnd", florida: "rentReadyOpenPlan", maine: "livingRoomGreen" };

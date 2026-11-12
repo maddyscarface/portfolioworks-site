@@ -72,6 +72,7 @@ export function PageHero({ eyebrow, title, sub, children, aside, image = "heroRe
         <>
           <Image src={photos[image].src} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
           <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
+          <div className="absolute inset-0 -z-10 grid-bg grid-fade" aria-hidden />
         </>
       )}
       {!image && <div className="absolute inset-0 -z-10 grid-bg" aria-hidden />}

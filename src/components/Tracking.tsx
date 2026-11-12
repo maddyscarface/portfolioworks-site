@@ -7,8 +7,9 @@
  */
 import Script from "next/script";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { OPENAI_PIXEL_ID, oaiqConsent, oaiqSnippet, openAiRefs } from "@/lib/openai-ads/client";
-import { loadAdTags } from "@/lib/tracking/pixels";
+import { forwardFunnelEventToGa4, loadAdTags } from "@/lib/tracking/pixels";
 
 const GTM = process.env.NEXT_PUBLIC_GTM_ID;
 const ATTR_KEY = "pw_attr";
@@ -25,6 +26,13 @@ export function track(event: string, params: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event, ...params });
+  forwardFunnelEventToGa4(event, params); // no-op unless direct GA4 is loaded (consented, not via GTM)
+}
+
+/** `view_service` (docs/11): service detail pages and the turnover service page. */
+export function serviceFromPath(path: string) {
+  const m = path.match(/^\/services\/([a-z0-9-]+)\/?$/);
+  return m ? m[1] : path === "/rental-turnovers" ? "rental-turnovers" : null;
 }
 
 /** True only after the visitor accepted (opt-in site) and has no Global Privacy Control signal. */
@@ -106,6 +114,12 @@ function captureAttribution() {
 
 export default function Tracking() {
   const [showBanner, setShowBanner] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const service = pathname ? serviceFromPath(pathname) : null;
+    if (service) track("view_service", { service, page_path: pathname });
+  }, [pathname]);
 
   useEffect(() => {
     captureAttribution();

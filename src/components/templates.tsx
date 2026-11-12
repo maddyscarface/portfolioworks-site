@@ -6,7 +6,7 @@ import { markets, type Market, type Town } from "@/config/markets";
 import { credentialsByMarket } from "@/config/site";
 import Image from "next/image";
 import { Btn, Check, CtaBand, Faq, FaqJsonLd, Heading, MarketStatusNote, PageHero, Photo, Section } from "@/components/ui";
-import { photos, marketPhoto, servicePhoto, type PhotoKey } from "@/config/photos";
+import { photos, marketPhoto, serviceDetailPhoto, serviceHeroPhoto, type PhotoKey } from "@/config/photos";
 import LeadForm from "@/components/LeadForm";
 import type { Funnel } from "@/lib/leads";
 
@@ -31,7 +31,7 @@ export function ServiceTemplate({ slug }: { slug: string }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <PageHero image={servicePhoto(s.slug)} eyebrow={s.category === "program" ? "Portfolio program" : "Service"} title={s.name} sub={s.overview} aside={<LeadForm funnel={funnelForService(s)} defaultServices={[s.slug]} />}>
+      <PageHero image={serviceHeroPhoto(s.slug)} eyebrow={s.category === "program" ? "Portfolio program" : "Service"} title={s.name} sub={s.overview} aside={<LeadForm funnel={funnelForService(s)} defaultServices={[s.slug]} />}>
         <Btn href="#scope" variant="ghost-light">See the typical scope</Btn>
       </PageHero>
 
@@ -40,7 +40,7 @@ export function ServiceTemplate({ slug }: { slug: string }) {
           <div>
             <p className="eyebrow eyebrow-rule mb-4">The problem</p>
             <p className="display text-2xl sm:text-3xl text-navy leading-snug">{s.problem}</p>
-            <Photo k={servicePhoto(s.slug)} className="aspect-[16/10] mt-10" sizes="(min-width: 1024px) 45vw, 100vw" />
+            <Photo k={serviceDetailPhoto(s.slug)} className="aspect-[16/10] mt-10" sizes="(min-width: 1024px) 45vw, 100vw" />
           </div>
           <div id="scope">
             <p className="eyebrow mb-3">Typical scope</p>
