@@ -18,7 +18,7 @@ const groups = [
 export default function Page() {
   return (
     <>
-      <PageHero eyebrow="Service catalog" title="Need one trade or a full rehab? Start here." sub="Every service is available individually or as part of a fully managed scope—priced in writing, executed on one schedule, closed out with a documented record." />
+      <PageHero image="flooringInstall" eyebrow="Service catalog" title="Need one trade or a full rehab? Start here." sub="Every service is available individually or as part of a fully managed scope—priced in writing, executed on one schedule, closed out with a documented record." />
       {groups.map((g, gi) => (
         <Section key={g.k} tone={gi % 2 ? "paper" : "white"}>
           <h2 className="text-3xl text-navy mb-8">{g.t}</h2>

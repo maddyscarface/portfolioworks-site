@@ -1,10 +1,12 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { adsConsentGranted, getAttribution, track } from "@/components/Tracking";
 import { EstimateQualifiers, validateQualifiers, withPricingSeen } from "@/components/estimate/EstimateQualifiers";
 import { BUDGET_TO_LEGACY, estimateConfig, qualifierTheme } from "@/config/estimate";
 import { oaiqLead } from "@/lib/openai-ads/client";
+import { trackLeadConversion } from "@/lib/tracking/pixels";
+import Turnstile, { TURNSTILE_SITE_KEY } from "@/components/Turnstile";
 import type { Qualifiers } from "@/lib/estimate/qualifiers";
 
 /** First service ticked → estimate project type (pre-selects the Budget & walkthrough step). */
@@ -118,12 +120,14 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
   const isTurn = funnel === "turnover" || funnel === "urgent";
   const isPortfolio = funnel === "portfolio" || ["property-manager", "portfolio-owner", "hoa"].includes(f.customerType);
 
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const onTurnstile = useCallback((t: string) => setTurnstileToken(t), []);
   const stepValid = useMemo(() => {
     if (step === 0) return Boolean(f.customerType) && (funnel === "contact" || f.services.length > 0);
     if (step === 1) return /^\d{5}$/.test(f.zip) && (!isPortfolio || Number(f.units) > 0);
     if (step === qStep) return Object.keys(qErrors).length === 0;
-    return f.firstName && f.lastName && /\S+@\S+\.\S+/.test(f.email) && f.phone.replace(/\D/g, "").length >= 10 && f.consentContact;
-  }, [step, f, funnel, isPortfolio, qStep, qErrors]);
+    return f.firstName && f.lastName && /\S+@\S+\.\S+/.test(f.email) && f.phone.replace(/\D/g, "").length >= 10 && f.consentContact && (!TURNSTILE_SITE_KEY || Boolean(turnstileToken));
+  }, [step, f, funnel, isPortfolio, qStep, qErrors, turnstileToken]);
 
   async function submit() {
     setBusy(true);
@@ -164,6 +168,7 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
       attribution: getAttribution(),
       website: f.website,
       startedAt: startedAt.current,
+      ...(turnstileToken ? { turnstileToken } : {}),
     };
     try {
       const r = await fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -171,7 +176,11 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
       if (!r.ok || !j.ok) throw new Error(j.issues?.[0]?.message ?? j.error ?? "Something went wrong");
       track("generate_lead", { event_id: eventId.current, funnel, customer_type: f.customerType, market: j.market ?? "out-of-area", lead_tier: j.tier });
       // OpenAI Ads pixel: same event_id as the server Conversions API call (deduplicated).
-      if (adsConsentGranted()) oaiqLead(eventId.current);
+      if (adsConsentGranted()) {
+        oaiqLead(eventId.current);
+        // GA4 / Google Ads (enhanced conversions) / Meta Pixel — same event_id as the server CAPI events.
+        trackLeadConversion({ eventId: eventId.current, funnel, tier: j.tier, email: f.email, phone: f.phone });
+      }
       if (isTurn) track("property_intake_completed", { event_id: eventId.current, funnel });
       router.push(`/thank-you?f=${funnel}&t=${j.tier ?? ""}`);
     } catch (e) {
@@ -343,6 +352,7 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
             <input type="checkbox" className="mt-0.5" checked={f.consentSms} onChange={(e) => set("consentSms", e.target.checked)} />
             <span>Optional: I agree to receive text messages about my project (scheduling, updates) at the number above. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out. Consent is not a condition of service.</span>
           </label>
+          <Turnstile onToken={onTurnstile} />
         </div>
       )}
 

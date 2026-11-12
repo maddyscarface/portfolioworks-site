@@ -8,7 +8,7 @@ export const metadata = {
 export default function Page() {
   return (
     <>
-      <PageHero eyebrow="Tool · Unit Turnover Cost Estimator" title="What will this turn cost?" sub="Set the unit details and scope. You'll see an illustrative line-item range from our internal price sheets plus scheduling considerations for your move-in date." />
+      <PageHero image="measuringDetail" eyebrow="Tool · Unit Turnover Cost Estimator" title="What will this turn cost?" sub="Set the unit details and scope. You'll see an illustrative line-item range from our internal price sheets plus scheduling considerations for your move-in date." />
       <Section tone="paper"><TurnoverEstimator /></Section>
     </>
   );

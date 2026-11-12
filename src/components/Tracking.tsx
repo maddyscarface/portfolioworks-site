@@ -8,6 +8,7 @@
 import Script from "next/script";
 import { useEffect, useState } from "react";
 import { OPENAI_PIXEL_ID, oaiqConsent, oaiqSnippet, openAiRefs } from "@/lib/openai-ads/client";
+import { loadAdTags } from "@/lib/tracking/pixels";
 
 const GTM = process.env.NEXT_PUBLIC_GTM_ID;
 const ATTR_KEY = "pw_attr";
@@ -51,22 +52,53 @@ export function getAttribution(): Record<string, string> {
   }
 }
 
+const CLICK_IDS = ["gclid", "gbraid", "wbraid", "fbclid", "msclkid", "ttclid", "li_fat_id"] as const;
+const UTM = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"] as const;
+const ATTR_COOKIE_DAYS = 90;
+
+/**
+ * First touch is written once and never overwritten. Every later visit that carries UTMs or a click
+ * ID updates the last_* fields (and refreshes that click ID), so both first- and last-touch reach the
+ * CRM. Mirrored to a first-party cookie (90 days) so it survives localStorage clears on iOS.
+ */
+export function mergeAttribution(existing: Record<string, string | number>, params: URLSearchParams, ctx: { path: string; referrer: string; now: string; host?: string }) {
+  const found: Record<string, string> = {};
+  [...UTM, ...CLICK_IDS].forEach((k) => {
+    const v = params.get(k);
+    if (v) found[k] = v.slice(0, 300);
+  });
+  if (found.fbclid) found.fbc = `fb.1.${Date.parse(ctx.now)}.${found.fbclid}`;
+  const externalRef = ctx.referrer && !(ctx.host && ctx.referrer.includes(ctx.host)) ? ctx.referrer.slice(0, 500) : "";
+  if (!Object.keys(existing).length) {
+    return { ...found, ...(found.gclid ? { gclid_at: ctx.now } : {}), landing_page: ctx.path.slice(0, 500), referrer: externalRef, first_touch_at: ctx.now, touches: 1 };
+  }
+  const isCampaignTouch = Object.keys(found).length > 0;
+  if (!isCampaignTouch) return existing;
+  const clicks: Record<string, string> = {};
+  CLICK_IDS.forEach((k) => { if (found[k]) clicks[k] = found[k]; });
+  return {
+    ...existing,
+    ...clicks,
+    ...(found.fbc ? { fbc: found.fbc } : {}),
+    ...(found.gclid ? { gclid_at: ctx.now } : {}),
+    last_utm_source: found.utm_source ?? "", last_utm_medium: found.utm_medium ?? "", last_utm_campaign: found.utm_campaign ?? "",
+    last_utm_term: found.utm_term ?? "", last_utm_content: found.utm_content ?? "",
+    last_landing_page: ctx.path.slice(0, 500), last_referrer: externalRef, last_touch_at: ctx.now,
+    touches: Number(existing.touches ?? 1) + 1,
+  };
+}
+
 function captureAttribution() {
   try {
-    const p = new URLSearchParams(location.search);
-    const keys = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "gbraid", "wbraid", "fbclid"];
-    const found: Record<string, string> = {};
-    keys.forEach((k) => {
-      const v = p.get(k);
-      if (v) found[k] = v.slice(0, 300);
-    });
-    const existing = JSON.parse(localStorage.getItem(ATTR_KEY) || "{}");
-    if (found.fbclid) found.fbc = `fb.1.${Date.now()}.${found.fbclid}`;
-    // first touch wins for source fields; click IDs refresh on each paid click
-    const merged = Object.keys(existing).length
-      ? { ...existing, ...(found.gclid ? { gclid: found.gclid } : {}), ...(found.fbclid ? { fbclid: found.fbclid, fbc: found.fbc } : {}) }
-      : { ...found, landing_page: location.pathname + location.search, referrer: document.referrer.slice(0, 500), first_touch_at: new Date().toISOString() };
-    localStorage.setItem(ATTR_KEY, JSON.stringify(merged));
+    let existing = JSON.parse(localStorage.getItem(ATTR_KEY) || "null");
+    if (!existing) {
+      const c = readCookie(ATTR_KEY);
+      existing = c ? JSON.parse(decodeURIComponent(c)) : {};
+    }
+    const merged = mergeAttribution(existing, new URLSearchParams(location.search), { path: location.pathname + location.search, referrer: document.referrer, now: new Date().toISOString(), host: location.host });
+    const json = JSON.stringify(merged);
+    localStorage.setItem(ATTR_KEY, json);
+    if (json.length < 3500) document.cookie = `${ATTR_KEY}=${encodeURIComponent(json)}; Max-Age=${ATTR_COOKIE_DAYS * 86400}; Path=/; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
   } catch {
     /* storage unavailable */
   }
@@ -82,6 +114,11 @@ export default function Tracking() {
       c = localStorage.getItem(CONSENT_KEY);
     } catch {}
     if (c === "granted") updateConsent(true);
+    else if (c === null && (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true) {
+      // GPC = opt-out signal: record a decline and never show ad tags.
+      try { localStorage.setItem(CONSENT_KEY, "denied"); } catch {}
+      return;
+    }
     else if (c !== "denied") setShowBanner(true);
   }, []);
 
@@ -89,6 +126,7 @@ export default function Tracking() {
     const v = granted ? "granted" : "denied";
     window.gtag?.("consent", "update", { ad_storage: v, ad_user_data: v, ad_personalization: v, analytics_storage: v });
     oaiqConsent(granted && (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl !== true);
+    if (granted) loadAdTags();
     try {
       localStorage.setItem(CONSENT_KEY, v);
     } catch {}
