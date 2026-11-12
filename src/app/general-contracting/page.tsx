@@ -9,7 +9,7 @@ export const metadata = {
 export default function Page() {
   return (
     <>
-      <PageHero eyebrow="General contracting" title="One contract. One accountable party. Every trade." sub="For renovations that span multiple trades, permits and inspections, PortfolioWorks contracts the whole scope and manages it to closeout.">
+      <PageHero image="drywallBathroom" eyebrow="General contracting" title="One contract. One accountable party. Every trade." sub="For renovations that span multiple trades, permits and inspections, PortfolioWorks contracts the whole scope and manages it to closeout.">
         <Btn href="/request-a-renovation-estimate">Request a Renovation Estimate</Btn>
       </PageHero>
       <Section tone="white">
