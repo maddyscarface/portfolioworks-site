@@ -7,7 +7,7 @@ export const metadata = { title: "Contact PortfolioWorks", alternates: { canonic
 export default function Page() {
   return (
     <>
-      <PageHero eyebrow="Contact" title="Talk to a project coordinator." sub="Project requests, partnership inquiries, vendor/subcontractor applications and broker referrals." />
+      <PageHero image="siteWalkthrough" eyebrow="Contact" title="Talk to a project coordinator." sub="Project requests, partnership inquiries, vendor/subcontractor applications and broker referrals." />
       <Section tone="paper">
         <div className="grid lg:grid-cols-[1fr_1.3fr] gap-12">
           <div className="space-y-6 text-sm">

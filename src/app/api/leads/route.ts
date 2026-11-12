@@ -1,6 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { leadSchema, scoreLead, pipelineFor } from "@/lib/leads";
-import { memoryStoreBlocked, claimEvent, pushToGhl, rateLimit, sendMetaEvent, storeLead, verifyTurnstile } from "@/lib/integrations";
+import { leadSchema, scoreLead, pipelineFor, scoringWeights } from "@/lib/leads";
+import { memoryStoreBlocked, claimEvent, rateLimit, sendMetaEvent, storeLead, verifyTurnstile } from "@/lib/integrations";
+import { syncLeadToGhl } from "@/lib/crm/ghl";
+import { summarizeTouches } from "@/lib/attribution";
+import { forwardLeadToIntent } from "@/lib/intent";
 import { sendOpenAiEvent } from "@/lib/openai-ads/server";
 import { budgetFit, qualifierScore, sanitizeQualifiers } from "@/lib/estimate/qualifiers";
 import { renderLeadBrief, sendLeadBrief } from "@/lib/estimate/lead-brief";
@@ -55,7 +58,7 @@ export async function POST(req: NextRequest) {
   if (qPts) {
     score.score = Math.max(0, Math.min(100, score.score + qPts));
     score.reasons.push(`qualifiers:${qPts > 0 ? "+" : ""}${qPts}`);
-    score.tier = score.score >= 60 ? "hot" : score.score >= 35 ? "warm" : "nurture";
+    score.tier = score.score >= scoringWeights.thresholds.hot ? "hot" : score.score >= scoringWeights.thresholds.warm ? "warm" : "nurture";
   }
   const fit = q ? budgetFit(estimateConfig, q) : undefined;
   if (fit?.fit && fit.fit !== "unknown") score.reasons.push(`budget_fit:${fit.fit}`);
@@ -63,12 +66,13 @@ export async function POST(req: NextRequest) {
   const { turnstileToken: _t, website: _w, ...clean } = lead;
   void _t;
   void _w;
-  const record = { ...clean, score, pipeline, receivedAt: new Date().toISOString(), ip };
+  const touches = summarizeTouches(lead.attribution);
+  const record = { ...clean, score, pipeline, touches, receivedAt: new Date().toISOString(), ip };
   await storeLead(record);
 
   const origin = (process.env.NEXT_PUBLIC_SITE_URL || site.url).replace(/\/$/, "");
-  const [ghl, meta, openai, brief] = await Promise.all([
-    pushToGhl(lead, score, pipeline),
+  const [ghl, meta, openai, brief, intent] = await Promise.all([
+    syncLeadToGhl(lead, score, pipeline),
     sendMetaEvent({
       eventName: "Lead",
       eventId: lead.eventId,
@@ -110,15 +114,21 @@ export async function POST(req: NextRequest) {
           source: [lead.attribution.utm_source, lead.attribution.utm_medium, lead.attribution.utm_campaign].filter(Boolean).join(" / ") || "direct",
           adminUrl: `${origin}/admin`,
         }), { to: process.env.LEAD_BRIEF_TO, from: process.env.LEAD_BRIEF_FROM, replyTo: lead.email }),
+    // Intent-data provider (DataMoon / AudienceLab): disabled by default, and only with ad consent.
+    forwardLeadToIntent({ eventId: lead.eventId, email: lead.email, phone: lead.phone, zip: lead.zip, adsConsent: Boolean(lead.adsConsent), tier: score.tier, customerType: lead.customerType }),
   ]);
 
+  if (ghl.error) console.error("[lead] ghl sync failed:", ghl.error);
   return NextResponse.json({
     ok: true,
     eventId: lead.eventId,
     tier: score.tier,
     market: score.market,
+    pipeline,
+    channel: touches.lastChannel,
     integrations: {
-      ghl: ghl.skipped ?? (ghl.ok ? "ok" : "error"), meta: meta.skipped ?? (meta.ok ? "ok" : "error"),
+      ghl: ghl.skipped ? (ghl.mode === "log" ? "log-mode" : ghl.skipped) : ghl.ok ? "ok" : "error", meta: meta.skipped ?? (meta.ok ? "ok" : "error"),
+      intent: intent.skipped ?? (intent.ok ? "ok" : "error"),
       openai: openai.skipped ? "skipped" : openai.sent ? "ok" : "error", brief: brief.sent ? "ok" : "skipped",
     },
   });
