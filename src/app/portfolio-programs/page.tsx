@@ -46,7 +46,7 @@ export default function Page() {
       <Section tone="white" id="consultation">
         <div className="grid lg:grid-cols-[1fr_1.2fr] gap-12">
           <div>
-            <Heading eyebrow="Consultation" title="Request a Portfolio Partnership Consultation" sub="Share your portfolio size, locations and current vendor challenges. We'll come to the call with a proposed pilot." />
+            <Heading eyebrow="Consultation" title="Discuss a Portfolio Program" sub="Share your geography, doors, turn volume and current service gaps. We start with a consultation, and only then propose a pilot and rate card." />
             <Faq items={s.faq} />
             <FaqJsonLd items={s.faq} />
           </div>

@@ -74,7 +74,7 @@ export function TurnoverEstimator({ embedded = false }: { embedded?: boolean }) 
       <div className="space-y-4">
         <div className="bg-navy text-paper p-6 rounded-[3px]">
           <PricingViewBeacon where="unit-turn-estimator" />
-          <p className="eyebrow !text-bronze-2">Preliminary range · not a quote</p>
+          <p className="eyebrow !text-bronze-2">Nonbinding preliminary range · not a quote</p>
           <p className="num text-4xl sm:text-5xl mt-2" data-testid="estimate-range">{usd(r.low)} – {usd(r.high)}</p>
           <p className="text-paper/60 text-xs mt-2">{r.marketNote}</p>
           <div className="mt-5 divide-y divide-white/10 text-sm">

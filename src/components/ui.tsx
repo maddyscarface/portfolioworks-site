@@ -123,7 +123,7 @@ export function FaqJsonLd({ items }: { items: { q: string; a: string }[] }) {
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
 }
 
-export function CtaBand({ title = "Tell us about the property. We'll build the plan.", sub, primary = site.ctas.primary, secondary = site.ctas.commercial, image = "rentReadyOpenPlan" }: { title?: string; sub?: string; primary?: { label: string; href: string }; secondary?: { label: string; href: string }; image?: PhotoKey }) {
+export function CtaBand({ title = "Tell us about the property. We'll build the plan.", sub, primary = site.ctas.primary, secondary = site.ctas.commercial, tertiary, image = "rentReadyOpenPlan" }: { title?: string; sub?: string; primary?: { label: string; href: string }; secondary?: { label: string; href: string }; tertiary?: { label: string; href: string }; image?: PhotoKey }) {
   return (
     <section className="relative isolate overflow-hidden bg-ink text-paper">
       <Image src={photos[image].src} alt="" fill sizes="100vw" className="-z-20 object-cover" />
@@ -135,8 +135,9 @@ export function CtaBand({ title = "Tell us about the property. We'll build the p
           <p className="mt-4 text-paper/75 max-w-xl">{sub ?? "A coordinator reviews every request and replies with next steps: a photo-based scope, a site walk or a consultation. No obligation until you approve a written scope."}</p>
         </div>
         <div className="flex flex-col sm:flex-row md:flex-col gap-3 md:items-end">
-          <Btn href={primary.href}>{primary.label}</Btn>
-          <Btn href={secondary.href} variant="ghost-light">{secondary.label}</Btn>
+          <Btn href={primary.href} className="md:min-w-[19rem] md:justify-between">{primary.label}</Btn>
+          <Btn href={secondary.href} variant="ghost-light" className="md:min-w-[19rem] md:justify-between">{secondary.label}</Btn>
+          {tertiary && <Btn href={tertiary.href} variant="ghost-light" className="md:min-w-[19rem] md:justify-between">{tertiary.label}</Btn>}
         </div>
       </Container>
     </section>
@@ -279,6 +280,7 @@ export function Footer() {
             <li><Link href="/property-managers" className="hover:text-paper">Property managers</Link></li>
             <li><Link href="/real-estate-investors" className="hover:text-paper">Investors &amp; brokers</Link></li>
             <li><Link href="/hoa-condos" className="hover:text-paper">HOAs &amp; condos</Link></li>
+            <li><Link href="/home-renovations" className="hover:text-paper">Home renovations</Link></li>
             <li><Link href="/general-contracting" className="hover:text-paper">General contracting</Link></li>
           </ul>
         </div>
