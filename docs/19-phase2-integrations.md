@@ -17,22 +17,25 @@ Mode: `GHL_MODE=live|log|off`.
 - If unset, the mode is `live` when both `GHL_PRIVATE_TOKEN` and `GHL_LOCATION_ID` exist, and `log` otherwise.
 - `log` mode writes the redacted plan to the function logs and calls nothing.
 
-Create these two pipelines with exactly the stages in docs/08 (`MAIN_STAGES` / `PARTNERSHIP_STAGES` in `src/config/ghl.ts`), then paste each ID into `GHL_STAGE_<PIPELINE>_<STAGE>`. The full list is in `.env.example`.
+Create these three pipelines with exactly the stages in specs/03 §3 (`PROJECT_STAGES` / `PARTNERSHIP_STAGES` in `src/config/ghl.ts`), then paste each ID into `GHL_STAGE_<PIPELINE>_<STAGE>`. The full list is in `.env.example`.
 
-| Pipeline | Stages |
-|---|---|
-| PortfolioWorks · Turnovers & Projects (`GHL_PIPELINE_MAIN`) | New Lead → Qualified → Scope Intake → Site Walk → Estimate → Proposal → Negotiation → Won → Scheduled → In Progress → Punch List → Complete → Paid → Repeat/Nurture, plus Lost and Waitlist – Non-launch Market |
-| PortfolioWorks · Portfolio Partnership (`GHL_PIPELINE_PARTNERSHIP`) | Prospect → Contact Verified → Outreach → Discovery → Vendor Prequalification → Pilot Property → Approved Vendor → Recurring Work → Expansion, plus Not a Fit |
+| Pipeline | Who | Stages |
+|---|---|---|
+| PortfolioWorks · Projects (`GHL_PIPELINE_MAIN`) | Landlords, PMs (one-off jobs), investors, HOAs | New inquiry → Qualified → Walkthrough requested → Walkthrough completed → Scope developing → Proposal sent → Awarded → In progress → Closeout → Repeat opportunity |
+| PortfolioWorks · Residential owner projects (`GHL_PIPELINE_RESIDENTIAL`) | Homeowners renovating their own residence | Same ten stages, kept separate so consumer leads never mix with PM opportunities |
+| PortfolioWorks · Portfolio & recurring contracts (`GHL_PIPELINE_PARTNERSHIP`) | Portfolio funnel, PMs/owners/HOAs with 10+ units or recurring work | Prospect → Contact verified → Consultation → Vendor prequalification → Pilot property → Approved vendor → Recurring work → Expansion |
 
-- Lead intake needs only `GHL_STAGE_MAIN_NEW_LEAD` and `GHL_STAGE_PARTNERSHIP_PROSPECT`.
-- With `GHL_STAGE_MAIN_WAITLIST` set, leads from non-launch markets (Southeast Florida and Southern Maine today) land in the Waitlist stage (docs/03, docs/08 workflow 14).
-- The remaining stage IDs let `moveOpportunityStage()` move deals by key.
+- Lost / not a fit is the GHL opportunity **status** ("lost"), not a stage. Awarded and Approved vendor set status "won".
+- Lead intake needs only `GHL_STAGE_<MAIN|RESIDENTIAL>_NEW_INQUIRY` and `GHL_STAGE_PARTNERSHIP_PROSPECT`. `GHL_STAGE_MAIN_NEW_LEAD` is still accepted for the main pipeline.
+- Non-launch markets (Southeast Florida, Southern Maine) enter New inquiry with the `pw-fu:waitlist` tag; nothing is scheduled until licensed.
+- Contact fields added for specs/03 §3 associations: `pw_buyer_role`, `pw_urgency`, `pw_property_addresses`, plus every funnel answer as `pw_d_<key>` (see `src/config/funnel-fields.ts`). Funnel answers, plans and photo links stay in GHL / Upstash and are never sent to ad or intent platforms.
 
 Routing (`pipelineFor` in `src/lib/leads.ts`):
 - The `portfolio` funnel goes to the partnership pipeline.
 - A property manager, portfolio owner or HOA with 10 or more units, or with a recurring contract, also goes to the partnership pipeline.
+- Customer type `homeowner` goes to the residential pipeline.
 - Everything else goes to the main pipeline.
-- Optional per-market pipelines: `GHL_PIPELINE_MA|FL|ME` plus `GHL_STAGE_<MA|FL|ME>_NEW_LEAD`.
+- Optional per-market pipelines: `GHL_PIPELINE_MA|FL|ME` plus `GHL_STAGE_<MA|FL|ME>_NEW_INQUIRY`.
 
 What one website lead does:
 1. **Duplicate-safe contact upsert.** Uses `/contacts/upsert`, matched on email/phone.
@@ -57,11 +60,12 @@ Scoring weights are owner-editable in `src/config/lead-scoring.ts`.
 **Stage changes → ads.** A GHL workflow on "Opportunity stage changed" POSTs to `/api/crm-webhook`:
 - Header: `x-pw-webhook-secret: $CRM_WEBHOOK_SECRET`.
 - Body: `{eventId, stage, value, email, phone, gaClientId, gclid}`.
-- `stage` is one of: `qualified_lead`, `site_walk_booked`, `proposal_sent`, `contract_signed`, `purchase`, `lost`.
-- These map to the main pipeline's Qualified / Site Walk / Proposal / Won / Paid / Lost stages. For partnership leads they map to Contact Verified / Discovery / Pilot Property / Approved Vendor / Recurring Work / Not a Fit.
+- `stage` is one of the specs/03 §4 events: `qualified_lead`, `walkthrough_scheduled`, `walkthrough_completed`, `estimate_sent`, `proposal_won`, `realized_revenue`, `lost`. The older names `site_walk_booked`, `proposal_sent`, `contract_signed`, `purchase` still work.
+- Project pipelines move to Qualified / Walkthrough requested / Walkthrough completed / Proposal sent / Awarded / Closeout. Partnership leads move to Contact verified / Consultation / Consultation / Pilot property / Approved vendor / Recurring work.
 - The response reports the stage in `crmStage`.
 - Each (eventId, stage) pair is processed once.
-- Won and paid stages are written to the revenue ledger with first- and last-touch attribution. They are also sent to Meta CAPI and to GA4 (`purchase` with `transaction_id`).
+- `proposal_won` (deal value) and `realized_revenue` (actual final revenue) go to the revenue ledger with first- and last-touch attribution; `/api/attribution/summary` reports `dealValue` and `realizedRevenue` separately. They are also sent to Meta CAPI and GA4 (`purchase` with `transaction_id`).
+- Google Ads offline CSV rows: one conversion action per event ("PortfolioWorks - Qualified Lead / Walkthrough Scheduled / Estimate Sent / Proposal Won / Realized Revenue").
 
 ## 3. Pixels and conversion tracking
 All of these load only after the visitor accepts the cookie banner. Global Privacy Control counts as a decline.
@@ -112,3 +116,8 @@ Cloudflare Turnstile needs **both** `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNST
 - Vercel preview deployments (`VERCEL_ENV=preview`) send `X-Robots-Tag: noindex, nofollow`, a robots meta tag, and `Disallow: /`.
 - Production is unaffected. `SITE_NOINDEX=1` forces noindex anywhere.
 - Canonical URLs and the sitemap keep pointing at `NEXT_PUBLIC_SITE_URL`.
+
+## 8. Production storage guard (specs/03 §6)
+- Without Upstash, `/api/leads` returns 503 in production and `/api/health` reports `lead_intake: blocked`.
+- `LEAD_ALLOW_MEMORY_STORE=1` relaxes this only on non-production deploys (local, Vercel Preview / staging). It is ignored when `VERCEL_ENV=production`.
+- **Owner action:** the Vercel project variable `LEAD_ALLOW_MEMORY_STORE=1` currently targets Production as well as Preview. Remove the Production target (keep Preview) and add `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` before this branch is merged, or production lead intake will return 503 by design.
