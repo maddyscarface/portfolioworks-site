@@ -17,7 +17,8 @@ import type { Lead, Score } from "@/lib/leads";
 import { ghlContactPayload } from "@/lib/integrations";
 import { summarizeTouches } from "@/lib/attribution";
 import { getMarket } from "@/config/markets";
-import { followUps, ghlPipelines, GHL_COMPANY_TAG, TIER_TAGS, type PipelineKey, type StageKey } from "@/config/ghl";
+import { detailLabel } from "@/config/funnel-fields";
+import { entryStageEnv, followUps, ghlPipelines, GHL_COMPANY_TAG, TIER_TAGS, type PipelineKey, type StageKey } from "@/config/ghl";
 
 const API = "https://services.leadconnectorhq.com";
 const env = (k: string) => process.env[k]?.trim() || undefined;
@@ -46,17 +47,14 @@ export interface GhlPlan {
 /** Market-specific pipeline (GHL_PIPELINE_MA / _FL / _ME + GHL_STAGE_<MA|FL|ME>_NEW_LEAD) overrides the main one when set. */
 function resolvePipeline(pipeline: PipelineKey, s: Score, waitlist = false) {
   const def = ghlPipelines[pipeline];
-  // Non-launch market (docs/08 workflow 14): main-pipeline "Waitlist – Non-launch Market" stage when its ID is set.
-  if (waitlist && def.stages.waitlist && env(def.stages.waitlist)) {
-    return { label: `${def.label} · Waitlist`, pipelineId: env(def.pipelineEnv), stageId: env(def.stages.waitlist), envs: [def.pipelineEnv, def.stages.waitlist] };
-  }
+  void waitlist; // non-launch markets stay in "New inquiry" with the pw-fu:waitlist tag (no waitlist stage in specs/03 §3)
   const m = s.market ? getMarket(s.market) : null;
   if (pipeline === "main" && m && env(m.ghlPipelineEnv)) {
     const code = m.ghlPipelineEnv.replace("GHL_PIPELINE_", "");
-    const stageEnv = `GHL_STAGE_${code}_NEW_LEAD`;
-    return { label: `${def.label} (${m.short})`, pipelineId: env(m.ghlPipelineEnv), stageId: env(stageEnv), envs: [m.ghlPipelineEnv, stageEnv] };
+    const stageEnv = `GHL_STAGE_${code}_NEW_INQUIRY`;
+    return { label: `${def.label} (${m.short})`, pipelineId: env(m.ghlPipelineEnv), stageId: env(stageEnv) || env(`GHL_STAGE_${code}_NEW_LEAD`), envs: [m.ghlPipelineEnv, stageEnv] };
   }
-  return { label: def.label, pipelineId: env(def.pipelineEnv), stageId: env(def.stages.new_lead), envs: [def.pipelineEnv, def.stages.new_lead] };
+  return { label: def.label, pipelineId: env(def.pipelineEnv), stageId: env(entryStageEnv(pipeline)) || (pipeline === "main" ? env("GHL_STAGE_MAIN_NEW_LEAD") : undefined), envs: [def.pipelineEnv, entryStageEnv(pipeline)] };
 }
 
 export function buildGhlPlan(l: Lead, s: Score, pipeline: PipelineKey): GhlPlan {
@@ -87,6 +85,11 @@ export function buildGhlPlan(l: Lead, s: Score, pipeline: PipelineKey): GhlPlan 
       { key: "pw_wbraid", field_value: t.clickIds.wbraid ?? "" },
       { key: "pw_first_touch_at", field_value: String(l.attribution.first_touch_at ?? "") },
       { key: "pw_sms_consent", field_value: l.consentSms ? "yes" : "no" },
+      // specs/03 §3 associations: buyer role + operational urgency (company, portfolio, location, counts, source above)
+      { key: "pw_buyer_role", field_value: [l.customerType, l.role].filter(Boolean).join(" · ") },
+      { key: "pw_urgency", field_value: urgencyOf(l) },
+      // specs/03 §2 funnel answers — CRM only (never forwarded to ad or intent platforms)
+      ...Object.entries(l.details ?? {}).map(([k, v]) => ({ key: `pw_d_${k}`, field_value: String(v) })),
     ],
   };
   const p = resolvePipeline(pipeline, s, waitlist);
@@ -110,10 +113,18 @@ export function buildGhlPlan(l: Lead, s: Score, pipeline: PipelineKey): GhlPlan 
       `Reasons: ${s.reasons.join(", ")}`,
       `First touch: ${t.firstChannel} (${t.firstSource}) · Last touch: ${t.lastChannel} (${t.lastSource})`,
       `Services: ${l.services.join(", ") || "—"} · Units ${l.units} · Timeline ${l.timeline} · Budget ${l.budget}`,
+      ...Object.entries(l.details ?? {}).map(([k, v]) => detailLabel(l.funnel, k, String(v))),
       l.description ? `Notes: ${l.description.slice(0, 1500)}` : "",
       `Event ID: ${l.eventId}`,
     ].filter(Boolean).join("\n"),
   };
+}
+
+/** Operational urgency for the coordinator: urgent turnover / ASAP → high. */
+export function urgencyOf(l: Lead): "high" | "normal" | "low" {
+  if (l.funnel === "urgent" || l.timeline === "asap" || l.timeline === "2-weeks") return "high";
+  if (l.timeline === "planning") return "low";
+  return "normal";
 }
 
 const mask = (v?: string) => (v ? `${v.slice(0, 2)}***#${crypto.createHash("sha256").update(v).digest("hex").slice(0, 8)}` : v);
@@ -208,7 +219,7 @@ export async function moveOpportunityStage(opportunityId: string, pipeline: Pipe
   if (!stageEnv) return { ok: false, error: `stage ${stage} does not exist in the ${pipeline} pipeline` };
   const stageId = env(stageEnv);
   if (!stageId) return { ok: false, error: `missing ${stageEnv}` };
-  const status = stage === "won" || stage === "paid" || stage === "approved_vendor" ? "won" : stage === "lost" ? "lost" : undefined;
+  const status = stage === "awarded" || stage === "approved_vendor" ? "won" : undefined;
   const r = await ghlFetch(`/opportunities/${opportunityId}`, { method: "PUT", body: JSON.stringify({ pipelineStageId: stageId, ...(status ? { status } : {}), ...(monetaryValue != null ? { monetaryValue } : {}) }) });
   return { ok: r.ok, error: r.ok ? undefined : `stage ${r.status}` };
 }
@@ -218,7 +229,7 @@ export function ghlStatus() {
   const all = Object.values(ghlPipelines).flatMap((p) => [p.pipelineEnv, ...Object.values(p.stages)]) as string[];
   return {
     mode: ghlMode(),
-    pipelines: Object.fromEntries(Object.entries(ghlPipelines).map(([k, p]) => [k, Boolean(env(p.pipelineEnv) && env(p.stages.new_lead))])),
+    pipelines: Object.fromEntries(Object.entries(ghlPipelines).map(([k, p]) => [k, Boolean(env(p.pipelineEnv) && env(p.stages[p.entry]!))])),
     stage_ids_set: `${all.filter((k) => env(k)).length}/${all.length}`,
     workflows_set: `${followUps.filter((f) => env(f.workflowEnv)).length}/${followUps.length}`,
   };

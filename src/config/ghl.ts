@@ -4,58 +4,79 @@
  * account-specific is committed. Create the pipelines, stages, custom fields, tags and workflows in
  * GHL first (docs/08-gohighlevel-crm.md + docs/19-phase2-integrations.md), then paste the IDs into Vercel.
  */
-export type PipelineKey = "main" | "partnership";
+export type PipelineKey = "main" | "residential" | "partnership";
 
-/** Stage keys exactly as spec'd in docs/08-gohighlevel-crm.md (§Pipelines). */
-export const MAIN_STAGES = [
-  ["new_lead", "New Lead"], ["qualified", "Qualified"], ["scope_intake", "Scope Intake"], ["site_walk", "Site Walk"],
-  ["estimate", "Estimate"], ["proposal", "Proposal"], ["negotiation", "Negotiation"], ["won", "Won"],
-  ["scheduled", "Scheduled"], ["in_progress", "In Progress"], ["punch_list", "Punch List"], ["complete", "Complete"],
-  ["paid", "Paid"], ["repeat_nurture", "Repeat/Nurture"], ["lost", "Lost"], ["waitlist", "Waitlist – Non-launch Market"],
+/**
+ * Project-job stages EXACTLY as spec'd in the Phase 2 build brief (specs/03 §3):
+ * New inquiry → Qualified → Walkthrough requested → Walkthrough completed → Scope developing →
+ * Proposal sent → Awarded → In progress → Closeout → Repeat opportunity.
+ * Lost / not-a-fit is the GHL opportunity *status* ("lost"), not a stage.
+ */
+export const PROJECT_STAGES = [
+  ["new_inquiry", "New inquiry"], ["qualified", "Qualified"], ["walkthrough_requested", "Walkthrough requested"],
+  ["walkthrough_completed", "Walkthrough completed"], ["scope_developing", "Scope developing"], ["proposal_sent", "Proposal sent"],
+  ["awarded", "Awarded"], ["in_progress", "In progress"], ["closeout", "Closeout"], ["repeat_opportunity", "Repeat opportunity"],
 ] as const;
+/**
+ * Separate portfolio / recurring-contract pipeline (specs/03 §3; stage names from docs/08, consultation before any
+ * formal proposal per specs/03 §2). Not-a-fit = opportunity status "lost".
+ */
 export const PARTNERSHIP_STAGES = [
-  ["new_lead", "Prospect"], ["contact_verified", "Contact Verified"], ["outreach", "Outreach"], ["discovery", "Discovery"],
-  ["vendor_prequal", "Vendor Prequalification"], ["pilot_property", "Pilot Property"], ["approved_vendor", "Approved Vendor"],
-  ["recurring_work", "Recurring Work"], ["expansion", "Expansion"], ["lost", "Not a Fit"],
+  ["prospect", "Prospect"], ["contact_verified", "Contact verified"], ["consultation", "Consultation"],
+  ["vendor_prequal", "Vendor prequalification"], ["pilot_property", "Pilot property"], ["approved_vendor", "Approved vendor"],
+  ["recurring_work", "Recurring work"], ["expansion", "Expansion"],
 ] as const;
-export type MainStageKey = (typeof MAIN_STAGES)[number][0];
+export type ProjectStageKey = (typeof PROJECT_STAGES)[number][0];
 export type PartnershipStageKey = (typeof PARTNERSHIP_STAGES)[number][0];
-export type StageKey = MainStageKey | PartnershipStageKey;
+export type StageKey = ProjectStageKey | PartnershipStageKey;
 
 export interface PipelineDef {
   label: string;
   pipelineEnv: string;
-  /** stage key → env var holding the GHL pipelineStageId (every pipeline has new_lead + lost) */
-  stages: Partial<Record<StageKey, string>> & { new_lead: string; lost: string };
-  /** stage key → display name used in GHL */
+  /** first stage for new website leads */
+  entry: StageKey;
+  /** stage key → env var holding the GHL pipelineStageId */
+  stages: Partial<Record<StageKey, string>>;
   stageNames: Partial<Record<StageKey, string>>;
 }
 
 export const GHL_COMPANY_TAG = "co:portfolioworks";
 
-const envName = (prefix: string, key: string, label: string) =>
-  key === "new_lead" && prefix === "PARTNERSHIP" ? "GHL_STAGE_PARTNERSHIP_PROSPECT"
-  : key === "lost" && prefix === "PARTNERSHIP" ? "GHL_STAGE_PARTNERSHIP_NOT_A_FIT"
-  : `GHL_STAGE_${prefix}_${key.toUpperCase()}`;
 function build(prefix: string, list: readonly (readonly [string, string])[]) {
   return {
-    stages: Object.fromEntries(list.map(([k, l]) => [k, envName(prefix, k, l)])) as PipelineDef["stages"],
+    stages: Object.fromEntries(list.map(([k]) => [k, `GHL_STAGE_${prefix}_${k.toUpperCase()}`])) as PipelineDef["stages"],
     stageNames: Object.fromEntries(list) as PipelineDef["stageNames"],
   };
 }
 
+/**
+ * Three pipelines so property-manager / landlord opportunities are never mixed with consumer homeowner leads
+ * (specs/03 §3): business project jobs, residential-owner project jobs (same stages), portfolio programs.
+ */
 export const ghlPipelines: Record<PipelineKey, PipelineDef> = {
-  main: { label: "PortfolioWorks · Turnovers & Projects", pipelineEnv: "GHL_PIPELINE_MAIN", ...build("MAIN", MAIN_STAGES) },
-  partnership: { label: "PortfolioWorks · Portfolio Partnership", pipelineEnv: "GHL_PIPELINE_PARTNERSHIP", ...build("PARTNERSHIP", PARTNERSHIP_STAGES) },
+  main: { label: "PortfolioWorks · Projects (landlords, PMs, investors, HOAs)", pipelineEnv: "GHL_PIPELINE_MAIN", entry: "new_inquiry", ...build("MAIN", PROJECT_STAGES) },
+  residential: { label: "PortfolioWorks · Residential owner projects", pipelineEnv: "GHL_PIPELINE_RESIDENTIAL", entry: "new_inquiry", ...build("RESIDENTIAL", PROJECT_STAGES) },
+  partnership: { label: "PortfolioWorks · Portfolio & recurring contracts", pipelineEnv: "GHL_PIPELINE_PARTNERSHIP", entry: "prospect", ...build("PARTNERSHIP", PARTNERSHIP_STAGES) },
+};
+export const entryStageEnv = (p: PipelineKey) => ghlPipelines[p].stages[ghlPipelines[p].entry]!;
+
+/** Webhook event aliases (specs/03 §4 names → canonical names used by the ad-platform mappings). */
+export const CRM_EVENT_ALIASES: Record<string, string> = {
+  walkthrough_scheduled: "site_walk_booked",
+  estimate_sent: "proposal_sent",
+  proposal_won: "contract_signed",
+  realized_revenue: "purchase",
 };
 
-/**
- * Website/CRM stage events (body.stage on /api/crm-webhook, spec'd in docs/08 + docs/11) → pipeline stage key.
- * Main pipeline: Qualified, Site Walk, Proposal, Won, Paid. Partnership equivalents for account-level events.
- */
+/** Canonical CRM event (body.stage on /api/crm-webhook) → pipeline stage key. */
+const PROJECT_EVENT_STAGE: Record<string, StageKey> = {
+  qualified_lead: "qualified", site_walk_booked: "walkthrough_requested", walkthrough_completed: "walkthrough_completed",
+  proposal_sent: "proposal_sent", contract_signed: "awarded", purchase: "closeout",
+};
 export const CRM_STAGE_TO_KEY: Record<PipelineKey, Record<string, StageKey>> = {
-  main: { qualified_lead: "qualified", site_walk_booked: "site_walk", proposal_sent: "proposal", contract_signed: "won", purchase: "paid", lost: "lost" },
-  partnership: { qualified_lead: "contact_verified", site_walk_booked: "discovery", proposal_sent: "pilot_property", contract_signed: "approved_vendor", purchase: "recurring_work", lost: "lost" },
+  main: PROJECT_EVENT_STAGE,
+  residential: PROJECT_EVENT_STAGE,
+  partnership: { qualified_lead: "contact_verified", site_walk_booked: "consultation", walkthrough_completed: "consultation", proposal_sent: "pilot_property", contract_signed: "approved_vendor", purchase: "recurring_work" },
 };
 
 export interface FollowUpContext {

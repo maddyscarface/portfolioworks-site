@@ -37,7 +37,11 @@ export const kvConfigured = () => Boolean(env("UPSTASH_REDIS_REST_URL") && env("
  * recycle, not shared between instances). Set LEAD_ALLOW_MEMORY_STORE=1 only for local/sandbox tests.
  */
 export const memoryStoreBlocked = () =>
-  process.env.NODE_ENV === "production" && !kvConfigured() && process.env.LEAD_ALLOW_MEMORY_STORE !== "1";
+  process.env.NODE_ENV === "production" &&
+  !kvConfigured() &&
+  // specs/03 §6: the memory flag may only relax the guard on non-production deploys (local, Vercel preview/staging).
+  // On the Vercel production environment the 503 guard always holds until Upstash is configured.
+  (process.env.VERCEL_ENV === "production" || process.env.LEAD_ALLOW_MEMORY_STORE !== "1");
 /** Low-level Redis command (Upstash REST, or the in-memory fallback in dev/preview). */
 export async function redis(cmd: (string | number)[]): Promise<unknown> {
   const url = env("UPSTASH_REDIS_REST_URL");
@@ -167,7 +171,7 @@ export function ghlContactPayload(l: Lead, s: Score) {
 }
 
 /** @deprecated Phase 2: use syncLeadToGhl from "@/lib/crm/ghl" (duplicate-safe, scoring + follow-up hooks, log mode). */
-export async function pushToGhl(l: Lead, s: Score, pipeline: "main" | "partnership"): Promise<AdapterResult> {
+export async function pushToGhl(l: Lead, s: Score, pipeline: "main" | "residential" | "partnership"): Promise<AdapterResult> {
   const { syncLeadToGhl } = await import("@/lib/crm/ghl");
   const r = await syncLeadToGhl(l, s, pipeline);
   return r.skipped ? { ok: false, skipped: "not-configured" } : { ok: r.ok, id: r.contactId, error: r.error };

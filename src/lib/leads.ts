@@ -5,7 +5,7 @@ import { scoringWeights } from "@/config/lead-scoring";
 export const FUNNELS = ["turnover", "portfolio", "rehab", "trade", "urgent", "walkthrough", "contact"] as const;
 export type Funnel = (typeof FUNNELS)[number];
 
-export const CUSTOMER_TYPES = ["landlord", "portfolio-owner", "property-manager", "investor", "broker", "hoa", "other"] as const;
+export const CUSTOMER_TYPES = ["landlord", "portfolio-owner", "property-manager", "investor", "broker", "hoa", "homeowner", "other"] as const;
 
 const attribution = z
   .object({
@@ -72,6 +72,8 @@ export const leadSchema = z.object({
   estimatorSnapshot: z.record(z.string(), z.unknown()).optional(),
   /** Pre-estimate answers. Sanitised against src/config/estimate.ts in the API route. */
   qualifiers: z.record(z.string(), z.unknown()).optional(),
+  /** Funnel-specific qualification answers (src/config/funnel-fields.ts). Sanitised in the API route. */
+  details: z.record(z.string().max(40), z.union([z.string().max(1500), z.array(z.string().max(60)).max(10)])).optional(),
   /** Advertising consent at submit time. Gates OpenAI Ads server events. */
   adsConsent: z.boolean().optional(),
   // compliance
@@ -129,9 +131,11 @@ export function scoreLead(l: Lead, w = scoringWeights): Score {
   return { score: s, tier, market, estimatedValue: budgetValue[l.budget] * recurringFactor, reasons };
 }
 
-/** Which GHL pipeline a lead belongs in. */
-export function pipelineFor(l: Lead): "main" | "partnership" {
+
+/** Pipeline routing (specs/03 §3): homeowners never share a pipeline with landlord / PM opportunities. */
+export function pipelineFor(l: Lead): "main" | "residential" | "partnership" {
   if (l.funnel === "portfolio") return "partnership";
+  if (l.customerType === "homeowner") return "residential";
   if (["property-manager", "portfolio-owner", "hoa"].includes(l.customerType) && (l.units >= 10 || l.contractType === "recurring")) return "partnership";
   return "main";
 }
