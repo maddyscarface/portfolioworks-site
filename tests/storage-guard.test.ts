@@ -10,7 +10,14 @@ describe("production storage guard", () => {
   it("allows it for explicit local testing and in development", () => {
     vi.stubEnv("NODE_ENV", "production"); vi.stubEnv("LEAD_ALLOW_MEMORY_STORE", "1");
     expect(memoryStoreBlocked()).toBe(false);
+    vi.stubEnv("VERCEL_ENV", "preview");
+    expect(memoryStoreBlocked()).toBe(false);
     vi.stubEnv("NODE_ENV", "development"); vi.stubEnv("LEAD_ALLOW_MEMORY_STORE", "");
     expect(memoryStoreBlocked()).toBe(false);
+  });
+  it("never lets the memory flag defeat the guard on the Vercel production environment (specs/03 §6)", () => {
+    vi.stubEnv("NODE_ENV", "production"); vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", ""); vi.stubEnv("LEAD_ALLOW_MEMORY_STORE", "1");
+    expect(memoryStoreBlocked()).toBe(true);
   });
 });

@@ -15,7 +15,7 @@ const base = {
   attribution: { utm_source: "google", utm_medium: "cpc", utm_campaign: "turnovers-boston", gclid: "Cj0KCQ", first_touch_at: "2026-11-01T00:00:00.000Z", last_utm_source: "chatgpt", last_utm_medium: "paid", last_utm_campaign: "pw-chatgpt", last_touch_at: "2026-11-10T00:00:00.000Z" },
 };
 const lead = () => leadSchema.parse(base);
-const ENV_KEYS = ["GHL_PRIVATE_TOKEN", "GHL_LOCATION_ID", "GHL_MODE", "GHL_PIPELINE_MAIN", "GHL_STAGE_MAIN_NEW_LEAD", "GHL_PIPELINE_PARTNERSHIP", "GHL_STAGE_PARTNERSHIP_PROSPECT", "GHL_WORKFLOW_PARTNERSHIP", "GHL_PIPELINE_MA", "INTENT_PROVIDER", "INTENT_ENABLED", "INTENT_API_KEY", "INTENT_API_URL"];
+const ENV_KEYS = ["GHL_PRIVATE_TOKEN", "GHL_LOCATION_ID", "GHL_MODE", "GHL_PIPELINE_MAIN", "GHL_STAGE_MAIN_NEW_LEAD", "GHL_STAGE_MAIN_NEW_INQUIRY", "GHL_PIPELINE_PARTNERSHIP", "GHL_STAGE_PARTNERSHIP_PROSPECT", "GHL_WORKFLOW_PARTNERSHIP", "GHL_PIPELINE_MA", "INTENT_PROVIDER", "INTENT_ENABLED", "INTENT_API_KEY", "INTENT_API_URL"];
 const saved: Record<string, string | undefined> = {};
 beforeEach(() => ENV_KEYS.forEach((k) => { saved[k] = process.env[k]; delete process.env[k]; }));
 afterEach(() => { ENV_KEYS.forEach((k) => { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }); vi.restoreAllMocks(); });
@@ -27,7 +27,7 @@ describe("GoHighLevel plan", () => {
     const pipeline = pipelineFor(l);
     expect(pipeline).toBe("partnership");
     const plan = buildGhlPlan(l, s, pipeline);
-    expect(plan.pipelineLabel).toContain("Portfolio Partnership");
+    expect(plan.pipelineLabel).toContain("Portfolio & recurring contracts");
     expect(plan.tags).toContain("co:portfolioworks");
     expect(plan.tags).toContain(`pw-tier:${s.tier}`);
     expect(plan.tags).toContain("pw-fu:partnership");
@@ -44,7 +44,7 @@ describe("GoHighLevel plan", () => {
     const l = leadSchema.parse({ ...base, customerType: "landlord", units: 2, contractType: "single-project" });
     const plan = buildGhlPlan(l, scoreLead(l), "main");
     expect(plan.pipelineId).toBe("pipe-ma");
-    expect(plan.missingIds).toContain("GHL_STAGE_MA_NEW_LEAD");
+    expect(plan.missingIds).toContain("GHL_STAGE_MA_NEW_INQUIRY");
   });
   it("out-of-area leads get the honest availability follow-up, not speed-to-lead", () => {
     const l = leadSchema.parse({ ...base, zip: "90210" });
@@ -131,7 +131,7 @@ describe("revenue attribution", () => {
     const csv = googleAdsOfflineCsv([a, b]).split("\n");
     expect(csv[0]).toBe("Parameters:TimeZone=+0000");
     expect(csv).toHaveLength(3); // only the gclid row is exported
-    expect(csv[2]).toContain("G1,,,PortfolioWorks - Contract Signed,2026-11-10 15:04:05+0000,12500,USD,e1:contract_signed");
+    expect(csv[2]).toContain("G1,,,PortfolioWorks - Proposal Won,2026-11-10 15:04:05+0000,12500,USD,e1:contract_signed");
   });
 });
 
