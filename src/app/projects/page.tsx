@@ -2,16 +2,12 @@ import { Check, CtaBand, Heading, PageHero, Placeholder, Section } from "@/compo
 
 export const metadata = { title: "Projects & Case Studies | PortfolioWorks", description: "Documented rental turnovers and renovations with scopes, schedules and before/after photography.", alternates: { canonical: "/projects" } };
 
-/**
- * Add real case studies here as projects complete (with owner permission).
- * Do NOT publish invented projects, testimonials or numbers.
- */
-const caseStudies: { title: string; location: string; scope: string; planned: string; actual: string; summary: string }[] = [];
+import { CASE_STUDY_SECTIONS, caseStudies } from "@/config/case-studies";
 
 export default function Page() {
   return (
     <>
-      <PageHero image={null} eyebrow="Projects" title="Documented work, published only when it’s real." sub="Each case study will show the starting condition, the approved scope and budget, planned vs. actual schedule, and the finished result, photographed on the job." />
+      <PageHero image={null} eyebrow="Projects" title="Documented work, published only when it’s real." sub="Every case study follows one template: challenge, scope, trades, scheduling, before/after, closeout and results, the results only when they are real." />
       <Section tone="white">
         {caseStudies.length === 0 ? (
           <>
@@ -19,7 +15,10 @@ export default function Page() {
             <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 items-start">
               <div>
                 <p className="eyebrow eyebrow-rule mb-4">Every case study includes</p>
-                <ul className="space-y-3">{["Property type, unit count and starting condition", "The approved line-item scope and budget", "Schedule: planned vs. actual, with reasons for any variance", "Change orders, if any, and why", "Before and after photography from the job file", "Owner permission to publish"].map((x) => <Check key={x}>{x}</Check>)}</ul>
+                <ol className="space-y-4">{CASE_STUDY_SECTIONS.map(([t, d], i) => (
+                  <li key={t} className="flex gap-4 border-t border-line pt-4"><span className="num text-bronze">{String(i + 1).padStart(2, "0")}</span><span><span className="font-semibold text-navy">{t}.</span> <span className="text-slate">{d}</span></span></li>
+                ))}</ol>
+                <ul className="mt-6 space-y-2 text-sm"><Check>Owner permission on file before anything is published</Check></ul>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {["Turnover — before", "Turnover — after", "Kitchen — before", "Kitchen — after"].map((l) => <Placeholder key={l} label={l} className="aspect-[4/3]" />)}
@@ -30,10 +29,11 @@ export default function Page() {
           <div className="grid md:grid-cols-2 gap-6">
             {caseStudies.map((c) => (
               <article key={c.title} className="card p-6">
-                <p className="text-xs text-slate">{c.location}</p>
+                <p className="text-xs text-slate">{c.location} · {c.propertyType}</p>
                 <h2 className="text-2xl text-navy">{c.title}</h2>
-                <p className="mt-2 text-slate">{c.summary}</p>
-                <p className="mt-3 text-sm">Scope: {c.scope} · Planned {c.planned} · Actual {c.actual}</p>
+                <p className="mt-2 text-slate">{c.challenge}</p>
+                <p className="mt-3 text-sm">Trades: {c.trades.join(", ")} · Planned {c.scheduling.planned} · Actual {c.scheduling.actual}</p>
+                {c.results && <ul className="mt-3 space-y-1 text-sm">{c.results.map((r) => <Check key={r}>{r}</Check>)}</ul>}
               </article>
             ))}
           </div>

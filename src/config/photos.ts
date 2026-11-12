@@ -3,7 +3,15 @@
  * None of these photos show PortfolioWorks projects, staff or clients — never caption them as our work.
  * Full source/licence log: public/photos/manifest.json. Swap `src` for real project photos when available.
  */
-export interface Photo { src: string; width: number; height: number; alt: string; credit: string; sourceUrl: string }
+export interface Photo {
+  src: string; width: number; height: number; alt: string; credit: string; sourceUrl: string;
+  /** specs/03 §1 image-library metadata. Stock images default to city "n/a", status "stock-illustrative". */
+  city?: string;
+  scope?: string;
+  copyright?: string;
+  projectStatus?: "stock-illustrative" | "portfolioworks-in-progress" | "portfolioworks-completed";
+}
+export type PhotoMeta = Required<Pick<Photo, "city" | "scope" | "copyright" | "projectStatus">>;
 
 export const photos = {
   heroRentReadyLivingRoom: { src: "/photos/hero-rent-ready-living-room.jpg", width: 1600, height: 1066, alt: "Bright, empty living room with hardwood floor and large windows", credit: "Curtis Adams / Pexels", sourceUrl: "https://www.pexels.com/photo/an-empty-living-room-with-hardwood-flooring-7027844/" },
@@ -28,6 +36,18 @@ export const photos = {
   livingRoomGreen: { src: "/photos/living-room-green.jpg", width: 1600, height: 1066, alt: "Empty living room with hardwood floor and tall windows", credit: "Curtis Adams / Pexels", sourceUrl: "https://www.pexels.com/photo/empty-living-room-with-wooden-floor-and-green-walls-5353938/" },
 } satisfies Record<string, Photo>;
 export type PhotoKey = keyof typeof photos;
+
+/** Library metadata for any photo; only "portfolioworks-*" images may ever be captioned as our work. */
+export function photoMeta(k: PhotoKey): PhotoMeta {
+  const p: Photo = photos[k];
+  return {
+    city: p.city ?? "n/a (stock)",
+    scope: p.scope ?? "illustrative",
+    copyright: p.copyright ?? `${p.credit} · Pexels License`,
+    projectStatus: p.projectStatus ?? "stock-illustrative",
+  };
+}
+export const isOwnWork = (k: PhotoKey) => photoMeta(k).projectStatus !== "stock-illustrative";
 
 /** Art direction: which illustrative photo leads each service page / card. */
 export const SERVICE_PHOTO: Record<string, PhotoKey> = {
