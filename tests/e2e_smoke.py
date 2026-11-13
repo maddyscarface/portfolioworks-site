@@ -10,15 +10,15 @@ import json, sys, urllib.request
 from playwright.sync_api import sync_playwright
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:3100"
-ROUTES = ["/", "/rental-turnovers", "/property-managers", "/landlords", "/portfolio-owners", "/real-estate-investors", "/hoa-condos",
+ROUTES = ["/", "/rental-turnovers", "/rental-renovations", "/home-renovations", "/property-managers", "/landlords", "/portfolio-owners", "/real-estate-investors", "/hoa-condos",
           "/general-contracting", "/services", "/services/painting-drywall", "/services/flooring", "/services/bathroom-remodeling",
           "/services/kitchen-remodeling", "/services/carpentry", "/services/exterior-repairs", "/services/plumbing-electrical-hvac-coordination",
           "/services/full-rehab", "/services/property-maintenance", "/services/capital-improvements", "/portfolio-programs",
           "/unit-turn-estimator", "/portfolio-savings-calculator", "/request-a-turnover", "/request-a-property-walkthrough",
           "/request-a-renovation-estimate", "/how-it-works", "/projects", "/about", "/markets/massachusetts", "/markets/florida",
-          "/markets/maine", "/markets/massachusetts/somerville", "/service-areas", "/resources", "/contact", "/thank-you", "/privacy",
+          "/markets/maine", "/markets/massachusetts/somerville", "/service-areas", "/resources", "/resources/what-is-included-in-a-rental-unit-turnover", "/contact", "/thank-you", "/privacy",
           "/terms", "/lp/rental-turnover", "/lp/portfolio-partnership", "/lp/value-add-rehab", "/lp/trade-work", "/lp/urgent-turnover",
-          "/portal", "/admin", "/sitemap.xml", "/robots.txt"]
+          "/portal", "/admin", "/sitemap.xml", "/robots.txt", "/favicon.ico", "/icon.svg", "/icon-32.png", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/site.webmanifest", "/llms.txt"]
 
 fails = []
 def check(cond, msg):
