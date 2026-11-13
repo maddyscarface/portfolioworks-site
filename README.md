@@ -3,6 +3,14 @@
 **One Partner. Every Property. Every Project.**
 Website, lead capture, estimator tools, CRM adapters, portal prototypes and the full go-to-market pack for a rental turnover, rehab and portfolio contracting business serving Greater Boston (launch), Southeast Florida (licensing pending) and Southern Maine (evaluation).
 
+
+## Preview and hosting package
+
+- **Staging / review:** https://portfolioworks-staging.vercel.app (noindex; production is unchanged at https://portfolioworks-site.vercel.app)
+- **Run locally:** `npm ci --include=dev && cp .env.example .env.local && npm run dev`
+- **Quality check:** `npm run typecheck && npm test && npm run build`
+- **Host this build:** see [HOSTING.md](HOSTING.md) for Vercel upload, Netlify, a generic Node/pm2 VPS, and cPanel. A static HTML export is not supported — the site has API routes.
+
 ## What's here
 | Area | Location |
 |---|---|

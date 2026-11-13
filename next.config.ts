@@ -39,6 +39,9 @@ const noindex = process.env.VERCEL_ENV === "preview" || process.env.SITE_NOINDEX
 if (noindex) securityHeaders.push({ key: "X-Robots-Tag", value: "noindex, nofollow" });
 
 const nextConfig: NextConfig = {
+  // Opt-in standalone Node bundle for generic hosting. Vercel builds must stay on the default
+  // output so this flag never changes production or preview deployments on Vercel.
+  ...(process.env.BUILD_STANDALONE === "1" && !process.env.VERCEL ? { output: "standalone" as const } : {}),
   poweredByHeader: false,
   images: { formats: ["image/avif", "image/webp"], deviceSizes: [640, 828, 1080, 1280, 1600, 1920], minimumCacheTTL: 2678400 },
   async headers() {
