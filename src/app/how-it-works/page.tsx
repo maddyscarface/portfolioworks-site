@@ -3,7 +3,7 @@ import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "How It Works | PortfolioWorks",
-  description: "From request to closeout: intake, scope, written estimate, sequenced execution, punch list and completion record.",
+  description: "From request to closeout: intake, scope, a written estimate, sequenced execution, a punch list and a documented completion record.",
   path: "/how-it-works",
 });
 

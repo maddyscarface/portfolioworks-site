@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(canonicalBase()),
   ...pageMeta({
     title: "Rental Turnovers & Renovations | PortfolioWorks",
-    description: "One coordinated team for rental turnovers, renovations and recurring property work across Greater Boston.",
+    description: "One coordinated team for rental turnovers, renovations and recurring property work across Greater Boston, for landlords, investors and managers.",
     path: "/",
     image: "/photos/hero-rent-ready-living-room.jpg",
   }),
