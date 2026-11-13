@@ -71,7 +71,7 @@ export function PageHero({ eyebrow, title, sub, children, aside, image = "heroRe
     <section className="relative isolate overflow-hidden bg-navy text-paper">
       {image && (
         <>
-          <Image src={photos[image].src} alt={photos[image].alt} fill priority sizes="100vw" className="-z-20 object-cover" />
+          <Image src={photos[image].src} alt={photos[image].alt} fill priority fetchPriority="high" sizes="100vw" className="-z-20 object-cover" />
           <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
           <div className="absolute inset-0 -z-10 grid-bg grid-fade" aria-hidden />
         </>
@@ -284,7 +284,7 @@ export function Header() {
       </div>
       <div className="bg-paper/95 backdrop-blur border-b border-line">
         <div className="wrap h-[72px] flex items-center justify-between gap-3 xl:gap-4">
-          <Link href="/" aria-label="PortfolioWorks home" className="min-w-0 shrink-0"><Logo /></Link>
+          <Link href="/" className="min-w-0 shrink-0"><Logo /></Link>
           <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-5 text-[0.875rem] 2xl:text-[0.92rem] text-charcoal whitespace-nowrap" aria-label="Primary">
             {DESKTOP_NAV.slice(0, 2).map((n) => <Link key={n.href} href={n.href} className={navLinkClass}>{n.label}</Link>)}
             <ServicesMenu />

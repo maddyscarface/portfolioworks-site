@@ -4,7 +4,7 @@ import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Terms of Use | PortfolioWorks",
-  description: "Terms of use for the PortfolioWorks website. Draft pending legal review.",
+  description: "Terms of use for the PortfolioWorks website, including how project information is presented and the limits of online estimates. Draft pending legal review.",
   path: "/terms",
 });
 

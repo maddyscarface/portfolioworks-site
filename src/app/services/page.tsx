@@ -4,7 +4,7 @@ import { CtaBand, PageHero, Section } from "@/components/ui";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
-  title: "Services | Rental Turnovers, Renovations & Trade Work | PortfolioWorks",
+  title: "Turnover, Renovation & Trade Services | PortfolioWorks",
   description: "Full service catalog: turnovers, painting, flooring, kitchens, baths, carpentry, exterior, MEP coordination, full rehab, capex and maintenance programs.",
   path: "/services",
 });

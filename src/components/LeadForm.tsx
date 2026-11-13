@@ -236,8 +236,8 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
       {step === 0 && (
         <div className="space-y-5">
           <div>
-            <span className="label">I am a…</span>
-            <select className="input" value={f.customerType} onChange={(e) => set("customerType", e.target.value)} required name="customerType">
+            <label className="label" htmlFor="customerType">I am a…</label>
+            <select id="customerType" className="input" value={f.customerType} onChange={(e) => set("customerType", e.target.value)} required name="customerType">
               <option value="">Select one</option>
               {TYPE_OPTIONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
