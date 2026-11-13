@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Restored at prebuild from public/photos/*.b64 — do not commit binaries
+/public/photos/*.jpg
+/public/photos/*.jpeg
+/public/photos/*.png
+/public/photos/*.webp
+
+# Restored at prebuild from sibling *.b64 — do not commit binaries
+/public/apple-touch-icon.png
+/public/favicon.ico
+/public/icon-32.png
+/public/icon-192.png
+/public/icon-512.png
+/src/app/apple-icon.png
+/src/app/favicon.ico

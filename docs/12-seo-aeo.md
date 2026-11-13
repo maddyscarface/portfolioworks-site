@@ -43,3 +43,11 @@ GHL workflow #10 (doc 08): survey 2 days after Paid → review link to every res
 
 ## Local case studies
 After each completed project: 150–300 words, town, property type, scope, planned vs actual schedule, before/after photos (permissioned). Link from the town page. This is the main thing that will make town pages rank.
+
+## Phase 3 (2026-11-13)
+
+- Canonical origin is `NEXT_PUBLIC_CANONICAL_URL` (falls back to the intended production domain). Vercel staging hosts are never used as canonicals or sitemap hosts.
+- Indexing requires `NEXT_PUBLIC_INDEXABLE_SITE=true` on a non-`vercel.app` production host. Staging and preview stay `noindex`, including an `X-Robots-Tag` header.
+- Published operational guides live at `/resources/[slug]`. Florida and Maine articles are visible for education, noindexed, and omitted from the sitemap.
+- `/rental-renovations` is the rental-rehab landing page; `/home-renovations` remains owner-occupied.
+- Optional `public/llms.txt` is a facts index, not a ranking signal. Domain and legal name still require owner confirmation.
