@@ -23,14 +23,20 @@
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: clip; -webkit-text-size-adjust: 100%; }
 body {
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  max-width: 100%;
 }
+img, video, iframe { max-width: 100%; }
+iframe { display: block; }
+code, kbd, samp { overflow-wrap: anywhere; word-break: break-word; }
+a[href^="mailto:"] { overflow-wrap: anywhere; word-break: break-word; }
 h1, h2, h3, .display { font-family: var(--font-display); letter-spacing: -0.01em; }
 ::selection { background: var(--color-bronze-soft); }
 
@@ -42,7 +48,7 @@ h1, h2, h3, .display { font-family: var(--font-display); letter-spacing: -0.01em
 .rule { height: 1px; background: var(--color-line); }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-  padding: .85rem 1.35rem; border-radius: 2px; font-weight: 600; font-size: .95rem; transition: all .15s ease;
+  padding: .85rem 1.35rem; min-height: 44px; border-radius: 2px; font-weight: 600; font-size: .95rem; transition: all .15s ease;
 }
 .btn-primary { background: var(--color-bronze); color: #fff; }
 .btn-primary:hover { background: #87592c; }
@@ -55,10 +61,10 @@ h1, h2, h3, .display { font-family: var(--font-display); letter-spacing: -0.01em
   width: 100%; background: #fff; border: 1px solid var(--color-line); border-radius: 2px; padding: .7rem .8rem; font-size: .95rem;
 }
 .input:focus { outline: 2px solid var(--color-bronze-2); outline-offset: 0; border-color: transparent; }
-.label { display: block; font-size: .8rem; font-weight: 600; color: var(--color-charcoal); margin-bottom: .35rem; }
+.label { display: block; font-size: .875rem; font-weight: 600; color: var(--color-charcoal); margin-bottom: .35rem; }
 .chip {
   display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--color-line); background: #fff;
-  padding: .45rem .75rem; border-radius: 999px; font-size: .85rem; cursor: pointer; user-select: none;
+  padding: .55rem .85rem; min-height: 44px; border-radius: 999px; font-size: .875rem; cursor: pointer; user-select: none;
 }
 .chip[data-on="true"], .chip[aria-pressed="true"] { background: var(--color-navy); color: #fff; border-color: var(--color-navy); }
 }

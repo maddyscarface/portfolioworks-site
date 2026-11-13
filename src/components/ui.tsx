@@ -9,7 +9,7 @@ import { flags } from "@/config/flags";
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
-    <span className="inline-flex items-center gap-2.5">
+    <span className="inline-flex min-w-0 items-center gap-2.5">
       <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden>
         <rect width="30" height="30" fill={light ? "#f7f4ee" : "#142036"} />
         <rect x="6" y="15" width="5" height="9" fill="#9c6b3a" />
@@ -231,12 +231,12 @@ export function Header() {
       <div className="bg-paper/95 backdrop-blur border-b border-line">
         <div className="wrap h-[76px] flex items-center justify-between gap-6">
           <Link href="/" aria-label="PortfolioWorks home"><Logo /></Link>
-          <nav className="hidden lg:flex items-center gap-7 text-[0.92rem] text-charcoal whitespace-nowrap" aria-label="Primary">
+          <nav className="hidden xl:flex items-center gap-6 text-[0.92rem] text-charcoal whitespace-nowrap" aria-label="Primary">
             {NAV.map((n) => <Link key={n.href} href={n.href} className="relative py-2 hover:text-navy after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-bronze after:transition hover:after:scale-x-100">{n.label}</Link>)}
           </nav>
           <div className="flex items-center gap-3">
             <Link href={site.ctas.primary.href} className="btn btn-primary !py-2.5 !px-4 text-sm whitespace-nowrap hidden sm:inline-flex">Get a Project Plan</Link>
-            <details className="mobile-menu lg:hidden relative">
+            <details className="mobile-menu xl:hidden relative">
               <summary className="list-none cursor-pointer grid h-11 w-11 place-items-center border border-line bg-white" aria-label="Menu">
                 <svg className="menu-closed" width="20" height="20" viewBox="0 0 20 20" aria-hidden><path d="M2 5h16M2 10h16M2 15h16" stroke="#142036" strokeWidth="1.6" /></svg>
                 <svg className="menu-open" width="20" height="20" viewBox="0 0 20 20" aria-hidden><path d="M4 4l12 12M16 4L4 16" stroke="#142036" strokeWidth="1.6" /></svg>
@@ -302,7 +302,7 @@ export function Footer() {
           <p className="max-w-3xl leading-relaxed">
             Licensed trade work (plumbing, electrical, HVAC, gas) is performed by appropriately licensed contractors. License and registration numbers are listed per market once verified. Site photography is free-licensed stock used for illustration (Pexels) and does not depict PortfolioWorks projects.
           </p>
-          <span className="flex gap-5 md:justify-end items-start"><span>© {new Date().getFullYear()} {site.legalName}</span><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></span>
+          <span className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end items-start"><span>© {new Date().getFullYear()} {site.legalName}</span><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></span>
         </Container>
       </div>
     </footer>

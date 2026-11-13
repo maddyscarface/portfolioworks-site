@@ -164,8 +164,8 @@ export default function Tracking() {
             We use cookies to measure which advertising and pages bring in project requests. See our <a className="underline" href="/privacy">privacy policy</a>.
           </p>
           <div className="flex gap-2">
-            <button className="btn btn-ghost !py-2 text-slate" onClick={() => updateConsent(false)}>Decline</button>
-            <button className="btn btn-dark !py-2" onClick={() => updateConsent(true)}>Accept</button>
+            <button className="btn btn-ghost !min-h-11 !py-2 text-slate" onClick={() => updateConsent(false)}>Decline</button>
+            <button className="btn btn-dark !min-h-11 !py-2" onClick={() => updateConsent(true)}>Accept</button>
           </div>
         </div>
       )}

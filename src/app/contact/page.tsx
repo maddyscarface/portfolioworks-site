@@ -9,9 +9,9 @@ export default function Page() {
     <>
       <PageHero image="siteWalkthrough" eyebrow="Contact" title="Talk to a project coordinator." sub="Project requests, partnership inquiries, vendor/subcontractor applications and broker referrals." />
       <Section tone="paper">
-        <div className="grid lg:grid-cols-[1fr_1.3fr] gap-12">
-          <div className="space-y-6 text-sm">
-            <div><p className="eyebrow mb-1">Email</p><p className="text-lg text-navy">{site.email}</p></div>
+        <div className="grid min-w-0 lg:grid-cols-[1fr_1.3fr] gap-12">
+          <div className="min-w-0 space-y-6 text-sm">
+            <div><p className="eyebrow mb-1">Email</p><p className="text-lg text-navy break-all"><a href={`mailto:${site.email}`}>{site.email}</a></p></div>
             {site.phone && <div><p className="eyebrow mb-1">Phone</p><p className="text-lg text-navy">{site.phone}</p></div>}
             <div><p className="eyebrow mb-1">Subcontractors & trades</p><p className="text-slate">Interested in joining our approved subcontractor network? Email us with your trade, service area, license and insurance details.</p></div>
           </div>
