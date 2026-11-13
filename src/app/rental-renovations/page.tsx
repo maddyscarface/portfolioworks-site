@@ -6,7 +6,7 @@ import { JsonLd, pageMeta, serviceSchema, webPageSchema } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Rental Property Renovations | PortfolioWorks",
-  description: "Plan rental rehab, painting, flooring, bathrooms and multi-trade renovations with written scopes and coordinated work.",
+  description: "Plan rental rehab, painting, flooring, bathrooms and multi-trade renovations in Greater Boston with written scopes and coordinated work.",
   path: "/rental-renovations",
   image: "/photos/kitchen-boston.jpg",
 });
@@ -27,7 +27,7 @@ export default function Page() {
           "@context": "https://schema.org",
           "@graph": [
             webPageSchema({ path, name: "Rental Property Renovations in Greater Boston", description: "Written scopes and coordinated trades for rental rehabs in Greater Boston." }),
-            serviceSchema({ name: "Rental property renovations", description: "Plan rental rehab, painting, flooring, bathrooms and multi-trade renovations with written scopes and coordinated work.", path }),
+            serviceSchema({ name: "Rental property renovations", description: "Plan rental rehab, painting, flooring, bathrooms and multi-trade renovations in Greater Boston with written scopes and coordinated work.", path }),
           ],
         }}
       />

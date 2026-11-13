@@ -7,7 +7,7 @@ import { JsonLd, pageMeta, serviceSchema, webPageSchema } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Rental Unit Turnovers in Boston | PortfolioWorks",
-  description: "Coordinate rental unit make-ready work, scope, schedule and closeout with one property-services team in Greater Boston.",
+  description: "Coordinate rental unit make-ready work, scope, schedule and closeout with one property-services team serving Greater Boston.",
   path: "/rental-turnovers",
   image: "/photos/living-room-green.jpg",
 });

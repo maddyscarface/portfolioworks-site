@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!g) return {};
   const indexable = g.indexable !== false && !flags.noindex;
   return pageMeta({
-    title: `${g.title} | PortfolioWorks`,
-    description: g.description.slice(0, 155),
+    title: g.seoTitle,
+    description: g.description,
     path: `/resources/${g.slug}`,
     type: "article",
     publishedTime: g.datePublished,
