@@ -1,11 +1,12 @@
 import { AudienceTemplate } from "@/components/templates";
 import { getAudience } from "@/config/audiences";
 import { Section, Heading, Check, Btn } from "@/components/ui";
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+export const metadata = pageMeta({
   title: "Investor Rehab & Value-Add Renovation Contractor | PortfolioWorks",
   description: "Executable rehab scopes, unit renovation programs, capex planning and cost-per-unit controls for value-add investors. Pre-listing and buyer-side scopes for brokers.",
-  alternates: { canonical: "/real-estate-investors" },
-};
+  path: "/real-estate-investors",
+});
 export default function Page() {
   const b = getAudience("broker");
   return (

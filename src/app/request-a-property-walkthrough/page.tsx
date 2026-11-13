@@ -1,9 +1,10 @@
 import { FunnelTemplate } from "@/components/templates";
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+export const metadata = pageMeta({
   title: "Request a Property Walkthrough | PortfolioWorks",
   description: "Get a property project plan: walkthrough, condition notes and a written scope for turnovers, repairs or renovation.",
-  alternates: { canonical: "/request-a-property-walkthrough" },
-};
+  path: "/request-a-property-walkthrough",
+});
 export default function Page() {
   return (
     <FunnelTemplate
