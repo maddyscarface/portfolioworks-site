@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { services } from "@/config/services";
 import { CtaBand, PageHero, Section } from "@/components/ui";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Services | Rental Turnovers, Renovations & Trade Work | PortfolioWorks",
   description: "Full service catalog: turnovers, painting, flooring, kitchens, baths, carpentry, exterior, MEP coordination, full rehab, capex and maintenance programs.",
-  alternates: { canonical: "/services" },
-};
+  path: "/services",
+});
 
 const groups = [
   { k: "turnover", t: "Turnovers" },
