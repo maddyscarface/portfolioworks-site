@@ -35,7 +35,7 @@ export default function Home() {
     <>
       {/* 1. HERO — full-bleed photography, form above the fold */}
       <section className="relative isolate overflow-hidden bg-navy text-paper">
-        <Image src={photos.heroRentReadyLivingRoom.src} alt={photos.heroRentReadyLivingRoom.alt} fill priority sizes="100vw" className="-z-20 object-cover object-center" />
+        <Image src={photos.heroRentReadyLivingRoom.src} alt={photos.heroRentReadyLivingRoom.alt} fill priority fetchPriority="high" sizes="100vw" className="-z-20 object-cover object-center" />
         <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
         <div className="absolute inset-0 -z-10 grid-bg grid-fade" aria-hidden />
         <div className="wrap py-14 sm:py-20 lg:py-24 grid lg:grid-cols-[1.15fr_1fr] gap-12 items-start">

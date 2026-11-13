@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getMarket, isIndexable, markets } from "@/config/markets";
+import { getMarket, isIndexable, marketPageDescription, marketPageTitle, markets } from "@/config/markets";
 import { MarketTemplate } from "@/components/templates";
 import { pageMeta } from "@/lib/seo";
 
@@ -11,8 +11,8 @@ export async function generateMetadata({ params }: { params: Promise<{ market: s
   const m = getMarket((await params).market);
   if (!m) return {};
   return pageMeta({
-    title: `Rental Turnover & Renovation Contractor — ${m.short} | PortfolioWorks`,
-    description: m.intro.slice(0, 155),
+    title: marketPageTitle(m),
+    description: marketPageDescription(m),
     path: `/markets/${m.id}`,
     index: isIndexable(m),
   });
