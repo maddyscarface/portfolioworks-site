@@ -35,14 +35,15 @@ export default function Home() {
     <>
       {/* 1. HERO — full-bleed photography, form above the fold */}
       <section className="relative isolate overflow-hidden bg-navy text-paper">
-        <Image src={photos.heroRentReadyLivingRoom.src} alt="" fill priority sizes="100vw" className="-z-20 object-cover object-center" />
+        <Image src={photos.heroRentReadyLivingRoom.src} alt={photos.heroRentReadyLivingRoom.alt} fill priority sizes="100vw" className="-z-20 object-cover object-center" />
         <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
         <div className="absolute inset-0 -z-10 grid-bg grid-fade" aria-hidden />
         <div className="wrap py-14 sm:py-20 lg:py-24 grid lg:grid-cols-[1.15fr_1fr] gap-12 items-start">
           <div className="pt-2 lg:pt-10">
-            <p className="eyebrow eyebrow-rule !text-bronze-2 mb-6">Unit turnovers · Renovations · Portfolio programs</p>
-            <h1 className="text-[2.5rem] sm:text-6xl lg:text-[4.1rem] leading-[1.02] text-paper">{site.heroHeadline}</h1>
-            <p className="mt-7 text-lg sm:text-xl text-paper/85 leading-relaxed max-w-xl">{site.heroSub}</p>
+            <p className="eyebrow eyebrow-rule !text-bronze-2 mb-6">{site.heroEyebrow}</p>
+            <h1 className="text-[2.5rem] sm:text-5xl lg:text-[3.65rem] leading-[1.05] text-paper">{site.heroHeadline}</h1>
+            <p className="mt-5 text-xl sm:text-2xl text-paper/90 display leading-snug max-w-xl">{site.heroSecondary}</p>
+            <p className="mt-5 text-lg sm:text-xl text-paper/85 leading-relaxed max-w-xl">{site.heroSub}</p>
             <nav aria-label="Choose a pathway" className="mt-9 grid gap-px max-w-md border border-white/25 bg-white/25">
               {site.pathways.map((c, i) => (
                 <Link key={c.href} href={c.href} className={`group flex items-center justify-between gap-4 px-5 py-4 transition ${i === 0 ? "bg-bronze hover:bg-bronze-2" : "bg-navy/70 backdrop-blur hover:bg-navy"}`}>

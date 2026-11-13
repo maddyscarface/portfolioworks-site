@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getMarket, isIndexable, markets } from "@/config/markets";
 import { MarketTemplate } from "@/components/templates";
+import { pageMeta } from "@/lib/seo";
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -9,12 +10,12 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ market: string }> }) {
   const m = getMarket((await params).market);
   if (!m) return {};
-  return {
+  return pageMeta({
     title: `Rental Turnover & Renovation Contractor — ${m.short} | PortfolioWorks`,
     description: m.intro.slice(0, 155),
-    alternates: { canonical: `/markets/${m.id}` },
-    robots: isIndexable(m) ? undefined : { index: false, follow: true },
-  };
+    path: `/markets/${m.id}`,
+    index: isIndexable(m),
+  });
 }
 export default async function Page({ params }: { params: Promise<{ market: string }> }) {
   const m = getMarket((await params).market);
