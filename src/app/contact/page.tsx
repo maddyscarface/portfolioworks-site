@@ -1,8 +1,14 @@
 import { site } from "@/config/site";
 import { PageHero, Section } from "@/components/ui";
 import LeadForm from "@/components/LeadForm";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata = { title: "Contact PortfolioWorks", alternates: { canonical: "/contact" } };
+export const metadata = pageMeta({
+  title: "Contact PortfolioWorks",
+  description: "Project requests, partnership inquiries, vendor applications and broker referrals for PortfolioWorks in Greater Boston.",
+  path: "/contact",
+  image: "/photos/site-walkthrough.jpg",
+});
 
 export default function Page() {
   return (

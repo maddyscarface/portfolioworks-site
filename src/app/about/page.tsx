@@ -1,13 +1,19 @@
 import { founder, site, verifiedFounderCredentials } from "@/config/site";
 import { Check, CtaBand, Heading, PageHero, Placeholder, Section } from "@/components/ui";
+import { JsonLd, pageMeta } from "@/lib/seo";
 
-export const metadata = { title: "About PortfolioWorks | Founder & Approach", description: "PortfolioWorks was built by a rental owner and construction project manager to give landlords one accountable contractor.", alternates: { canonical: "/about" } };
+export const metadata = pageMeta({
+  title: "About PortfolioWorks | Founder & Approach",
+  description: "PortfolioWorks was built by a rental owner and construction project manager to give landlords one accountable contractor.",
+  path: "/about",
+  image: "/photos/boston-brick-apartments.jpg",
+});
 
 export default function Page() {
   const ld = { "@context": "https://schema.org", "@type": "Person", name: founder.name, jobTitle: founder.title, worksFor: { "@type": "Organization", name: site.legalName }, ...(founder.credentialsVerified ? { alumniOf: ["Cornell University", "Worcester Polytechnic Institute"] } : {}) };
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+      <JsonLd data={ld} />
       <PageHero image="bostonBrickApartments" eyebrow="About" title={site.tagline} sub={site.supporting} />
       <Section tone="white">
         <div className="grid lg:grid-cols-[1fr_1.5fr] gap-12">
