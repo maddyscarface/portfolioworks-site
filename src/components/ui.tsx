@@ -6,6 +6,7 @@ import { services } from "@/config/services";
 import { markets, type Market } from "@/config/markets";
 import { photos, type PhotoKey } from "@/config/photos";
 import { flags } from "@/config/flags";
+import { JsonLd, breadcrumbSchema, faqSchema } from "@/lib/seo";
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
@@ -17,8 +18,8 @@ export function Logo({ light = false }: { light?: boolean }) {
         <rect x="19" y="6" width="5" height="18" fill={light ? "#142036" : "#f7f4ee"} />
       </svg>
       <span className={`leading-none ${light ? "text-paper" : "text-navy"}`}>
-        <span className="display text-[1.2rem] font-semibold tracking-tight">PortfolioWorks</span>
-        <span className="block text-[0.58rem] tracking-[0.2em] uppercase opacity-70 mt-0.5">Contracting & Property Services</span>
+        <span className="display text-[1.15rem] font-semibold tracking-tight">PortfolioWorks</span>
+        <span className="block text-[0.55rem] tracking-[0.16em] uppercase opacity-70 mt-0.5">Contracting &amp; Property Services</span>
       </span>
     </span>
   );
@@ -70,7 +71,7 @@ export function PageHero({ eyebrow, title, sub, children, aside, image = "heroRe
     <section className="relative isolate overflow-hidden bg-navy text-paper">
       {image && (
         <>
-          <Image src={photos[image].src} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
+          <Image src={photos[image].src} alt={photos[image].alt} fill priority sizes="100vw" className="-z-20 object-cover" />
           <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
           <div className="absolute inset-0 -z-10 grid-bg grid-fade" aria-hidden />
         </>
@@ -115,12 +116,27 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
 }
 
 export function FaqJsonLd({ items }: { items: { q: string; a: string }[] }) {
-  const data = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
-  };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  return <JsonLd data={{ "@context": "https://schema.org", ...faqSchema(items) }} />;
+}
+
+export function Breadcrumbs({ items }: { items: { name: string; path: string }[] }) {
+  return (
+    <nav aria-label="Breadcrumb" className="wrap pt-6">
+      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate">
+        {items.map((item, i) => (
+          <li key={item.path} className="flex items-center gap-2">
+            {i > 0 && <span aria-hidden className="text-line">/</span>}
+            {i === items.length - 1 ? (
+              <span aria-current="page" className="text-charcoal">{item.name}</span>
+            ) : (
+              <Link href={item.path} className="hover:text-navy underline decoration-line">{item.name}</Link>
+            )}
+          </li>
+        ))}
+      </ol>
+      <JsonLd data={{ "@context": "https://schema.org", ...breadcrumbSchema(items) }} />
+    </nav>
+  );
 }
 
 export function CtaBand({ title = "Tell us about the property. We'll build the plan.", sub, primary = site.ctas.primary, secondary = site.ctas.commercial, tertiary, image = "rentReadyOpenPlan" }: { title?: string; sub?: string; primary?: { label: string; href: string }; secondary?: { label: string; href: string }; tertiary?: { label: string; href: string }; image?: PhotoKey }) {
@@ -206,12 +222,50 @@ export function IllustrativeNote({ light = false, className = "" }: { light?: bo
 
 const NAV = [
   { href: "/rental-turnovers", label: "Turnovers" },
+  { href: "/rental-renovations", label: "Renovations" },
   { href: "/services", label: "Services" },
   { href: "/portfolio-programs", label: "Portfolio Programs" },
   { href: "/how-it-works", label: "How It Works" },
   { href: "/unit-turn-estimator", label: "Estimator" },
   { href: "/service-areas", label: "Markets" },
 ];
+
+/** Top-level desktop links. Services is a dropdown; How It Works lives in the utility bar and the Services menu. */
+const DESKTOP_NAV = NAV.filter((n) => n.href !== "/services" && n.href !== "/how-it-works");
+
+const SERVICE_MENU = [
+  { href: "/services", label: "All services" },
+  { href: "/rental-turnovers", label: "Rental turnovers" },
+  { href: "/rental-renovations", label: "Rental renovations" },
+  { href: "/portfolio-programs", label: "Portfolio programs" },
+  ...services.filter((s) => s.href.startsWith("/services/")).map((s) => ({ href: s.href, label: s.name })),
+  { href: "/how-it-works", label: "How it works" },
+];
+
+const navLinkClass =
+  "relative inline-flex items-center py-2 hover:text-navy after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-bronze after:transition hover:after:scale-x-100";
+
+function ServicesMenu() {
+  return (
+    <div className="relative group">
+      <Link href="/services" className={navLinkClass + " gap-1"} aria-haspopup="true">
+        Services
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden className="mt-px opacity-70">
+          <path d="M2 3.5 L5 7 L8 3.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
+        </svg>
+      </Link>
+      <div className="invisible absolute left-1/2 top-full z-50 w-64 -translate-x-1/2 pt-2 opacity-0 pointer-events-none transition group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100 group-focus-within:pointer-events-auto">
+        <div className="border border-line bg-paper py-2 shadow-xl">
+          {SERVICE_MENU.map((item) => (
+            <Link key={item.href} href={item.href} className="flex min-h-11 items-center px-4 text-[0.875rem] text-charcoal hover:bg-bronze-soft hover:text-navy">
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function Header() {
   const launch = markets.filter((m) => m.status === "launch").map((m) => m.short).join(" · ");
@@ -229,13 +283,15 @@ export function Header() {
         </div>
       </div>
       <div className="bg-paper/95 backdrop-blur border-b border-line">
-        <div className="wrap h-[76px] flex items-center justify-between gap-6">
-          <Link href="/" aria-label="PortfolioWorks home"><Logo /></Link>
-          <nav className="hidden xl:flex items-center gap-6 text-[0.92rem] text-charcoal whitespace-nowrap" aria-label="Primary">
-            {NAV.map((n) => <Link key={n.href} href={n.href} className="relative py-2 hover:text-navy after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-bronze after:transition hover:after:scale-x-100">{n.label}</Link>)}
+        <div className="wrap h-[72px] flex items-center justify-between gap-3 xl:gap-4">
+          <Link href="/" aria-label="PortfolioWorks home" className="min-w-0 shrink-0"><Logo /></Link>
+          <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-5 text-[0.875rem] 2xl:text-[0.92rem] text-charcoal whitespace-nowrap" aria-label="Primary">
+            {DESKTOP_NAV.slice(0, 2).map((n) => <Link key={n.href} href={n.href} className={navLinkClass}>{n.label}</Link>)}
+            <ServicesMenu />
+            {DESKTOP_NAV.slice(2).map((n) => <Link key={n.href} href={n.href} className={navLinkClass}>{n.label}</Link>)}
           </nav>
-          <div className="flex items-center gap-3">
-            <Link href={site.ctas.primary.href} className="btn btn-primary !py-2.5 !px-4 text-sm whitespace-nowrap hidden sm:inline-flex">Get a Project Plan</Link>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Link href={site.ctas.primary.href} className="btn btn-primary !py-2.5 !px-3.5 2xl:!px-4 text-sm whitespace-nowrap hidden sm:inline-flex">Get a Project Plan</Link>
             <details className="mobile-menu xl:hidden relative">
               <summary className="list-none cursor-pointer grid h-11 w-11 place-items-center border border-line bg-white" aria-label="Menu">
                 <svg className="menu-closed" width="20" height="20" viewBox="0 0 20 20" aria-hidden><path d="M2 5h16M2 10h16M2 15h16" stroke="#142036" strokeWidth="1.6" /></svg>
@@ -243,9 +299,9 @@ export function Header() {
               </summary>
               <div className="absolute right-0 top-[3.4rem] w-[min(88vw,22rem)] bg-paper border border-line shadow-2xl p-5">
                 <nav className="flex flex-col divide-y divide-line" aria-label="Mobile">
-                  {NAV.map((n) => <Link key={n.href} href={n.href} className="py-3 text-navy">{n.label}</Link>)}
-                  <Link href="/about" className="py-3 text-navy">About</Link>
-                  <Link href="/contact" className="py-3 text-navy">Contact</Link>
+                  {NAV.map((n) => <Link key={n.href} href={n.href} className="flex min-h-11 items-center py-3 text-navy">{n.label}</Link>)}
+                  <Link href="/about" className="flex min-h-11 items-center py-3 text-navy">About</Link>
+                  <Link href="/contact" className="flex min-h-11 items-center py-3 text-navy">Contact</Link>
                 </nav>
                 <Link href={site.ctas.primary.href} className="btn btn-primary w-full mt-4">Get a Project Plan</Link>
               </div>
@@ -281,12 +337,13 @@ export function Footer() {
             <li><Link href="/real-estate-investors" className="hover:text-paper">Investors &amp; brokers</Link></li>
             <li><Link href="/hoa-condos" className="hover:text-paper">HOAs &amp; condos</Link></li>
             <li><Link href="/home-renovations" className="hover:text-paper">Home renovations</Link></li>
+            <li><Link href="/rental-renovations" className="hover:text-paper">Rental renovations</Link></li>
             <li><Link href="/general-contracting" className="hover:text-paper">General contracting</Link></li>
           </ul>
         </div>
         <div>
           <p className="eyebrow !text-bronze-2 mb-5">Markets</p>
-          <ul className="space-y-2.5">{markets.map((m) => <li key={m.id}><Link href={`/markets/${m.id}`} className="hover:text-paper">{m.short}</Link></li>)}</ul>
+          <ul className="space-y-2.5">{markets.map((m) => <li key={m.id}><Link href={`/markets/${m.id}`} className="hover:text-paper">{m.short}{m.status === "launch" ? "" : m.status === "licensing-pending" ? " · opening soon" : " · under evaluation"}</Link></li>)}</ul>
           <p className="eyebrow !text-bronze-2 mt-8 mb-4">Company</p>
           <ul className="space-y-2.5">
             <li><Link href="/about" className="hover:text-paper">About</Link></li>

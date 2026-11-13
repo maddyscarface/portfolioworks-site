@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Btn, Check, CtaBand, Faq, FaqJsonLd, Heading, MarketStatusNote, PageHero, Photo, Section } from "@/components/ui";
 import { photos, marketPhoto, serviceDetailPhoto, serviceHeroPhoto, type PhotoKey } from "@/config/photos";
 import LeadForm from "@/components/LeadForm";
+import { JsonLd, pageMeta, serviceSchema } from "@/lib/seo";
 import type { Funnel } from "@/lib/leads";
 
 const funnelForService = (s: Service): Funnel =>
@@ -15,22 +16,14 @@ const funnelForService = (s: Service): Funnel =>
 
 export function serviceMetadata(slug: string): Metadata {
   const s = getService(slug)!;
-  return { title: s.seoTitle, description: s.seoDescription, alternates: { canonical: s.href } };
+  return pageMeta({ title: s.seoTitle, description: s.seoDescription, path: s.href });
 }
 
 export function ServiceTemplate({ slug }: { slug: string }) {
   const s = getService(slug)!;
-  const ld = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: s.name,
-    description: s.overview,
-    provider: { "@type": "GeneralContractor", name: "PortfolioWorks Contracting & Property Services" },
-    areaServed: "Greater Boston, MA",
-  };
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+      <JsonLd data={{ "@context": "https://schema.org", ...serviceSchema({ name: s.name, description: s.overview, path: s.href }) }} />
       <PageHero image={serviceHeroPhoto(s.slug)} eyebrow={s.category === "program" ? "Portfolio program" : "Service"} title={s.name} sub={s.overview} aside={<LeadForm funnel={funnelForService(s)} defaultServices={[s.slug]} />}>
         <Btn href="#scope" variant="ghost-light">See the typical scope</Btn>
       </PageHero>
