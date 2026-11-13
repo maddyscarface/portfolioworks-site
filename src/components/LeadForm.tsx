@@ -228,8 +228,8 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
         ))}
       </ol>
 
-      {/* honeypot */}
-      <div className="absolute -left-[9999px]" aria-hidden>
+      {/* honeypot — visually and layout-hidden so it cannot affect tap-target audits */}
+      <div className="hidden" aria-hidden="true">
         <label>Website<input tabIndex={-1} autoComplete="off" value={f.website} onChange={(e) => set("website", e.target.value)} /></label>
       </div>
 
@@ -385,12 +385,12 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
               <div><label className="label" htmlFor="ro">Your role</label><input id="ro" className="input" value={f.role} onChange={(e) => set("role", e.target.value)} placeholder="e.g. Director of Operations" /></div>
             </>
           )}
-          <label className="sm:col-span-2 flex gap-3 text-sm text-slate items-start">
-            <input type="checkbox" name="consentContact" className="mt-1" checked={f.consentContact} onChange={(e) => set("consentContact", e.target.checked)} />
+          <label className="sm:col-span-2 flex min-h-11 gap-3 text-sm text-slate items-center">
+            <input type="checkbox" name="consentContact" className="h-5 w-5 shrink-0" checked={f.consentContact} onChange={(e) => set("consentContact", e.target.checked)} />
             <span>I agree PortfolioWorks may contact me by phone and email about this request. *</span>
           </label>
-          <label className="sm:col-span-2 flex gap-3 text-xs text-slate items-start">
-            <input type="checkbox" className="mt-0.5" checked={f.consentSms} onChange={(e) => set("consentSms", e.target.checked)} />
+          <label className="sm:col-span-2 flex min-h-11 gap-3 text-xs text-slate items-center">
+            <input type="checkbox" className="h-5 w-5 shrink-0" checked={f.consentSms} onChange={(e) => set("consentSms", e.target.checked)} />
             <span>Optional: I agree to receive text messages about my project (scheduling, updates) at the number above. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out. Consent is not a condition of service.</span>
           </label>
           <Turnstile onToken={onTurnstile} />
@@ -400,7 +400,7 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
       {err && <p role="alert" className="mt-4 text-sm text-red-700">{err}</p>}
 
       <div className="mt-7 flex items-center justify-between gap-3">
-        {step > 0 ? <button type="button" className="text-sm text-slate underline" onClick={() => setStep(step - 1)}>Back</button> : <span />}
+        {step > 0 ? <button type="button" className="btn btn-ghost min-h-11 text-sm text-slate" onClick={() => setStep(step - 1)}>Back</button> : <span />}
         <button type="submit" className="btn btn-primary disabled:opacity-40" disabled={!stepValid || busy} data-testid="form-next">
           {step < last ? "Continue" : busy ? "Sending…" : "Submit request"} <span aria-hidden>→</span>
         </button>

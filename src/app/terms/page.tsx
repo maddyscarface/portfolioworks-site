@@ -1,7 +1,12 @@
 import { site } from "@/config/site";
 import { Container } from "@/components/ui";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata = { title: "Terms of Use | PortfolioWorks", alternates: { canonical: "/terms" } };
+export const metadata = pageMeta({
+  title: "Terms of Use | PortfolioWorks",
+  description: "Terms of use for the PortfolioWorks website. Draft pending legal review.",
+  path: "/terms",
+});
 
 export default function Page() {
   return (

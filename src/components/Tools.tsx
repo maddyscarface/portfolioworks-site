@@ -6,6 +6,7 @@ import { estimateTurnover, vacancyCost, planPortfolio, type TurnoverInput, type 
 import { track } from "@/components/Tracking";
 import LeadForm from "@/components/LeadForm";
 import type { MarketId } from "@/config/markets";
+import { priceSheet } from "@/config/pricing";
 
 const usd = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
@@ -77,6 +78,7 @@ export function TurnoverEstimator({ embedded = false }: { embedded?: boolean }) 
           <p className="eyebrow !text-bronze-2">Nonbinding preliminary range · not a quote</p>
           <p className="num text-4xl sm:text-5xl mt-2" data-testid="estimate-range">{usd(r.low)} – {usd(r.high)}</p>
           <p className="text-paper/60 text-xs mt-2">{r.marketNote}</p>
+          <p className="text-paper/80 text-xs mt-3" data-testid="assumption-date">{priceSheet.assumptionLabel}</p>
           <div className="mt-5 divide-y divide-white/10 text-sm">
             {r.items.map((it) => (
               <div key={it.label} className="flex justify-between gap-4 py-2">
@@ -137,6 +139,7 @@ export function VacancyCalculator() {
           <span className="num text-3xl">{usd(r.difference)}</span>
         </div>
         <p className="text-[0.72rem] text-slate">{r.note}</p>
+        <p className="text-xs text-slate" data-testid="vacancy-assumption-date">{priceSheet.assumptionLabel}</p>
       </div>
     </div>
   );
@@ -196,6 +199,7 @@ export function PortfolioPlanner() {
           <p className="font-semibold text-navy mt-4 mb-2">Indicative project categories</p>
           <div className="flex flex-wrap gap-1.5">{r.categories.map((c) => <span key={c} className="text-xs bg-bronze-soft px-2 py-1">{c}</span>)}</div>
         </div>
+        <p className="text-xs text-slate" data-testid="planner-assumption-date">{priceSheet.assumptionLabel}</p>
         <details className="text-xs text-slate"><summary className="cursor-pointer">Assumptions used</summary><ul className="list-disc pl-4 mt-2 space-y-1">{r.assumptions.map((a) => <li key={a}>{a}</li>)}</ul></details>
         <div className="border-l-4 border-bronze pl-4 text-sm">{r.nextStep}</div>
         <Link href="/portfolio-programs#consultation" className="btn btn-primary w-full">Discuss a Portfolio Program →</Link>
