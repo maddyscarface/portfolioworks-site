@@ -10,12 +10,16 @@ export const site = {
   legalName: "PortfolioWorks Contracting & Property Services", // VERIFY: entity / DBA filing
   domain: "portfolioworkscontracting.com", // VERIFY: domain + USPTO trademark search
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://portfolioworkscontracting.com",
+  /** Production canonical origin (never a vercel.app staging host). VERIFY domain before go-live. */
+  canonicalUrl: process.env.NEXT_PUBLIC_CANONICAL_URL ?? "https://portfolioworkscontracting.com",
   tagline: "One Partner. Every Property. Every Project.",
   altHeadline: "Stop Managing Contractors. Start Managing Your Portfolio.",
   campaignTagline: "We Handle the Hard Part.",
-  heroHeadline: "Your Next Tenant Shouldn't Be Waiting on Five Different Contractors.",
+  heroEyebrow: "PortfolioWorks · Contracting & Property Services",
+  heroHeadline: "Rental Turnovers and Renovations in Greater Boston",
+  heroSecondary: "Your Next Tenant Shouldn't Be Waiting on Five Different Contractors.",
   heroSub:
-    "One accountable team for turnovers, renovations and recurring property work—scoped in writing, sequenced by one coordinator and closed out with a documented record.",
+    "PortfolioWorks coordinates unit make-readies, renovation scopes and recurring property work for landlords, investors and property managers. One team organizes the work, schedule and documented closeout.",
   supporting:
     "From single-unit turnovers to complete residential rehabilitation, PortfolioWorks coordinates the trades, scopes, schedules and project execution landlords need to keep properties performing.",
   /** The three homepage pathways (specs/03 §1). Each opens its own funnel, form and GHL routing. */

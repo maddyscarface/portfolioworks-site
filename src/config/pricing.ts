@@ -9,6 +9,8 @@
  */
 export const priceSheet = {
   version: "2026-11-draft",
+  assumptionDate: "2026-11-13",
+  assumptionLabel: "Planning assumptions dated 13 November 2026 (owner to confirm). Planning-only — not a contractual bid.",
   currency: "USD",
   /** Low/high spread applied around the midpoint to express uncertainty. */
   rangeSpread: { low: 0.85, high: 1.2 },

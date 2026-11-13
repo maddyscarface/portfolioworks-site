@@ -73,9 +73,9 @@ export const services: Service[] = [
       { q: "What if you find something unexpected?", a: "Work outside the approved scope is written up as a change order with photos and price. Nothing is added without your approval." },
     ],
     upsells: ["painting-drywall", "flooring", "bathroom-remodeling", "property-maintenance"],
-    seoTitle: "Rental Turnover & Make-Ready Contractors | PortfolioWorks",
+    seoTitle: "Rental Unit Turnovers in Boston | PortfolioWorks",
     seoDescription:
-      "One accountable contractor for apartment turnovers: walkthrough, priced scope, paint, flooring, repairs, cleaning coordination and documented completion.",
+      "Coordinate rental unit make-ready work, scope, schedule and closeout with one property-services team in Greater Boston.",
   },
   {
     slug: "painting-drywall",
