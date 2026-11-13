@@ -2,7 +2,7 @@ import { Check, CtaBand, Heading, PageHero, Section, Btn } from "@/components/ui
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
-  title: "General Contracting for Rental & Multifamily Property | PortfolioWorks",
+  title: "Rental General Contracting | PortfolioWorks",
   description: "Residential general contracting for rental owners: fixed-price, time-and-materials and cost-plus agreements with written change-order control.",
   path: "/general-contracting",
 });

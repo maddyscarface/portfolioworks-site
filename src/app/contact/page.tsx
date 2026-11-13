@@ -5,7 +5,7 @@ import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Contact PortfolioWorks",
-  description: "Project requests, partnership inquiries, vendor applications and broker referrals for PortfolioWorks in Greater Boston.",
+  description: "Project requests, partnership inquiries, vendor applications and broker referrals for PortfolioWorks across Greater Boston.",
   path: "/contact",
   image: "/photos/site-walkthrough.jpg",
 });
