@@ -1,10 +1,12 @@
 import { Heading, PageHero, Section } from "@/components/ui";
 import { VacancyCalculator, PortfolioPlanner } from "@/components/Tools";
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+export const metadata = pageMeta({
   title: "Vacancy Cost Calculator & Portfolio Improvement Planner | PortfolioWorks",
   description: "Estimate the gross rent equivalent of vacancy days and plan annual turnover volume, budget and scheduling across your portfolio.",
-  alternates: { canonical: "/portfolio-savings-calculator" },
-};
+  path: "/portfolio-savings-calculator",
+  image: "/photos/scope-planning.jpg",
+});
 export default function Page() {
   return (
     <>

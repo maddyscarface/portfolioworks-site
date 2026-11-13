@@ -1,8 +1,12 @@
 import { Check, CtaBand, Heading, PageHero, Placeholder, Section } from "@/components/ui";
-
-export const metadata = { title: "Projects & Case Studies | PortfolioWorks", description: "Documented rental turnovers and renovations with scopes, schedules and before/after photography.", alternates: { canonical: "/projects" } };
-
 import { CASE_STUDY_SECTIONS, caseStudies } from "@/config/case-studies";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({
+  title: "Projects & Case Studies | PortfolioWorks",
+  description: "Documented rental turnovers and renovations with scopes, schedules and before/after photography, published only from completed work.",
+  path: "/projects",
+});
 
 export default function Page() {
   return (

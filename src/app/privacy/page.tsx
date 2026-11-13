@@ -1,7 +1,12 @@
 import { site } from "@/config/site";
 import { Container } from "@/components/ui";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata = { title: "Privacy Policy | PortfolioWorks", alternates: { canonical: "/privacy" } };
+export const metadata = pageMeta({
+  title: "Privacy Policy | PortfolioWorks",
+  description: "How PortfolioWorks collects and uses information through this website and client portal. Draft pending legal review.",
+  path: "/privacy",
+});
 
 export default function Page() {
   return (

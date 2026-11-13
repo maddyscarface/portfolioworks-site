@@ -1,10 +1,11 @@
 import { AudienceTemplate } from "@/components/templates";
 import { Section, Heading } from "@/components/ui";
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+export const metadata = pageMeta({
   title: "General Contractor for Property Managers | PortfolioWorks",
   description: "One partner for repairs, turnovers and renovations across every owner you manage: easy work requests, approval thresholds, owner-separated invoicing.",
-  alternates: { canonical: "/property-managers" },
-};
+  path: "/property-managers",
+});
 export default function Page() {
   return (
     <AudienceTemplate
