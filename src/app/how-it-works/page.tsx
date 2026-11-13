@@ -1,6 +1,11 @@
 import { CtaBand, Heading, PageHero, Section, Btn } from "@/components/ui";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata = { title: "How It Works | PortfolioWorks", description: "From request to closeout: intake, scope, written estimate, sequenced execution, punch list and completion record.", alternates: { canonical: "/how-it-works" } };
+export const metadata = pageMeta({
+  title: "How It Works | PortfolioWorks",
+  description: "From request to closeout: intake, scope, written estimate, sequenced execution, punch list and completion record.",
+  path: "/how-it-works",
+});
 
 const steps = [
   ["Request", "Submit the property and unit through the website or by email. Add photos, access notes and your target date.", "Intake record created; coordinator assigned."],
