@@ -286,7 +286,7 @@ export default function Home() {
         <Heading eyebrow="Why one accountable contractor" title="When five vendors share a job, nobody owns the outcome." />
         <div className="overflow-x-auto">
           <table className="w-full text-sm border border-line bg-white min-w-[40rem]">
-            <thead><tr className="bg-paper-2 text-left"><th className="p-5"> </th><th className="p-5 font-semibold text-slate">Managing trades yourself</th><th className="p-5 font-semibold text-navy border-l-2 border-bronze">PortfolioWorks</th></tr></thead>
+            <thead><tr className="bg-paper-2 text-left"><th scope="col" className="p-5"><span className="sr-only">Topic</span></th><th scope="col" className="p-5 font-semibold text-slate">Managing trades yourself</th><th scope="col" className="p-5 font-semibold text-navy border-l-2 border-bronze">PortfolioWorks</th></tr></thead>
             <tbody>
               {[
                 ["Estimates", "Separate bids, different formats, gaps between them", "One line-item scope covering every trade"],
@@ -295,7 +295,7 @@ export default function Home() {
                 ["Punch list", "Your follow-up", "Our responsibility to close"],
                 ["Records", "Texts and receipts", "Photos, products, colors and invoices per unit"],
               ].map(([k, a, b]) => (
-                <tr key={k} className="border-t border-line"><td className="p-5 display text-lg text-navy">{k}</td><td className="p-5 text-slate">{a}</td><td className="p-5 border-l-2 border-bronze">{b}</td></tr>
+                <tr key={k} className="border-t border-line"><th scope="row" className="p-5 display text-lg text-navy text-left font-normal">{k}</th><td className="p-5 text-slate">{a}</td><td className="p-5 border-l-2 border-bronze">{b}</td></tr>
               ))}
             </tbody>
           </table>
