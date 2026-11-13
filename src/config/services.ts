@@ -75,7 +75,7 @@ export const services: Service[] = [
     upsells: ["painting-drywall", "flooring", "bathroom-remodeling", "property-maintenance"],
     seoTitle: "Rental Unit Turnovers in Boston | PortfolioWorks",
     seoDescription:
-      "Coordinate rental unit make-ready work, scope, schedule and closeout with one property-services team in Greater Boston.",
+      "Coordinate rental unit make-ready work, scope, schedule and closeout with one property-services team serving Greater Boston.",
   },
   {
     slug: "painting-drywall",
@@ -97,7 +97,7 @@ export const services: Service[] = [
       { q: "Can you work in occupied units?", a: "Yes, with tenant notice coordinated through you or your property manager." },
     ],
     upsells: ["flooring", "carpentry", "rental-turnovers"],
-    seoTitle: "Rental Property Painting & Drywall Contractor | PortfolioWorks",
+    seoTitle: "Rental Painting & Drywall Contractor | PortfolioWorks",
     seoDescription: "Unit repaints, common-area painting and drywall repair for landlords and property managers, with color records saved for every turn.",
   },
   {
@@ -120,7 +120,7 @@ export const services: Service[] = [
     ],
     upsells: ["painting-drywall", "carpentry"],
     seoTitle: "Rental Flooring Installation & Repair | PortfolioWorks",
-    seoDescription: "LVP, hardwood and tile flooring for rental units, with product records for future repairs.",
+    seoDescription: "LVP, hardwood and tile flooring for rental units, with product records kept so future repairs and replacements can match the original install.",
   },
   {
     slug: "bathroom-remodeling",
@@ -164,7 +164,7 @@ export const services: Service[] = [
     ],
     upsells: ["bathroom-remodeling", "flooring", "painting-drywall"],
     seoTitle: "Rental Kitchen Renovation & Refacing | PortfolioWorks",
-    seoDescription: "Kitchen renovation scoped to rent premium: refacing, counters, backsplash and full kitchen rehabs for rental owners.",
+    seoDescription: "Kitchen renovation scoped to the rent: refacing, counters, backsplash and full kitchen rehabs for rental owners, with a written line-item scope.",
   },
   {
     slug: "carpentry",
@@ -183,7 +183,7 @@ export const services: Service[] = [
     faq: [{ q: "Is there a minimum?", a: "Small repair lists are batched with other work at the same property where possible. Your market's price sheet sets any trip minimum." }],
     upsells: ["painting-drywall", "exterior-repairs"],
     seoTitle: "Carpentry & Repair Services for Landlords | PortfolioWorks",
-    seoDescription: "Doors, trim, cabinets and general repairs for rental properties, itemized and batched into one visit.",
+    seoDescription: "Doors, trim, cabinets and general carpentry repairs for rental properties, itemized and batched into one coordinated visit whenever possible.",
   },
   {
     slug: "exterior-repairs",
@@ -202,7 +202,7 @@ export const services: Service[] = [
     faq: [{ q: "Do you rebuild porches?", a: "Yes, subject to structural review, permits and the licensing that applies in your market." }],
     upsells: ["carpentry", "property-maintenance"],
     seoTitle: "Deck, Porch & Exterior Repairs for Rentals | PortfolioWorks",
-    seoDescription: "Deck, porch, stair, railing and fencing repairs for rental properties, prioritized for safety.",
+    seoDescription: "Deck, porch, stair, railing and fencing repairs for rental properties, prioritized for safety and documented as part of the unit or building scope.",
   },
   {
     slug: "plumbing-electrical-hvac-coordination",
@@ -221,8 +221,8 @@ export const services: Service[] = [
     cta: "Request Trade Coordination",
     faq: [{ q: "Are your plumbers and electricians licensed?", a: "Licensed work is only performed by trades holding the license required in that state and municipality. Credentials are kept on file per job." }],
     upsells: ["bathroom-remodeling", "kitchen-remodeling"],
-    seoTitle: "Plumbing, Electrical & HVAC Coordination for Rentals | PortfolioWorks",
-    seoDescription: "Licensed plumbing, electrical and HVAC work coordinated inside one rental property scope and schedule.",
+    seoTitle: "Plumbing, Electrical & HVAC for Rentals | PortfolioWorks",
+    seoDescription: "Licensed plumbing, electrical and HVAC work coordinated inside one rental property scope and schedule, so trades are not left to the owner to sequence.",
   },
   {
     slug: "full-rehab",
@@ -247,8 +247,8 @@ export const services: Service[] = [
       { q: "Do you provide architectural or engineering design?", a: "Design and engineering are performed by licensed professionals we coordinate where the scope requires them." },
     ],
     upsells: ["capital-improvements", "property-maintenance"],
-    seoTitle: "Rental Property Rehab & Value-Add Renovation | PortfolioWorks",
-    seoDescription: "Acquisition rehabs and value-add renovations with detailed scopes, budgets, permits and milestone reporting.",
+    seoTitle: "Rental Rehab & Value-Add Renovation | PortfolioWorks",
+    seoDescription: "Acquisition rehabs and value-add renovations with detailed scopes, budgets, permit coordination and milestone reporting for rental and multifamily owners.",
   },
   {
     slug: "capital-improvements",
@@ -267,7 +267,7 @@ export const services: Service[] = [
     faq: [{ q: "Can upgrades be done only as units turn over?", a: "That is usually the most efficient approach: the upgrade package is applied during the make-ready so no unit is vacant twice." }],
     upsells: ["full-rehab", "property-maintenance"],
     seoTitle: "Multifamily Capital Improvement Programs | PortfolioWorks",
-    seoDescription: "Capex planning and execution for multifamily owners: unit upgrade packages, common areas and cost-per-unit reporting.",
+    seoDescription: "Capex planning and execution for multifamily owners, including unit upgrade packages, common-area work and cost-per-unit reporting against an approved scope.",
   },
   {
     slug: "property-maintenance",
@@ -294,8 +294,8 @@ export const services: Service[] = [
       { q: "Can my property manager submit requests directly?", a: "Yes. Portal users can be added per company with access only to the properties you assign." },
     ],
     upsells: ["rental-turnovers", "capital-improvements"],
-    seoTitle: "Property Maintenance Programs for Portfolio Owners | PortfolioWorks",
-    seoDescription: "Recurring turnovers, inspections and improvement programs with one accountable vendor and a fixed rate card.",
+    seoTitle: "Portfolio Property Maintenance Programs | PortfolioWorks",
+    seoDescription: "Recurring turnovers, inspections and improvement programs with one accountable vendor, a documented rate card and reporting that matches how owners budget work.",
   },
 ];
 

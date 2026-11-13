@@ -11,9 +11,11 @@ import {
 } from "@/lib/seo";
 import { computeNoindex } from "@/config/flags";
 import { site } from "@/config/site";
-import { isIndexable, markets } from "@/config/markets";
 import { publishedGuides, allGuides, getGuide } from "@/config/guides";
-import { contentInventory } from "@/config/content-inventory";
+import { allRouteBriefs, contentInventory } from "@/config/content-inventory";
+import { services } from "@/config/services";
+import { funnels } from "@/config/funnels";
+import { isIndexable, marketPageDescription, marketPageTitle, markets, servedTowns, townPageDescription, townPageTitle } from "@/config/markets";
 import { priceSheet } from "@/config/pricing";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
@@ -140,10 +142,39 @@ describe("hero and funnels preserved", () => {
 });
 
 describe("content inventory", () => {
-  it("records audience, query group, stage and evidence for the primary routes", () => {
+  it("records audience, query group, stage and evidence for the primary and utility routes", () => {
     const paths = contentInventory.map((r) => r.path);
-    expect(paths).toEqual(expect.arrayContaining(["/", "/rental-turnovers", "/rental-renovations", "/portfolio-programs"]));
-    expect(contentInventory.every((r) => r.primaryKeyword && r.h1 && r.cta.href && r.evidence)).toBe(true);
+    expect(paths).toEqual(expect.arrayContaining([
+      "/", "/rental-turnovers", "/rental-renovations", "/portfolio-programs",
+      "/about", "/contact", "/how-it-works", "/services", "/projects", "/service-areas",
+      "/resources", "/privacy", "/terms", "/general-contracting",
+    ]));
+    expect(contentInventory.every((r) => r.primaryKeyword && r.h1 && r.title && r.description && r.cta.href && r.evidence)).toBe(true);
+  });
+  it("covers every sitemap URL", () => {
+    const inv = new Set(allRouteBriefs().map((r) => r.path));
+    for (const e of sitemap()) {
+      const path = new URL(e.url).pathname.replace(/\/$/, "") || "/";
+      expect(inv.has(path), path).toBe(true);
+    }
+  });
+});
+
+describe("metadata length", () => {
+  function assertSeo(title: string, description: string, label: string) {
+    expect(title.length, `${label} title (${title.length}): ${title}`).toBeLessThanOrEqual(60);
+    expect(description.length, `${label} desc (${description.length}): ${description}`).toBeGreaterThanOrEqual(120);
+    expect(description.length, `${label} desc (${description.length}): ${description}`).toBeLessThanOrEqual(160);
+  }
+  it("keeps titles <=60 characters and descriptions 120-160 on every public route", () => {
+    for (const row of allRouteBriefs()) assertSeo(row.title, row.description, row.path);
+    for (const s of services) assertSeo(s.seoTitle, s.seoDescription, s.href);
+    for (const [id, f] of Object.entries(funnels)) assertSeo(f.title, f.description, id);
+    for (const g of allGuides()) assertSeo(g.seoTitle, g.description, g.slug);
+    for (const m of markets) assertSeo(marketPageTitle(m), marketPageDescription(m), m.id);
+    for (const { market, town } of servedTowns()) {
+      assertSeo(townPageTitle(town), townPageDescription(town, market), town.slug);
+    }
   });
 });
 
