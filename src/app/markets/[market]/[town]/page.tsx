@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getMarket, isIndexable, servedTowns } from "@/config/markets";
 import { TownTemplate } from "@/components/templates";
+import { pageMeta } from "@/lib/seo";
 
 /** Town pages exist ONLY for towns flagged served=true in markets.ts (no doorway pages). */
 export const dynamicParams = false;
@@ -16,12 +17,12 @@ async function resolve(params: Promise<{ market: string; town: string }>) {
 export async function generateMetadata({ params }: { params: Promise<{ market: string; town: string }> }) {
   const r = await resolve(params);
   if (!r) return {};
-  return {
+  return pageMeta({
     title: `Rental Turnovers & Renovations in ${r.t.name}, ${r.m.state} | PortfolioWorks`,
     description: `Turnovers, repairs and renovations for landlords and property managers in ${r.t.name}, ${r.m.state}. One scope, one schedule, one accountable contractor.`,
-    alternates: { canonical: `/markets/${r.m.id}/${r.t.slug}` },
-    robots: isIndexable(r.m) ? undefined : { index: false, follow: true },
-  };
+    path: `/markets/${r.m.id}/${r.t.slug}`,
+    index: isIndexable(r.m),
+  });
 }
 export default async function Page({ params }: { params: Promise<{ market: string; town: string }> }) {
   const r = await resolve(params);
