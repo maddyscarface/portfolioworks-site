@@ -2,7 +2,7 @@ import { Heading, PageHero, Section } from "@/components/ui";
 import { VacancyCalculator, PortfolioPlanner } from "@/components/Tools";
 import { pageMeta } from "@/lib/seo";
 export const metadata = pageMeta({
-  title: "Vacancy Cost Calculator & Portfolio Improvement Planner | PortfolioWorks",
+  title: "Vacancy Cost & Portfolio Planner | PortfolioWorks",
   description: "Estimate the gross rent equivalent of vacancy days and plan annual turnover volume, budget and scheduling across your portfolio.",
   path: "/portfolio-savings-calculator",
   image: "/photos/scope-planning.jpg",

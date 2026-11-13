@@ -3,8 +3,8 @@ import { getAudience } from "@/config/audiences";
 import { Section, Heading, Check, Btn } from "@/components/ui";
 import { pageMeta } from "@/lib/seo";
 export const metadata = pageMeta({
-  title: "Investor Rehab & Value-Add Renovation Contractor | PortfolioWorks",
-  description: "Executable rehab scopes, unit renovation programs, capex planning and cost-per-unit controls for value-add investors. Pre-listing and buyer-side scopes for brokers.",
+  title: "Investor Rehab & Value-Add Contractor | PortfolioWorks",
+  description: "Executable rehab scopes, unit renovation programs, capex planning and cost-per-unit controls for value-add investors, plus pre-listing scopes for brokers.",
   path: "/real-estate-investors",
 });
 export default function Page() {

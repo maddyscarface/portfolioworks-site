@@ -4,7 +4,7 @@ import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Privacy Policy | PortfolioWorks",
-  description: "How PortfolioWorks collects and uses information through this website and client portal. Draft pending legal review.",
+  description: "How PortfolioWorks collects and uses information through this website and client portal. This draft is pending legal review before launch.",
   path: "/privacy",
 });
 

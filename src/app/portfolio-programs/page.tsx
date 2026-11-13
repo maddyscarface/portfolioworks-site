@@ -6,7 +6,7 @@ import { JsonLd, pageMeta, serviceSchema, webPageSchema } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Portfolio Maintenance Programs | PortfolioWorks",
-  description: "Explore planned maintenance and recurring renovation support for Boston-area property managers and landlords.",
+  description: "Explore planned maintenance and recurring renovation support for Boston-area property managers and landlords, including volume, reporting and cost governance.",
   path: "/portfolio-programs",
   image: "/photos/boston-north-end.jpg",
 });
