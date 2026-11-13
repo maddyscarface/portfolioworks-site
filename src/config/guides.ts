@@ -14,6 +14,8 @@ export interface GuideSection {
 export interface Guide {
   slug: string;
   title: string;
+  /** Document title (<=60 characters), used in metadata. */
+  seoTitle: string;
   description: string;
   h1: string;
   primaryKw: string;
@@ -36,6 +38,7 @@ const PHASE3: Guide[] = [
   {
     slug: "what-is-included-in-a-rental-unit-turnover",
     title: "What Is Included in a Rental Unit Turnover?",
+    seoTitle: "What's in a Rental Unit Turnover? | PortfolioWorks",
     description: "A practical breakdown of a Greater Boston rental turnover: access, inspection, trades sequence, cleaning and documented closeout.",
     h1: "What is included in a rental unit turnover?",
     primaryKw: "rental unit turnover checklist",
@@ -102,6 +105,7 @@ const PHASE3: Guide[] = [
   {
     slug: "planning-a-30-day-make-ready",
     title: "Planning a 30-Day Make-Ready for a Boston Rental",
+    seoTitle: "Planning a 30-Day Make-Ready | PortfolioWorks",
     description: "A working calendar for a 30-day unit turnover in Greater Boston, including inspection, materials, trades and closeout — without promising a fixed turnaround.",
     h1: "Planning a 30-day make-ready",
     primaryKw: "30 day rental make ready",
@@ -149,6 +153,7 @@ const PHASE3: Guide[] = [
   {
     slug: "maintenance-vs-capital-improvements",
     title: "Maintenance vs. Capital Improvements on a Rental Property",
+    seoTitle: "Maintenance vs. Capital Improvements | PortfolioWorks",
     description: "How landlords can separate routine maintenance from capital improvements when scoping rental work, without treating this as tax or legal advice.",
     h1: "Maintenance vs. capital improvements",
     primaryKw: "maintenance vs capital improvements rental",
@@ -196,6 +201,7 @@ const PHASE3: Guide[] = [
   {
     slug: "commercial-landlord-renovation-scope",
     title: "How to Scope a Commercial Landlord Renovation",
+    seoTitle: "Commercial Landlord Renovation Scope | PortfolioWorks",
     description: "A structured way for landlords and managers to define renovation scope: rooms, trades, materials, approvals and change-order rules.",
     h1: "Commercial landlord renovation scope",
     primaryKw: "commercial landlord renovation scope",
@@ -244,6 +250,7 @@ const PHASE3: Guide[] = [
   {
     slug: "documenting-unit-closeout",
     title: "Documenting Unit Closeout After a Turnover or Renovation",
+    seoTitle: "Documenting Unit Closeout | PortfolioWorks",
     description: "What a complete unit closeout record should contain: photos, approved work, change orders, product SKUs and a clean handoff to leasing or the next turn.",
     h1: "Documenting unit closeout",
     primaryKw: "rental unit closeout documentation",
@@ -284,6 +291,7 @@ const PHASE3: Guide[] = [
   {
     slug: "comparing-multiple-trade-bids",
     title: "Comparing Multiple Trade Bids on a Rental Project",
+    seoTitle: "Comparing Trade Bids on a Rental | PortfolioWorks",
     description: "How to compare painter, flooring and trade bids on the same rental unit without mixing scope, exclusions or schedule assumptions.",
     h1: "Comparing multiple trade bids",
     primaryKw: "compare contractor bids rental",
@@ -443,12 +451,101 @@ const BRIEF_LINK_LABEL: Record<string, string> = {
   "/lp/portfolio-partnership": "Portfolio program consultation",
 };
 
+
+const GUIDE_SEO: Record<string, { title: string; description?: string }> = {
+  "rental-turnover-checklist-boston": {
+    title: "Greater Boston Rental Turnover Checklist | PortfolioWorks",
+    description: "A Greater Boston rental turnover covers inspection, a priced scope, sequenced trades, cleaning and closeout, with lead-safe planning on pre-1978 units.",
+  },
+  "how-much-does-apartment-turnover-cost-boston": {
+    title: "Apartment Turnover Cost in Boston | PortfolioWorks",
+    description: "Apartment turnover cost in Boston depends on scope tier, unit size, damage and finishes. Use a dated estimator for planning, then request a written scope.",
+  },
+  "september-1-boston-turnover-planning": {
+    title: "Planning a September 1 Boston Turnover | PortfolioWorks",
+    description: "Many Boston leases end August 31, so turnover capacity books early. This guide covers a backward calendar for scoping, materials and sequencing units.",
+  },
+  "lead-safe-renovation-rental-massachusetts": {
+    title: "Lead-Safe Renovation for MA Rentals | PortfolioWorks",
+    description: "Work that disturbs paint in pre-1978 Massachusetts rentals may fall under EPA RRP and lead-safe rules. Confirm requirements on each job.",
+  },
+  "property-manager-vendor-management": {
+    title: "Cut Vendor Coordination Time | PortfolioWorks",
+    description: "Property managers can reduce vendor sprawl by consolidating recurring work, setting approval thresholds and requiring photo-documented closeout.",
+  },
+  "standard-unit-turn-packages": {
+    title: "Standard Unit Turn Packages | PortfolioWorks",
+    description: "A standard turn package defines finishes, scope tiers and pricing once, then applies them across units so budgeting, approvals and touch-ups stay consistent.",
+  },
+  "value-add-apartment-rehab-scope": {
+    title: "Value-Add Apartment Rehab Scope | PortfolioWorks",
+    description: "A lender-ready rehab scope breaks work down by unit, room and trade, with quantities, allowances, contingency and a milestone schedule built from a site walk.",
+  },
+  "lvp-vs-hardwood-rentals": {
+    title: "LVP vs. Hardwood for Rental Units | PortfolioWorks",
+    description: "Compare LVP and hardwood refinishing for rentals, including cost, water resistance, plank-by-plank repair and when existing hardwood is still worth refinishing.",
+  },
+  "rental-bathroom-refresh-vs-remodel": {
+    title: "Rental Bathroom: Refresh or Remodel? | PortfolioWorks",
+    description: "Choose a bathroom refresh, fixture upgrade or full remodel based on substrate condition, water damage and whether the rent supports a larger renovation scope.",
+  },
+  "kitchen-refacing-rental": {
+    title: "Kitchen Refacing vs. Replacement | PortfolioWorks",
+    description: "If cabinet boxes are sound, refacing or painting with new doors is often the best rental value. Replace the kitchen only when boxes or layout will not work.",
+  },
+  "vacancy-cost-calculation": {
+    title: "Calculating Vacant Rental Unit Cost | PortfolioWorks",
+    description: "Daily gross rent equivalent equals monthly rent times 12, divided by 365. Multiply by vacant days for a planning figure only, not a promised lease date.",
+  },
+  "change-orders-explained": {
+    title: "Change Orders for Rental Owners | PortfolioWorks",
+    description: "A change order is a written amendment covering new work, price and schedule impact. Get a signed change order before work outside the approved estimate starts.",
+  },
+  "fixed-price-vs-cost-plus": {
+    title: "Choosing a Renovation Contract Type | PortfolioWorks",
+    description: "Fixed price fits definable scopes; time-and-materials with a cap fits diagnostic work; cost-plus with a guaranteed maximum price can fit uncertain rehabs.",
+  },
+  "rental-turnover-west-palm-beach": {
+    title: "West Palm Beach Rental Turnovers | PortfolioWorks",
+    description: "West Palm Beach turnovers often involve condo association rules, insurance certificates and moisture-appropriate materials. This market is not yet active.",
+  },
+  "landlord-renovation-boca-raton": {
+    title: "Renovating a Rental in Boca Raton | PortfolioWorks",
+    description: "Plan Boca Raton rental renovations around HOA or condo approval, seasonal cycles and Florida licensing. This market is not active until licensing is verified.",
+  },
+  "rental-turnover-fort-lauderdale": {
+    title: "Fort Lauderdale Rental Turnovers | PortfolioWorks",
+    description: "Fort Lauderdale turnovers should plan for association insurance, elevator bookings, work-hour limits and humidity-tolerant finishes. This market is not active.",
+  },
+  "condo-renovation-delray-beach": {
+    title: "Delray Beach Condo Renovation | PortfolioWorks",
+    description: "Most Delray Beach associations require an application, contractor insurance and work-hour compliance before renovation starts. This market is not yet active.",
+  },
+  "rental-property-repairs-kennebunk": {
+    title: "Kennebunk Rental Property Repairs | PortfolioWorks",
+    description: "Kennebunk rental and seasonal repairs should follow shoulder-season windows for exterior work. Southern Maine is under evaluation and is not an active market.",
+  },
+  "hoa-common-area-maintenance-plan": {
+    title: "HOA Common-Area Maintenance Plan | PortfolioWorks",
+    description: "An HOA maintenance plan inventories common elements, rates condition and schedules repairs by priority and budget year under one coordinated scope.",
+  },
+  "pilot-unit-vendor-trial": {
+    title: "Start New Vendors With a Pilot Unit | PortfolioWorks",
+    description: "A pilot unit tests a vendor's scoping, communication, schedule and documentation on real work before a portfolio commitment. Define success criteria first.",
+  },
+};
+
 function briefToGuide(b: Brief): Guide {
   const inactive = b.market === "FL" || b.market === "ME";
+  const seo = GUIDE_SEO[b.slug];
+  if (!seo?.title || !seo.description) {
+    throw new Error(`Missing GUIDE_SEO title/description for ${b.slug}`);
+  }
   return {
     slug: b.slug,
     title: b.title,
-    description: b.answer,
+    seoTitle: seo.title,
+    description: seo.description,
     h1: b.title.replace(/:.*$/, "").trim(),
     primaryKw: b.primaryKw,
     secondary: b.secondary,

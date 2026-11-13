@@ -163,3 +163,28 @@ export const servedTowns = () =>
   markets.flatMap((m) => m.towns.filter((tw) => tw.served).map((tw) => ({ market: m, town: tw })));
 
 export const isIndexable = (m: Market) => m.status === "launch";
+
+const MARKET_DESCRIPTIONS: Record<string, string> = {
+  massachusetts:
+    "Rental turnovers, repairs and renovations for landlords and managers across Greater Boston, scoped for older housing, access limits and documented closeout.",
+  florida:
+    "Southeast Florida rental turnovers and condo renovations are forthcoming. This market is not active until Florida licensing and insurance are verified.",
+  maine:
+    "PortfolioWorks is evaluating rental and seasonal property work in Southern Maine and accepts inquiries for review. This is not an active service market.",
+};
+
+export function marketPageTitle(m: Market): string {
+  return `${m.short} Rental Contractor | PortfolioWorks`;
+}
+
+export function marketPageDescription(m: Market): string {
+  return MARKET_DESCRIPTIONS[m.id] ?? m.intro;
+}
+
+export function townPageTitle(t: Town): string {
+  return `${t.name} Rental Turnovers | PortfolioWorks`;
+}
+
+export function townPageDescription(t: Town, m: Market): string {
+  return `Turnovers, repairs and renovations for landlords and property managers in ${t.name}, ${m.state}. One scope, one schedule, one accountable contractor.`;
+}

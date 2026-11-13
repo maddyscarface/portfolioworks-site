@@ -5,7 +5,7 @@ import { site } from "@/config/site";
 export const funnels: Record<string, FunnelConfig & { title: string; description: string }> = {
   "rental-turnover": {
     title: "Get Your Unit Ready for the Next Tenant | PortfolioWorks",
-    description: "Rental turnover scope, price and schedule from one accountable contractor.",
+    description: "Request a rental turnover scope, price and schedule from one accountable contractor in Greater Boston, including access notes, trade sequence and closeout.",
     funnel: "turnover",
     eyebrow: "Funnel A · Rental turnovers",
     offer: "Get Your Unit Ready for the Next Tenant.",
@@ -21,7 +21,7 @@ export const funnels: Record<string, FunnelConfig & { title: string; description
   },
   "portfolio-partnership": {
     title: "One Vendor Relationship for Your Portfolio | PortfolioWorks",
-    description: "Portfolio partnership: pilot unit, rate card, approved-vendor setup and recurring turnover and renovation work.",
+    description: "Discuss a portfolio partnership: a pilot unit, a documented rate card, approved-vendor setup, and recurring turnover and renovation work across your units.",
     funnel: "portfolio",
     eyebrow: "Funnel B · Portfolio partnerships",
     offer: "One Vendor Relationship for Your Portfolio's Renovation Needs.",
@@ -36,8 +36,8 @@ export const funnels: Record<string, FunnelConfig & { title: string; description
     defaultType: "property-manager",
   },
   "value-add-rehab": {
-    title: "Turn Your Renovation Plan Into an Executable Scope | PortfolioWorks",
-    description: "Rehab scope, budget and schedule for value-add and acquisition renovations.",
+    title: "Turn a Renovation Plan Into a Scope | PortfolioWorks",
+    description: "Turn a renovation plan into an executable rehab scope, budget and schedule for value-add and acquisition work, with line items, allowances and exclusions.",
     funnel: "rehab",
     eyebrow: "Funnel C · Value-add investors",
     offer: "Turn Your Renovation Plan Into an Executable Scope.",
@@ -53,7 +53,7 @@ export const funnels: Record<string, FunnelConfig & { title: string; description
   },
   "trade-work": {
     title: "Need One Trade or a Full Rehab? Start Here. | PortfolioWorks",
-    description: "Painting, flooring, bathrooms, carpentry or full renovation—request one trade or a complete scope.",
+    description: "Request painting, flooring, bathrooms, carpentry or a full renovation from one team, whether you need a single trade or a complete coordinated scope.",
     funnel: "trade",
     eyebrow: "Funnel D · À la carte",
     offer: "Need One Trade or a Full Rehab? Start Here.",
@@ -67,7 +67,7 @@ export const funnels: Record<string, FunnelConfig & { title: string; description
   },
   "urgent-turnover": {
     title: "Time-Sensitive Rental Turnover | PortfolioWorks",
-    description: "Move-in date approaching? Submit the unit for a rapid availability and scope review.",
+    description: "If a move-in date is approaching, submit the unit for a rapid availability and scope review. Timing depends on access, materials and current schedule.",
     funnel: "urgent",
     eyebrow: "Funnel E · Time-sensitive turnovers",
     offer: "Move-in Date Coming Up? Get a Rapid Scope Review.",
