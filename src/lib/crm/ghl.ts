@@ -234,3 +234,45 @@ export function ghlStatus() {
     workflows_set: `${followUps.filter((f) => env(f.workflowEnv)).length}/${followUps.length}`,
   };
 }
+
+/**
+ * Phase 4: first-party CRM update for walkthrough / proposal / DataMoon events (called only from the outbox).
+ * Contact upsert with tags (+ optional custom fields) and, when a stage is given, moves the contact's OPEN opportunity in
+ * that pipeline (never creates one, never sets a monetary value). No email/SMS is sent and no price ever goes on the payload.
+ */
+export interface GhlEventSync {
+  email: string; firstName?: string; lastName?: string; phone?: string; companyName?: string;
+  tags: string[]; pipeline?: PipelineKey; stage?: StageKey; customFields?: { key: string; field_value: string | number }[]; source?: string;
+}
+export async function syncContactEvent(e: GhlEventSync): Promise<GhlSyncResult> {
+  const mode = ghlMode();
+  if (mode === "off") return { ok: false, mode, skipped: "off" };
+  const tags = Array.from(new Set([...e.tags, GHL_COMPANY_TAG]));
+  const contact = { locationId: env("GHL_LOCATION_ID"), email: e.email, firstName: e.firstName, lastName: e.lastName, phone: e.phone, companyName: e.companyName, source: e.source ?? "website", tags, customFields: e.customFields ?? [] };
+  if (mode === "log") {
+    console.info("[ghl:log-mode] would sync event", JSON.stringify({ tags, pipeline: e.pipeline ?? null, stage: e.stage ?? null, email: e.email.replace(/^(.).*@/, "$1***@"), fields: (e.customFields ?? []).map((f) => f.key) }));
+    return { ok: false, mode, skipped: "not-configured" };
+  }
+  try {
+    const c = await ghlFetch("/contacts/upsert", { method: "POST", body: JSON.stringify(contact) });
+    if (!c.ok) return { ok: false, mode, error: `contact ${c.status}` };
+    const contactId = ((await c.json()) as { contact?: { id: string } }).contact?.id;
+    if (!contactId) return { ok: false, mode, error: "contact upsert returned no id" };
+    if (e.pipeline && e.stage) {
+      const pipelineId = env(ghlPipelines[e.pipeline].pipelineEnv);
+      if (pipelineId) {
+        const q = new URLSearchParams({ location_id: env("GHL_LOCATION_ID")!, contact_id: contactId, pipeline_id: pipelineId, status: "open" });
+        const sr = await ghlFetch(`/opportunities/search?${q}`, { method: "GET" });
+        const existing = sr.ok ? (((await sr.json()) as { opportunities?: { id: string }[] }).opportunities ?? [])[0] : undefined;
+        if (existing) {
+          const mv = await moveOpportunityStage(existing.id, e.pipeline, e.stage);
+          if (!mv.ok && "error" in mv && mv.error) return { ok: false, mode, contactId, error: mv.error };
+          return { ok: true, mode, contactId, opportunityId: existing.id, opportunity: "updated" };
+        }
+      }
+    }
+    return { ok: true, mode, contactId };
+  } catch (err) {
+    return { ok: false, mode, error: (err as Error).message };
+  }
+}

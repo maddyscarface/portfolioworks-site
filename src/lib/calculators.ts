@@ -1,7 +1,15 @@
+import "server-only";
 import { priceSheet, type PriceSheet } from "@/config/pricing";
 import { getMarket, marketFromZip, type MarketId } from "@/config/markets";
 
-/* ───────────────────────── Tool A — Unit Turnover Cost Estimator ───────────────────────── */
+/**
+ * INTERNAL (server-only) price-sheet estimator from Phase 2/3. Phase 4: NOT used by any public page; customers never see
+ * prices. Kept for staff tooling / tests. Public tools live in ./planning-tools.ts (no numbers).
+ */
+export { vacancyCost, planPortfolio, plannerAssumptions } from "./planning-tools";
+export type { VacancyInput, VacancyResult, PlannerInput, PlannerResult } from "./planning-tools";
+
+/* ───────────────────────── Tool A — Unit Turnover Cost Estimator (internal) ───────────────────────── */
 
 export type Painting = "none" | "touchup" | "full" | "full-ceilings";
 export type Flooring = "none" | "repair" | "lvpPartial" | "lvpFull" | "hardwoodRefinish";
@@ -125,111 +133,3 @@ export function estimateTurnover(input: TurnoverInput, sheet: PriceSheet = price
   };
 }
 
-/* ───────────────────────── Tool B — Vacancy Cost Calculator ───────────────────────── */
-
-export interface VacancyInput {
-  monthlyRent: number;
-  estimatedDaysVacant: number; // current/expected vacancy with today's process
-  renovationDays: number; // expected renovation duration inside that window
-  acceleratedRenovationDays: number; // proposed accelerated renovation duration
-}
-
-export interface VacancyResult {
-  dailyRent: number;
-  currentExposure: number;
-  acceleratedDaysVacant: number;
-  acceleratedExposure: number;
-  difference: number;
-  daysDifference: number;
-  note: string;
-}
-
-export function vacancyCost(i: VacancyInput): VacancyResult {
-  const rent = Math.max(0, i.monthlyRent);
-  const dailyRent = (rent * 12) / 365;
-  const currentDays = Math.max(0, i.estimatedDaysVacant);
-  const saved = Math.max(0, i.renovationDays - i.acceleratedRenovationDays);
-  const acceleratedDaysVacant = Math.max(0, currentDays - saved);
-  const currentExposure = dailyRent * currentDays;
-  const acceleratedExposure = dailyRent * acceleratedDaysVacant;
-  return {
-    dailyRent: Math.round(dailyRent * 100) / 100,
-    currentExposure: Math.round(currentExposure),
-    acceleratedDaysVacant,
-    acceleratedExposure: Math.round(acceleratedExposure),
-    difference: Math.round(currentExposure - acceleratedExposure),
-    daysDifference: currentDays - acceleratedDaysVacant,
-    note:
-      "Gross rent equivalent only. A shorter renovation reduces the time a unit is unavailable; it does not guarantee a tenant, a lease date or recovered rent. Leasing time, concessions and market conditions are outside this calculation.",
-  };
-}
-
-/* ───────────────────────── Tool C — Portfolio Improvement Planner ───────────────────────── */
-
-export interface PlannerInput {
-  units: number;
-  annualTurnoverRate: number; // percent, e.g. 35
-  locations: MarketId[];
-  typicalScope: "light" | "standard" | "heavy";
-  annualMaintenanceBudget: number;
-  challenges: string[];
-}
-
-export interface PlannerResult {
-  annualTurns: number;
-  monthlyTurns: number;
-  peakMonths: string[];
-  plannedTurnBudget: [number, number];
-  budgetPerUnit: number;
-  categories: string[];
-  schedule: { quarter: string; turns: number; focus: string }[];
-  assumptions: string[];
-  nextStep: string;
-}
-
-/** Configurable assumptions — clearly labeled in UI. */
-export const plannerAssumptions = {
-  turnCostPerUnit: { light: [1200, 2500], standard: [2500, 6000], heavy: [6000, 15000] } as Record<string, [number, number]>,
-  /** Share of annual turns by quarter. Many US rental markets skew toward summer moves; Greater Boston peaks around Sept 1. */
-  seasonality: { Q1: 0.18, Q2: 0.27, Q3: 0.37, Q4: 0.18 },
-};
-
-export function planPortfolio(i: PlannerInput): PlannerResult {
-  const units = Math.max(0, Math.round(i.units));
-  const rate = Math.max(0, Math.min(i.annualTurnoverRate, 100)) / 100;
-  const annualTurns = Math.round(units * rate);
-  const [lo, hi] = plannerAssumptions.turnCostPerUnit[i.typicalScope];
-  const s = plannerAssumptions.seasonality;
-  const qs = (Object.keys(s) as (keyof typeof s)[]).map((q) => ({ q, n: Math.round(annualTurns * s[q]) }));
-  const focus: Record<string, string> = {
-    Q1: "Interior capex and deferred repairs while volume is low",
-    Q2: "Pre-book crews and stock standard materials for summer turns",
-    Q3: "Peak turnover execution",
-    Q4: "Exterior/weather-sensitive work before winter; annual inspections",
-  };
-  const peakMonths = i.locations.includes("massachusetts") ? ["June", "July", "August", "September"] : ["May", "June", "July", "August"];
-  const categories = new Set<string>(["Unit turnovers"]);
-  if (i.typicalScope !== "light") categories.add("Flooring replacement").add("Bathroom and kitchen refresh");
-  if (i.typicalScope === "heavy") categories.add("Unit renovation / repositioning");
-  if (units >= 20) categories.add("Common-area maintenance").add("Annual inspections");
-  if (i.challenges.some((c) => /respon|schedul|slow/i.test(c))) categories.add("Priority scheduling agreement");
-  if (i.challenges.some((c) => /pric|cost|bid/i.test(c))) categories.add("Fixed rate card");
-  return {
-    annualTurns,
-    monthlyTurns: Math.round((annualTurns / 12) * 10) / 10,
-    peakMonths,
-    plannedTurnBudget: [annualTurns * lo, annualTurns * hi],
-    budgetPerUnit: units ? Math.round(i.annualMaintenanceBudget / units) : 0,
-    categories: [...categories],
-    schedule: qs.map(({ q, n }) => ({ quarter: q, turns: n, focus: focus[q] })),
-    assumptions: [
-      `Turn cost per unit (${i.typicalScope}): $${lo.toLocaleString()}–$${hi.toLocaleString()} — placeholder assumption, edit in calculators.ts`,
-      "Quarterly seasonality: Q1 18%, Q2 27%, Q3 37%, Q4 18% — placeholder assumption",
-      "Turnover count = units × annual turnover rate, rounded",
-    ],
-    nextStep:
-      annualTurns >= 10
-        ? "Your volume supports a portfolio rate card. Request a partnership consultation and start with one pilot unit."
-        : "Start with a single-unit turnover to see the process, then set standard packages for future turns.",
-  };
-}
