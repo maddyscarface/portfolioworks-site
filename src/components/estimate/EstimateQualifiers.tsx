@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useMemo } from "react";
-import { budgetFit, dateBounds, rangeText, typicalRange, type EstimateConfig, type Option, type Qualifiers } from "@/lib/estimate/qualifiers";
-import { pricingViews, recordPricingView } from "@/lib/estimate/pricing-views";
+import { useMemo } from "react";
+import { dateBounds, type EstimateConfig, type Option, type Qualifiers } from "@/lib/estimate/qualifiers";
+import { pricingViews } from "@/lib/estimate/pricing-views";
 
 export type QualifierTheme = {
   input: string;
@@ -21,7 +21,7 @@ type Props = {
   errors?: Partial<Record<keyof Qualifiers, string>>;
   /** Hide parts another step already asks (e.g. a site that collects the address elsewhere). */
   hide?: ("address" | "favorites" | "visit")[];
-  /** false hides the typical range (e.g. a market without approved public pricing). */
+  /** Phase 4: ignored. Customers never see ranges or prices. Kept for call-site compatibility. */
   showRange?: boolean;
 };
 
@@ -36,21 +36,15 @@ export function validateQualifiers(cfg: EstimateConfig, q: Qualifiers, hide: Pro
   const e: Partial<Record<keyof Qualifiers, string>> = {};
   if (!q.project_type) e.project_type = "Choose a project type";
   else if (!q.size) e.size = "Choose the closest size";
-  if (!q.budget) e.budget = "Choose a budget range (\"Not sure yet\" is fine)";
   if (!q.start) e.start = "Choose when you'd like to start";
   if (!hide.includes("address") && cfg.addressRequired && !q.address?.trim()) e.address = "Address is required for the visit";
   return e;
 }
 
-export function EstimateQualifiers({ cfg, value: q, onChange, theme: t, errors = {}, hide = [], showRange = true }: Props) {
+export function EstimateQualifiers({ cfg, value: q, onChange, theme: t, errors = {}, hide = [] }: Props) {
   const set = (patch: Partial<Qualifiers>) => onChange({ ...q, ...patch });
   const pt = cfg.projectTypes.find((p) => p.id === q.project_type);
-  const range = showRange ? typicalRange(cfg, q) : undefined;
-  const fit = budgetFit(cfg, q);
   const bounds = useMemo(() => dateBounds(cfg), [cfg]);
-
-  // Seeing the typical range in the form counts as seeing pricing.
-  useEffect(() => { if (range) recordPricingView("form-range"); }, [range?.[0], range?.[1]]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const chips = (name: keyof Qualifiers, opts: Option[], multi = false) => (
     <div className="flex flex-wrap gap-2" role="group" aria-label={String(name)}>
@@ -98,22 +92,6 @@ export function EstimateQualifiers({ cfg, value: q, onChange, theme: t, errors =
         </div>
       ) : null}
 
-      {range && (
-        <div className={t.box} data-testid="typical-range" aria-live="polite">
-          <p className="text-sm">Typical for this project: <strong className="text-lg">{rangeText(range)}</strong></p>
-          <p className={`mt-1 text-xs ${t.muted}`}>{cfg.rangeNote} <a href={cfg.priceGuidePath} className={t.link} target="_blank" rel="noopener">See the full price guide</a></p>
-        </div>
-      )}
-
-      <div>
-        <p className={t.label}>What budget are you working with? *</p>
-        {chips("budget", cfg.budgetBands)}
-        {err("budget")}
-        {showRange && fit.fit === "below" && (
-          <p className={`mt-2 text-sm ${t.muted}`} data-testid="budget-below">{"That's under the typical range for this scope. That's okay: we'll suggest a phased or essentials option on the call."}</p>
-        )}
-      </div>
-
       <div>
         <p className={t.label}>When would you like to start? *</p>
         {chips("start", cfg.startOptions)}
@@ -134,7 +112,7 @@ export function EstimateQualifiers({ cfg, value: q, onChange, theme: t, errors =
               {cfg.timeWindows.map((w) => <option key={w.id} value={w.id}>{w.label}</option>)}
             </select>
           </label>
-          <p className={`text-xs sm:col-span-2 ${t.muted}`}>{"We'll confirm the exact time with you. This just helps us hold a slot."}</p>
+          <p className={`text-xs sm:col-span-2 ${t.muted}`}>{"We'll confirm the exact time with you. This just helps us hold a slot. Access to occupied units is arranged through the owner or manager."}</p>
         </div>
       )}
 
