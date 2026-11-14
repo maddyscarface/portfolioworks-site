@@ -1,0 +1,23 @@
+-- Rollback for 20261114_phase4_core.sql. DESTROYS Phase 4 data: export first. Buckets are kept (delete manually after export).
+begin;
+drop trigger if exists p4_audit_no_update on public.p4_audit_log;
+drop function if exists public.p4_audit_immutable();
+drop table if exists public.p4_capture_sessions;
+drop table if exists public.p4_media_assets;
+drop table if exists public.p4_measurement_revisions;
+drop table if exists public.p4_capture_followups;
+drop table if exists public.p4_estimates;
+drop table if exists public.p4_proposal_exports;
+drop table if exists public.p4_upload_sessions;
+drop table if exists public.p4_projects;
+drop table if exists public.p4_pricebook_items;
+drop table if exists public.p4_event_outbox;
+drop table if exists public.p4_audit_log;
+drop table if exists public.p4_audience_recipes;
+drop table if exists public.p4_audience_runs;
+drop table if exists public.p4_vendor_exports;
+drop table if exists public.p4_vendor_contacts;
+drop table if exists public.p4_suppressions;
+drop table if exists public.p4_consent_evidence;
+drop table if exists public.p4_webhook_events;
+commit;
