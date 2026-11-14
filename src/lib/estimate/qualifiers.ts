@@ -12,8 +12,8 @@
 
 export type Option = { id: string; label: string; hint?: string };
 export type Range = [number, number];
-export type ScopeSize = Option & { typical: Range };
-export type ProjectType = Option & { sizes: ScopeSize[]; addOns?: (Option & { typical: Range })[] };
+export type ScopeSize = Option & { typical?: Range };
+export type ProjectType = Option & { sizes: ScopeSize[]; addOns?: (Option & { typical?: Range })[] };
 export type BudgetBand = Option & { min: number; max: number | null };
 export type TimeWindow = Option & { start: string; end: string }; // "HH:MM" 24h, site time zone
 
@@ -91,9 +91,9 @@ export const labelOf = (opts: Option[], id?: string) => opts.find((o) => o.id ==
 export function typicalRange(cfg: EstimateConfig, q: Qualifiers): Range | undefined {
   const pt = cfg.projectTypes.find((p) => p.id === q.project_type);
   const size = pt?.sizes.find((s) => s.id === q.size);
-  if (!pt || !size) return undefined;
+  if (!pt || !size?.typical) return undefined;
   let [lo, hi] = size.typical;
-  for (const a of pt.addOns ?? []) if (q.add_ons?.includes(a.id)) { lo += a.typical[0]; hi += a.typical[1]; }
+  for (const a of pt.addOns ?? []) if (a.typical && q.add_ons?.includes(a.id)) { lo += a.typical[0]; hi += a.typical[1]; }
   return [lo, hi];
 }
 
