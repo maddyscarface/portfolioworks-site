@@ -28,7 +28,7 @@ export default function Page() {
         <h2 className="text-2xl text-navy pt-4">Retention & security</h2>
         <p>We keep project records for as long as needed for warranty, accounting and legal purposes. Portal access is limited to the properties assigned to each user.</p>
         <h2 className="text-2xl text-navy pt-4">Contact</h2>
-        <p>{site.email}</p>
+        <p className="[overflow-wrap:anywhere]">{site.email}</p>
       </Container>
     </section>
   );

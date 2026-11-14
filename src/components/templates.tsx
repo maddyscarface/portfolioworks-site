@@ -5,6 +5,7 @@ import { getAudience, type AudienceId } from "@/config/audiences";
 import { markets, type Market, type Town } from "@/config/markets";
 import { credentialsByMarket } from "@/config/site";
 import Image from "next/image";
+import { FULL_BLEED_SIZES, heroQuality } from "@/lib/image-sizes";
 import { Btn, Check, CtaBand, Faq, FaqJsonLd, Heading, MarketStatusNote, PageHero, Photo, Section } from "@/components/ui";
 import { photos, marketPhoto, serviceDetailPhoto, serviceHeroPhoto, type PhotoKey } from "@/config/photos";
 import LeadForm from "@/components/LeadForm";
@@ -248,7 +249,7 @@ export function FunnelTemplate({ c }: { c: FunnelConfig }) {
   return (
     <>
       <section className="relative isolate overflow-hidden bg-navy text-paper">
-        <Image src={photos[c.image ?? FUNNEL_PHOTO[c.funnel] ?? "heroRentReadyLivingRoom"].src} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
+        <Image src={photos[c.image ?? FUNNEL_PHOTO[c.funnel] ?? "heroRentReadyLivingRoom"].src} alt="" fill priority sizes={FULL_BLEED_SIZES} quality={heroQuality} className="-z-20 object-cover" />
         <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
         <div className="wrap py-14 sm:py-20 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-start">
           <div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { coverSizes, FULL_BLEED_SIZES, heroQuality, photoQuality } from "@/lib/image-sizes";
 import type { ReactNode } from "react";
 import { site, founder } from "@/config/site";
 import { services } from "@/config/services";
@@ -19,7 +20,7 @@ export function Logo({ light = false }: { light?: boolean }) {
       </svg>
       <span className={`leading-none ${light ? "text-paper" : "text-navy"}`}>
         <span className="display text-[1.15rem] font-semibold tracking-tight">PortfolioWorks</span>
-        <span className="block text-[0.55rem] tracking-[0.16em] uppercase opacity-70 mt-0.5">Contracting &amp; Property Services</span>
+        <span className="block text-[0.55rem] tracking-[0.1em] min-[360px]:tracking-[0.16em] uppercase opacity-70 mt-0.5">Contracting &amp; Property Services</span>
       </span>
     </span>
   );
@@ -57,9 +58,9 @@ export function Photo({ k, className = "", sizes = "(min-width: 1024px) 50vw, 10
   return (
     <div className={`relative overflow-hidden bg-paper-2 ${rounded ? "rounded-[2px]" : ""} ${className}`}>
       {fill ? (
-        <Image src={p.src} alt={p.alt} fill sizes={sizes} priority={priority} className="object-cover" />
+        <Image src={p.src} alt={p.alt} fill sizes={coverSizes(sizes)} quality={priority ? heroQuality : photoQuality} priority={priority} className="object-cover" />
       ) : (
-        <Image src={p.src} alt={p.alt} width={p.width} height={p.height} sizes={sizes} priority={priority} className="h-auto w-full" />
+        <Image src={p.src} alt={p.alt} width={p.width} height={p.height} sizes={sizes} quality={priority ? heroQuality : photoQuality} priority={priority} className="h-auto w-full" />
       )}
       {tag && <span className="tag-illustrative">Illustrative</span>}
     </div>
@@ -71,7 +72,7 @@ export function PageHero({ eyebrow, title, sub, children, aside, image = "heroRe
     <section className="relative isolate overflow-hidden bg-navy text-paper">
       {image && (
         <>
-          <Image src={photos[image].src} alt={photos[image].alt} fill priority fetchPriority="high" sizes="100vw" className="-z-20 object-cover" />
+          <Image src={photos[image].src} alt={photos[image].alt} fill priority fetchPriority="high" sizes={FULL_BLEED_SIZES} quality={heroQuality} className="-z-20 object-cover" />
           <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
           <div className="absolute inset-0 -z-10 grid-bg grid-fade" aria-hidden />
         </>
@@ -142,7 +143,7 @@ export function Breadcrumbs({ items }: { items: { name: string; path: string }[]
 export function CtaBand({ title = "Tell us about the property. We'll build the plan.", sub, primary = site.ctas.primary, secondary = site.ctas.commercial, tertiary, image = "rentReadyOpenPlan" }: { title?: string; sub?: string; primary?: { label: string; href: string }; secondary?: { label: string; href: string }; tertiary?: { label: string; href: string }; image?: PhotoKey }) {
   return (
     <section className="relative isolate overflow-hidden bg-ink text-paper">
-      <Image src={photos[image].src} alt="" fill sizes="100vw" className="-z-20 object-cover" />
+      <Image src={photos[image].src} alt="" fill sizes={FULL_BLEED_SIZES} quality={photoQuality} className="-z-20 object-cover" />
       <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
       <Container className="py-20 sm:py-24 grid md:grid-cols-[1.4fr_1fr] gap-10 items-center">
         <div>
@@ -284,7 +285,7 @@ export function Header() {
       </div>
       <div className="bg-paper/95 backdrop-blur border-b border-line">
         <div className="wrap h-[72px] flex items-center justify-between gap-3 xl:gap-4">
-          <Link href="/" className="min-w-0 shrink-0"><Logo /></Link>
+          <Link href="/" className="min-w-0 shrink"><Logo /></Link>
           <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-5 text-[0.875rem] 2xl:text-[0.92rem] text-charcoal whitespace-nowrap" aria-label="Primary">
             {DESKTOP_NAV.slice(0, 2).map((n) => <Link key={n.href} href={n.href} className={navLinkClass}>{n.label}</Link>)}
             <ServicesMenu />
