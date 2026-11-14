@@ -95,7 +95,7 @@ const PHASE3: Guide[] = [
       { href: "/rental-turnovers", label: "Rental unit turnovers" },
       { href: "/request-a-turnover", label: "Plan a unit turnover" },
       { href: "/resources/documenting-unit-closeout", label: "Documenting unit closeout" },
-      { href: "/unit-turn-estimator", label: "Unit turn estimator" },
+      { href: "/unit-turn-estimator", label: "Unit turn scope planner" },
     ],
     faq: [
       { q: "Is cleaning included?", a: "Cleaning is typically coordinated as a closing line item once construction work is complete. Confirm it in the written scope so it is not assumed." },
@@ -346,7 +346,7 @@ const BRIEF_SECTIONS: Record<string, GuideSection[]> = {
   "how-much-does-apartment-turnover-cost-boston": [
     { h2: "Cost is driven by scope, not by a single average", body: ["A light refresh (paint and minor repairs) is a different job from a standard turn (paint, flooring in some rooms, fixture refresh) or a heavy turn (kitchen or bath work, subfloor, extensive plaster). Unit size, access and finish standard also move the number."] },
     { h2: "Price line items, then decide what can wait", body: ["A line-item scope lets you defer cosmetic work without losing the make-ready path. Lump-sum bids hide that choice."] },
-    { h2: "Use the estimator as a planning range only", body: ["The Unit Turn Estimator applies owner-reviewed planning assumptions dated on the price sheet. It is not a bid. Hidden conditions, permits and material choices are confirmed in a written scope after review of the unit."] },
+    { h2: "Plan the scope first, then get a written price", body: ["The Unit Turn Scope Planner lists the trades, timing and access notes for a unit. It shows no prices: pricing comes only in a written proposal. Hidden conditions, permits and material choices are confirmed in a written scope after review of the unit."] },
   ],
   "september-1-boston-turnover-planning": [
     { h2: "Why the calendar compresses", body: ["When many leases end in late August, contractors, flooring suppliers and cleaners book earlier than owners expect. Waiting until mid-August to scope a heavy turn is how units miss the next lease start."] },
@@ -428,7 +428,7 @@ const BRIEF_SECTIONS: Record<string, GuideSection[]> = {
 
 const BRIEF_LINK_LABEL: Record<string, string> = {
   "/rental-turnovers": "Rental turnovers",
-  "/unit-turn-estimator": "Unit turn estimator",
+  "/unit-turn-estimator": "Unit turn scope planner",
   "/portfolio-programs": "Portfolio programs",
   "/portfolio-savings-calculator": "Vacancy and portfolio planner",
   "/services/painting-drywall": "Painting and drywall",
@@ -459,7 +459,7 @@ const GUIDE_SEO: Record<string, { title: string; description?: string }> = {
   },
   "how-much-does-apartment-turnover-cost-boston": {
     title: "Apartment Turnover Cost in Boston | PortfolioWorks",
-    description: "Apartment turnover cost in Boston depends on scope tier, unit size, damage and finishes. Use a dated estimator for planning, then request a written scope.",
+    description: "Apartment turnover cost in Boston depends on scope tier, unit size, damage and finishes. Plan the scope with our planner, then request a written proposal.",
   },
   "september-1-boston-turnover-planning": {
     title: "Planning a September 1 Boston Turnover | PortfolioWorks",

@@ -1,5 +1,6 @@
+import "server-only";
 /**
- * EDITABLE INTERNAL PRICE SHEET — PLACEHOLDER VALUES.
+ * EDITABLE INTERNAL PRICE SHEET — PLACEHOLDER VALUES. SERVER-ONLY (Phase 4: never bundled into public pages).
  *
  * These numbers are starting assumptions for Greater Boston so the estimator works
  * end to end. Replace them with your actual crew and subcontractor costs + target

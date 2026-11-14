@@ -62,7 +62,7 @@ export const services: Service[] = [
       model: "Fixed price per approved scope",
       framework:
         "Priced per line item from a market price sheet. Standard-package pricing available for repeat units with identical finishes.",
-      illustrativeRange: "Light refresh to heavy turn; use the Unit Turn Estimator for a preliminary range",
+      illustrativeRange: "Light refresh to heavy turn; use the Unit Turn Scope Planner to map the scope (no prices online)",
     },
     formFields: ["Move-out date", "Target move-in date", "Bedrooms / bathrooms", "Condition level", "Photos"],
     cta: "Get Your Unit Ready for the Next Tenant",
