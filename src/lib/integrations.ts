@@ -4,7 +4,8 @@
  * see docs/18-technical-deployment.md for the credential checklist.
  */
 import { qualifierFields, type Qualifiers } from "@/lib/estimate/qualifiers";
-import { estimateConfig } from "@/config/estimate";
+import { internalEstimateConfig as estimateConfig } from "@/config/estimate-internal";
+import { publicSafeQualifierFields } from "@/lib/p4/ghl-pricing";
 import crypto from "node:crypto";
 import type { Lead, Score } from "@/lib/leads";
 import { getMarket } from "@/config/markets";
@@ -165,7 +166,7 @@ export function ghlContactPayload(l: Lead, s: Score) {
       { key: "pw_openai_obref", field_value: l.attribution.openai_obref ?? "" },
       { key: "pw_openai_oppref", field_value: l.attribution.openai_oppref ?? "" },
       // Pre-estimate answers (budget fit, typical range, offer guidance, visit time…) → pw_est_* fields.
-      ...Object.entries(qualifierFields(estimateConfig, l.qualifiers as Qualifiers | undefined)).map(([k, v]) => ({ key: `pw_${k}`, field_value: v ?? "" })),
+      ...Object.entries(publicSafeQualifierFields(qualifierFields(estimateConfig, l.qualifiers as Qualifiers | undefined))).map(([k, v]) => ({ key: `pw_${k}`, field_value: v ?? "" })),
     ],
   };
 }
