@@ -4,7 +4,8 @@ import { buildOpenAiEvent, buildUser, normName, normPhone, openAiStageEvent, sen
 import { oaiqSnippet } from "@/lib/openai-ads/client";
 import { budgetFit, calendarLink, qualifierFields, qualifierScore, sanitizeQualifiers, typicalRange } from "@/lib/estimate/qualifiers";
 import { renderLeadBrief } from "@/lib/estimate/lead-brief";
-import { estimateConfig as cfg, briefTheme } from "@/config/estimate";
+import { briefTheme } from "@/config/estimate";
+import { internalEstimateConfig as cfg } from "@/config/estimate-internal";
 
 const h = (s: string) => createHash("sha256").update(s).digest("hex");
 
@@ -72,7 +73,7 @@ describe("OpenAI Conversions API payload", () => {
 describe("pre-estimate qualifiers", () => {
   const pt = cfg.projectTypes[0];
   const size = pt.sizes[Math.min(1, pt.sizes.length - 1)];
-  const [lo, hi] = size.typical;
+  const [lo, hi] = size.typical!;
 
   it("drops unknown ids and keeps valid answers", () => {
     const q = sanitizeQualifiers(cfg, { project_type: pt.id, size: size.id, budget: "nope", start: cfg.startOptions[0].id, favorites: ["x", cfg.favorites.options[0]?.id], preferred_date: "2026-13-45", pricing_views: 3, saw_pricing: true, address: " 1 Main St " })!;
