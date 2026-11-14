@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BUDGET_TO_LEGACY, estimateConfig } from "@/config/estimate";
+import { BUDGET_TO_LEGACY } from "@/config/estimate";
+import { internalEstimateConfig as estimateConfig } from "@/config/estimate-internal";
 import { leadSchema } from "@/lib/leads";
 
 const enumOptions = (field: unknown): string[] => {

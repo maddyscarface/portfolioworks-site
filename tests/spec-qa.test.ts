@@ -17,15 +17,15 @@ afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); });
 
 describe("admin authorization", () => {
   const req = (auth?: string) => new NextRequest("http://localhost/admin", { headers: auth ? { authorization: auth } : {} });
-  it("fails closed (404) in production without ADMIN_PASSWORD", () => {
-    vi.stubEnv("NODE_ENV", "production"); vi.stubEnv("ADMIN_PASSWORD", ""); vi.stubEnv("ALLOW_DEMO_ADMIN", "");
-    expect(middleware(req()).status).toBe(404);
+  it("fails closed (404) in production without ADMIN_PASSWORD", async () => {
+    vi.stubEnv("NODE_ENV", "production"); vi.stubEnv("ADMIN_PASSWORD", ""); vi.stubEnv("ADMIN_USERS_JSON", ""); vi.stubEnv("ALLOW_DEMO_ADMIN", "");
+    expect((await middleware(req())).status).toBe(404);
   });
-  it("requires the password when set", () => {
+  it("requires the password when set", async () => {
     vi.stubEnv("ADMIN_PASSWORD", "s3cret");
-    expect(middleware(req()).status).toBe(401);
-    expect(middleware(req(`Basic ${btoa("admin:wrong")}`)).status).toBe(401);
-    expect(middleware(req(`Basic ${btoa("admin:s3cret")}`)).headers.get("x-middleware-next")).toBe("1");
+    expect((await middleware(req())).status).toBe(401);
+    expect((await middleware(req(`Basic ${btoa("admin:wrong")}`))).status).toBe(401);
+    expect((await middleware(req(`Basic ${btoa("admin:s3cret")}`))).headers.get("x-middleware-next")).toBe("1");
   });
 });
 
