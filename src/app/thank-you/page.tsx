@@ -26,7 +26,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
         </ol>
         <p className="mt-8 text-slate">Have photos ready? Reply to our confirmation email with them—or use the links below while you wait.</p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Btn href="/unit-turn-estimator" variant="dark">Try the estimator</Btn>
+          <Btn href="/unit-turn-estimator" variant="dark">Try the scope planner</Btn>
           <Btn href="/how-it-works" variant="ghost">How it works</Btn>
         </div>
         <p className="mt-10 text-sm"><Link href="/" className="underline">Back to home</Link></p>

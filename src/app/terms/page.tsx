@@ -16,8 +16,8 @@ export default function Page() {
         <h1 className="text-4xl text-navy">Terms of Use</h1>
         <h2 className="text-2xl text-navy pt-4">Website information</h2>
         <p>Content on this site is general information about {site.legalName}&apos;s services. Service availability varies by market and is confirmed in writing.</p>
-        <h2 className="text-2xl text-navy pt-4">Estimators and calculators</h2>
-        <p>The Unit Turnover Cost Estimator, Vacancy Cost Calculator and Portfolio Improvement Planner produce illustrative, preliminary figures from internal assumptions. They are not quotes, bids, offers or contracts and do not guarantee any cost, schedule, tenant, lease date or rent.</p>
+        <h2 className="text-2xl text-navy pt-4">Planning tools</h2>
+        <p>The Unit Turnover Scope Planner and Portfolio Improvement Planner list scope and planning considerations only and show no prices. The Vacancy Cost Calculator uses only the figures you enter. None of them is a quote, bid, offer or contract, and none guarantees any cost, schedule, tenant, lease date or rent.</p>
         <h2 className="text-2xl text-navy pt-4">No contract until signed</h2>
         <p>Submitting a request creates no obligation for either party. Work is performed only under a written proposal or contract signed by both parties, including any state-required terms.</p>
         <h2 className="text-2xl text-navy pt-4">Licensing</h2>
