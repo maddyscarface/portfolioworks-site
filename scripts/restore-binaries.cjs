@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- plain CommonJS prebuild script */
 // Restores binary assets stored as base64 (*.b64) — the repo was pushed through a text-only API.
 const fs = require("fs");
 const path = require("path");
