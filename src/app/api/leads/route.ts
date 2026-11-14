@@ -8,7 +8,8 @@ import { sendOpenAiEvent } from "@/lib/openai-ads/server";
 import { budgetFit, qualifierScore, sanitizeQualifiers } from "@/lib/estimate/qualifiers";
 import { sanitizeDetails } from "@/config/funnel-fields";
 import { renderLeadBrief, sendLeadBrief } from "@/lib/estimate/lead-brief";
-import { briefTheme, estimateConfig } from "@/config/estimate";
+import { briefTheme } from "@/config/estimate";
+import { internalEstimateConfig as estimateConfig } from "@/config/estimate-internal";
 import { site } from "@/config/site";
 
 export const runtime = "nodejs";
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
 
   if (memoryStoreBlocked()) {
     console.error("[lead] Upstash not configured in production — refusing to keep leads in memory");
-    return NextResponse.json({ ok: false, error: "Our form is temporarily unavailable. Please call or email us instead." }, { status: 503 });
+    return NextResponse.json({ ok: false, error: "Our form is temporarily unavailable. Please email us or use the contact page instead." }, { status: 503 });
   }
   if (!(await rateLimit(ip))) return NextResponse.json({ ok: false, error: "Too many requests" }, { status: 429 });
 
