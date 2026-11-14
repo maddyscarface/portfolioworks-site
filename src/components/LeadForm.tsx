@@ -335,17 +335,6 @@ export default function LeadForm({ funnel, defaultType, defaultServices = [], es
               <option value="planning">Planning / budgeting</option>
             </select>
           </div>
-          <div>
-            <label className="label" htmlFor="bd">Budget range</label>
-            <select id="bd" className="input" value={f.budget} onChange={(e) => set("budget", e.target.value)}>
-              <option value="unknown">Not sure yet</option>
-              <option value="under-5k">Under $5k</option>
-              <option value="5-15k">$5k–$15k</option>
-              <option value="15-50k">$15k–$50k</option>
-              <option value="50-150k">$50k–$150k</option>
-              <option value="150k-plus">$150k+</option>
-            </select>
-          </div>
           </>)}
           <div className="sm:col-span-2">
             <span className="label">Type of engagement</span>

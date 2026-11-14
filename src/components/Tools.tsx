@@ -1,14 +1,13 @@
 "use client";
-import { PricingViewBeacon } from "@/components/estimate/PricingViewBeacon";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { estimateTurnover, vacancyCost, planPortfolio, type TurnoverInput, type PlannerInput } from "@/lib/calculators";
+import { planScope, vacancyCost, planPortfolio, type ScopeInput, type PlannerInput } from "@/lib/planning-tools";
 import { track } from "@/components/Tracking";
 import LeadForm from "@/components/LeadForm";
 import type { MarketId } from "@/config/markets";
-import { priceSheet } from "@/config/pricing";
 
-const usd = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+/** Vacancy calculator only: formats the CUSTOMER'S OWN rent figures (never our prices). Blank until they type. */
+const usd = (n: number) => (n > 0 ? n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }) : "—");
 
 function Seg<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return (
@@ -23,10 +22,10 @@ function Seg<T extends string>({ label, value, options, onChange }: { label: str
   );
 }
 
-/* ─────────── Tool A ─────────── */
+/* ─────────── Tool A: Unit Turnover Scope Planner (Phase 4: no prices) ─────────── */
 export function TurnoverEstimator({ embedded = false }: { embedded?: boolean }) {
-  const [i, setI] = useState<TurnoverInput>({
-    zip: "02130",
+  const [i, setI] = useState<ScopeInput>({
+    zip: "",
     unitType: "apartment",
     bedrooms: 2,
     bathrooms: 1,
@@ -37,15 +36,16 @@ export function TurnoverEstimator({ embedded = false }: { embedded?: boolean }) 
     bathroom: "refresh",
     carpentry: "minor",
     damage: "moderate",
+    occupied: false,
     targetMoveIn: "",
   });
   const [showForm, setShowForm] = useState(false);
   const [used, setUsed] = useState(false);
-  const r = useMemo(() => estimateTurnover(i), [i]);
-  const up = <K extends keyof TurnoverInput>(k: K, v: TurnoverInput[K]) => {
+  const r = useMemo(() => planScope(i), [i]);
+  const up = <K extends keyof ScopeInput>(k: K, v: ScopeInput[K]) => {
     if (!used) {
       setUsed(true);
-      track("estimator_used", { tool: "unit_turn" });
+      track("estimator_used", { tool: "unit_turn_scope" });
     }
     setI((p) => ({ ...p, [k]: v }));
   };
@@ -56,7 +56,7 @@ export function TurnoverEstimator({ embedded = false }: { embedded?: boolean }) 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="col-span-2 sm:col-span-1">
             <label className="label" htmlFor="ezip">Property ZIP</label>
-            <input id="ezip" className="input" maxLength={5} value={i.zip} onChange={(e) => up("zip", e.target.value.replace(/\D/g, ""))} />
+            <input id="ezip" className="input" inputMode="numeric" maxLength={5} value={i.zip} onChange={(e) => up("zip", e.target.value.replace(/\D/g, ""))} />
           </div>
           <div><label className="label" htmlFor="ebd">Bedrooms</label><input id="ebd" type="number" min={0} max={10} className="input" value={i.bedrooms} onChange={(e) => up("bedrooms", Number(e.target.value))} /></div>
           <div><label className="label" htmlFor="eba">Bathrooms</label><input id="eba" type="number" min={1} max={6} className="input" value={i.bathrooms} onChange={(e) => up("bathrooms", Number(e.target.value))} /></div>
@@ -68,39 +68,37 @@ export function TurnoverEstimator({ embedded = false }: { embedded?: boolean }) 
         <Seg label="Kitchen" value={i.kitchen} onChange={(v) => up("kitchen", v)} options={[["none", "None"], ["refresh", "Refresh"], ["upgrade", "Upgrade"], ["full", "Full renovation"]]} />
         <Seg label="Bathroom(s)" value={i.bathroom} onChange={(v) => up("bathroom", v)} options={[["none", "None"], ["refresh", "Refresh"], ["upgrade", "Upgrade"], ["full", "Full renovation"]]} />
         <Seg label="Carpentry & repairs" value={i.carpentry} onChange={(v) => up("carpentry", v)} options={[["none", "None"], ["minor", "A few items"], ["moderate", "Moderate list"], ["major", "Extensive"]]} />
-        <Seg label="Overall damage level" value={i.damage} onChange={(v) => up("damage", v)} options={[["light", "Light wear"], ["moderate", "Moderate"], ["heavy", "Heavy damage"]]} />
+        <Seg label="Overall condition" value={i.damage} onChange={(v) => up("damage", v)} options={[["light", "Light wear"], ["moderate", "Moderate"], ["heavy", "Heavy damage"]]} />
+        <Seg label="Is the unit occupied?" value={i.occupied ? "yes" : "no"} onChange={(v) => up("occupied", v === "yes")} options={[["no", "Vacant"], ["yes", "Occupied"]]} />
         <div className="max-w-xs"><label className="label" htmlFor="emi">Target move-in date</label><input id="emi" type="date" className="input" value={i.targetMoveIn} onChange={(e) => up("targetMoveIn", e.target.value)} /></div>
       </div>
 
       <div className="space-y-4">
-        <div className="bg-navy text-paper p-6 rounded-[3px]">
-          <PricingViewBeacon where="unit-turn-estimator" />
-          <p className="eyebrow !text-bronze-2">Nonbinding preliminary range · not a quote</p>
-          <p className="num text-4xl sm:text-5xl mt-2" data-testid="estimate-range">{usd(r.low)} – {usd(r.high)}</p>
-          <p className="text-paper/60 text-xs mt-2">{r.marketNote}</p>
-          <p className="text-paper/80 text-xs mt-3" data-testid="assumption-date">{priceSheet.assumptionLabel}</p>
+        <div className="bg-navy text-paper p-6 rounded-[3px]" data-testid="scope-plan">
+          <p className="eyebrow !text-bronze-2">Scope plan · no prices online</p>
+          <p className="text-2xl sm:text-3xl mt-2" data-testid="scope-intensity">{r.intensity === "heavy" ? "Heavy turn" : r.intensity === "moderate" ? "Moderate turn" : "Light turn"}</p>
+          <p className="text-paper/70 text-xs mt-2" data-testid="scope-market">{i.zip.length === 5 ? r.marketNote : "Enter the property ZIP to check the service area"}</p>
           <div className="mt-5 divide-y divide-white/10 text-sm">
             {r.items.map((it) => (
-              <div key={it.label} className="flex justify-between gap-4 py-2">
-                <span><span className="text-paper/50 text-xs block">{it.category}</span>{it.label}</span>
-                <span className="num whitespace-nowrap">{usd(it.low)}–{usd(it.high)}</span>
-              </div>
+              <div key={it.label} className="py-2"><span className="text-paper/50 text-xs block">{it.category}</span>{it.label}</div>
             ))}
           </div>
         </div>
         <div className="card p-5 text-sm">
-          <p className="font-semibold text-navy mb-2">Scheduling considerations</p>
+          <p className="font-semibold text-navy mb-2">Scheduling and access</p>
           <ul className="space-y-1.5 text-slate list-disc pl-4">{r.schedule.map((s) => <li key={s}>{s}</li>)}</ul>
+          <p className="font-semibold text-navy mt-4 mb-2">What to send with your request</p>
+          <ul className="space-y-1.5 text-slate list-disc pl-4">{r.bring.map((s) => <li key={s}>{s}</li>)}</ul>
         </div>
-        <p className="text-[0.72rem] text-slate leading-relaxed">{r.disclaimer}</p>
+        <p className="text-[0.72rem] text-slate leading-relaxed" data-testid="scope-disclaimer">{r.disclaimer}</p>
         {!showForm ? (
-          <button className="btn btn-primary w-full" onClick={() => { setShowForm(true); track("estimator_cta", { tool: "unit_turn" }); }}>
+          <button className="btn btn-primary w-full" onClick={() => { setShowForm(true); track("estimator_cta", { tool: "unit_turn_scope" }); }}>
             Submit this unit for a written scope →
           </button>
         ) : (
-          <LeadForm funnel="turnover" defaultServices={["rental-turnovers"]} estimatorSnapshot={{ input: i, low: r.low, high: r.high }} />
+          <LeadForm funnel="turnover" defaultServices={["rental-turnovers"]} estimatorSnapshot={{ input: i, intensity: r.intensity, items: r.items.map((x) => x.label) }} />
         )}
-        {embedded && <Link href="/unit-turn-estimator" className="block text-center text-sm underline text-slate">Open the full estimator</Link>}
+        {embedded && <Link href="/unit-turn-estimator" className="block text-center text-sm underline text-slate">Open the full scope planner</Link>}
       </div>
     </div>
   );
@@ -108,13 +106,13 @@ export function TurnoverEstimator({ embedded = false }: { embedded?: boolean }) 
 
 /* ─────────── Tool B ─────────── */
 export function VacancyCalculator() {
-  const [v, setV] = useState({ monthlyRent: 2800, estimatedDaysVacant: 30, renovationDays: 18, acceleratedRenovationDays: 8 });
+  const [v, setV] = useState({ monthlyRent: 0, estimatedDaysVacant: 30, renovationDays: 18, acceleratedRenovationDays: 8 });
   const r = vacancyCost(v);
   const field = (k: keyof typeof v, label: string, suffix?: string) => (
     <div>
       <label className="label" htmlFor={`v-${k}`}>{label}</label>
       <div className="relative">
-        <input id={`v-${k}`} type="number" min={0} className="input" value={v[k]} onChange={(e) => setV({ ...v, [k]: Number(e.target.value) })} />
+        <input id={`v-${k}`} type="number" min={0} className="input" placeholder={k === "monthlyRent" ? "Your rent" : undefined} value={v[k] || ""} onChange={(e) => setV({ ...v, [k]: Number(e.target.value) })} />
         {suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate">{suffix}</span>}
       </div>
     </div>
@@ -122,7 +120,7 @@ export function VacancyCalculator() {
   return (
     <div className="grid lg:grid-cols-2 gap-6" data-testid="vacancy-calc">
       <div className="card p-6 grid sm:grid-cols-2 gap-4 content-start">
-        {field("monthlyRent", "Monthly rent", "$/mo")}
+        {field("monthlyRent", "Your monthly rent", "per month")}
         {field("estimatedDaysVacant", "Expected days vacant (current process)", "days")}
         {field("renovationDays", "Renovation duration (current)", "days")}
         {field("acceleratedRenovationDays", "Proposed accelerated duration", "days")}
@@ -139,7 +137,7 @@ export function VacancyCalculator() {
           <span className="num text-3xl">{usd(r.difference)}</span>
         </div>
         <p className="text-[0.72rem] text-slate">{r.note}</p>
-        <p className="text-xs text-slate" data-testid="vacancy-assumption-date">{priceSheet.assumptionLabel}</p>
+        <p className="text-xs text-slate" data-testid="vacancy-assumption-date">Uses only the figures you enter. Nothing is sent or stored, and it isn&rsquo;t a quote.</p>
       </div>
     </div>
   );
@@ -147,7 +145,7 @@ export function VacancyCalculator() {
 
 /* ─────────── Tool C ─────────── */
 export function PortfolioPlanner() {
-  const [p, setP] = useState<PlannerInput>({ units: 48, annualTurnoverRate: 35, locations: ["massachusetts"], typicalScope: "standard", annualMaintenanceBudget: 120000, challenges: [] });
+  const [p, setP] = useState<PlannerInput>({ units: 48, annualTurnoverRate: 35, locations: ["massachusetts"], typicalScope: "standard", challenges: [] });
   const r = planPortfolio(p);
   const toggleLoc = (m: MarketId) => setP({ ...p, locations: p.locations.includes(m) ? p.locations.filter((x) => x !== m) : [...p.locations, m] });
   const CH = ["Contractors slow to respond", "Scheduling delays", "Inconsistent pricing / bids", "Unfinished punch lists", "Poor documentation", "Too many vendors"];
@@ -155,18 +153,18 @@ export function PortfolioPlanner() {
   return (
     <div className="grid lg:grid-cols-2 gap-6" data-testid="portfolio-planner">
       <div className="card p-6 space-y-5">
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 gap-3">
           <div><label className="label" htmlFor="pu">Units</label><input id="pu" type="number" min={1} className="input" value={p.units} onChange={(e) => setP({ ...p, units: Number(e.target.value) })} /></div>
           <div><label className="label" htmlFor="pr">Annual turnover %</label><input id="pr" type="number" min={0} max={100} className="input" value={p.annualTurnoverRate} onChange={(e) => setP({ ...p, annualTurnoverRate: Number(e.target.value) })} /></div>
-          <div><label className="label" htmlFor="pb">Annual maint. budget</label><input id="pb" type="number" min={0} step={1000} className="input" value={p.annualMaintenanceBudget} onChange={(e) => setP({ ...p, annualMaintenanceBudget: Number(e.target.value) })} /></div>
         </div>
         <div>
           <span className="label">Property locations</span>
           <div className="flex flex-wrap gap-2">
-            {([["massachusetts", "Greater Boston"], ["florida", "Southeast Florida"], ["maine", "Southern Maine"]] as [MarketId, string][]).map(([m, l]) => (
+            {([["massachusetts", "Greater Boston"], ["florida", "Southeast Florida (not served yet)"], ["maine", "Southern Maine (not served yet)"]] as [MarketId, string][]).map(([m, l]) => (
               <button key={m} type="button" className="chip" data-on={p.locations.includes(m)} onClick={() => toggleLoc(m)}>{l}</button>
             ))}
           </div>
+          {p.locations.some((m) => m !== "massachusetts") && <p className="text-xs text-slate mt-2" data-testid="planner-market-note">We currently serve Greater Boston (Massachusetts) only. Florida and Maine are not live markets.</p>}
         </div>
         <Seg label="Typical turnover scope" value={p.typicalScope} onChange={(v) => setP({ ...p, typicalScope: v })} options={[["light", "Light (paint & touch-up)"], ["standard", "Standard (paint, floors, fixtures)"], ["heavy", "Heavy (kitchen/bath work)"]]} />
         <div>
@@ -175,10 +173,9 @@ export function PortfolioPlanner() {
         </div>
       </div>
       <div className="space-y-4">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="card p-4"><p className="text-xs text-slate">Est. turns / year</p><p className="num text-3xl text-navy">{r.annualTurns}</p></div>
           <div className="card p-4"><p className="text-xs text-slate">Avg / month</p><p className="num text-3xl text-navy">{r.monthlyTurns}</p></div>
-          <div className="card p-4"><p className="text-xs text-slate">Budget / unit / yr</p><p className="num text-3xl text-navy">{usd(r.budgetPerUnit)}</p></div>
         </div>
         <div className="card p-5">
           <p className="font-semibold text-navy text-sm mb-3">Work planning schedule</p>
@@ -194,12 +191,10 @@ export function PortfolioPlanner() {
           <p className="text-xs text-slate mt-3">Typical peak move months: {r.peakMonths.join(", ")}</p>
         </div>
         <div className="card p-5 text-sm">
-          <p className="font-semibold text-navy">Planned turnover spend (indicative)</p>
-          <p className="num text-2xl mt-1">{usd(r.plannedTurnBudget[0])} – {usd(r.plannedTurnBudget[1])}</p>
-          <p className="font-semibold text-navy mt-4 mb-2">Indicative project categories</p>
+          <p className="font-semibold text-navy mb-2">Indicative project categories</p>
           <div className="flex flex-wrap gap-1.5">{r.categories.map((c) => <span key={c} className="text-xs bg-bronze-soft px-2 py-1">{c}</span>)}</div>
         </div>
-        <p className="text-xs text-slate" data-testid="planner-assumption-date">{priceSheet.assumptionLabel}</p>
+        <p className="text-xs text-slate" data-testid="planner-assumption-date">Planning-only volume and seasonality assumptions. No prices are shown online; a portfolio rate card follows a consultation.</p>
         <details className="text-xs text-slate"><summary className="cursor-pointer">Assumptions used</summary><ul className="list-disc pl-4 mt-2 space-y-1">{r.assumptions.map((a) => <li key={a}>{a}</li>)}</ul></details>
         <div className="border-l-4 border-bronze pl-4 text-sm">{r.nextStep}</div>
         <Link href="/portfolio-programs#consultation" className="btn btn-primary w-full">Discuss a Portfolio Program →</Link>
