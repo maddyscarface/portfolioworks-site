@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { coverSizes, FULL_BLEED_SIZES, heroQuality, photoQuality } from "@/lib/image-sizes";
 import { site, founder, verifiedFounderCredentials } from "@/config/site";
 import { photos, SERVICE_PHOTO, type PhotoKey } from "@/config/photos";
 import { services } from "@/config/services";
@@ -35,7 +36,7 @@ export default function Home() {
     <>
       {/* 1. HERO — full-bleed photography, form above the fold */}
       <section className="relative isolate overflow-hidden bg-navy text-paper">
-        <Image src={photos.heroRentReadyLivingRoom.src} alt={photos.heroRentReadyLivingRoom.alt} fill priority fetchPriority="high" sizes="100vw" className="-z-20 object-cover object-center" />
+        <Image src={photos.heroRentReadyLivingRoom.src} alt={photos.heroRentReadyLivingRoom.alt} fill priority fetchPriority="high" sizes={FULL_BLEED_SIZES} quality={heroQuality} className="-z-20 object-cover object-center" />
         <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
         <div className="absolute inset-0 -z-10 grid-bg grid-fade" aria-hidden />
         <div className="wrap py-14 sm:py-20 lg:py-24 grid lg:grid-cols-[1.15fr_1fr] gap-12 items-start">
@@ -56,9 +57,9 @@ export default function Home() {
               ))}
             </nav>
             <dl className="mt-10 sm:mt-14 grid grid-cols-3 gap-3 sm:gap-6 max-w-lg border-t border-white/20 pt-6">
-              <div><dt className="text-[0.6rem] sm:text-[0.7rem] uppercase tracking-[0.06em] sm:tracking-[0.14em] text-paper/60">Accountability</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">1 partner</dd></div>
-              <div><dt className="text-[0.6rem] sm:text-[0.7rem] uppercase tracking-[0.06em] sm:tracking-[0.14em] text-paper/60">Pricing</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Line&#8209;item</dd></div>
-              <div><dt className="text-[0.6rem] sm:text-[0.7rem] uppercase tracking-[0.06em] sm:tracking-[0.14em] text-paper/60">Closeout</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Photo record</dd></div>
+              <div><dt className="text-[0.55rem] min-[360px]:text-[0.6rem] sm:text-[0.7rem] uppercase tracking-normal min-[360px]:tracking-[0.06em] sm:tracking-[0.14em] text-paper/60">Accountability</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">1 partner</dd></div>
+              <div><dt className="text-[0.55rem] min-[360px]:text-[0.6rem] sm:text-[0.7rem] uppercase tracking-normal min-[360px]:tracking-[0.06em] sm:tracking-[0.14em] text-paper/60">Pricing</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Line&#8209;item</dd></div>
+              <div><dt className="text-[0.55rem] min-[360px]:text-[0.6rem] sm:text-[0.7rem] uppercase tracking-normal min-[360px]:tracking-[0.06em] sm:tracking-[0.14em] text-paper/60">Closeout</dt><dd className="display text-lg sm:text-2xl mt-1.5 leading-tight">Photo record</dd></div>
             </dl>
           </div>
           <LeadForm funnel="walkthrough" />
@@ -140,7 +141,7 @@ export default function Home() {
             { k: "kitchenRenovated" as PhotoKey, t: "Residential owner renovations", s: "Kitchens, baths, whole-home", d: "Your own home, run like a managed project with a written scope.", href: "/home-renovations", cta: "Request renovation estimate", span: "md:col-span-2" },
           ].map((p) => (
             <Link key={p.t} href={p.href} className={`group relative isolate flex ${p.span.includes("3") ? "min-h-[24rem]" : "min-h-[22rem]"} flex-col justify-end overflow-hidden bg-navy text-paper lift zoom ${p.span}`}>
-              <Image src={photos[p.k].src} alt={photos[p.k].alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="-z-20 object-cover" />
+              <Image src={photos[p.k].src} alt={photos[p.k].alt} fill sizes={coverSizes("(min-width: 768px) 50vw, 100vw")} quality={photoQuality} className="-z-20 object-cover" />
               <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/95 via-ink/70 via-45% to-ink/10" aria-hidden />
               <span className="tag-illustrative !top-3 !bottom-auto">Illustrative</span>
               <div className="p-7">
@@ -190,11 +191,11 @@ export default function Home() {
 
       {/* 7. TURNOVER PROCESS — photo band */}
       <section className="relative isolate overflow-hidden bg-navy text-paper">
-        <Image src={photos.siteWalkthrough.src} alt="" fill sizes="100vw" className="-z-20 object-cover opacity-70" />
+        <Image src={photos.siteWalkthrough.src} alt="" fill sizes={FULL_BLEED_SIZES} quality={photoQuality} className="-z-20 object-cover opacity-70" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/75 via-navy/85 to-navy/95" aria-hidden />
         <Container className="py-20 sm:py-28">
           <Heading light eyebrow="How a turnover runs" title="Move-out to move-in, in five controlled steps." />
-          <ol className="grid md:grid-cols-5 gap-8">
+          <ol className="grid md:grid-cols-3 lg:grid-cols-5 gap-8">
             {[
               ["Intake", "Unit details and photos submitted through the form."],
               ["Walkthrough", "Condition documented room by room; damage separated from normal wear."],
@@ -328,7 +329,7 @@ export default function Home() {
 
       {/* 15. MARKETS */}
       <section className="relative isolate overflow-hidden bg-navy text-paper">
-        <Image src={photos.bostonNorthEnd.src} alt="" fill sizes="100vw" className="-z-20 object-cover" />
+        <Image src={photos.bostonNorthEnd.src} alt="" fill sizes={FULL_BLEED_SIZES} quality={photoQuality} className="-z-20 object-cover" />
         <div className="absolute inset-0 -z-10 scrim-hero" aria-hidden />
         <Container className="py-20 sm:py-28 grid lg:grid-cols-2 gap-12 items-end">
           <div>

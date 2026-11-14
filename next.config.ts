@@ -43,7 +43,7 @@ const nextConfig: NextConfig = {
   // output so this flag never changes production or preview deployments on Vercel.
   ...(process.env.BUILD_STANDALONE === "1" && !process.env.VERCEL ? { output: "standalone" as const } : {}),
   poweredByHeader: false,
-  images: { formats: ["image/avif", "image/webp"], deviceSizes: [640, 828, 1080, 1280, 1600, 1920], minimumCacheTTL: 2678400 },
+  images: { formats: ["image/avif", "image/webp"], deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920, 2048, 2560, 3840], qualities: [75, 85, 90], minimumCacheTTL: 2678400 },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
