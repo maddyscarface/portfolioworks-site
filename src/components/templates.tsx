@@ -52,7 +52,7 @@ export function ServiceTemplate({ slug }: { slug: string }) {
               <p className="text-xl text-navy display mt-2">{s.pricing.model}</p>
               <p className="text-slate mt-2 text-sm leading-relaxed">{s.pricing.framework}</p>
               {s.pricing.illustrativeRange && <p className="text-xs text-slate mt-3">{s.pricing.illustrativeRange}</p>}
-              <Link href="/unit-turn-estimator" className="text-sm underline mt-4 inline-block">Try the estimator</Link>
+              <Link href="/unit-turn-estimator" className="text-sm underline mt-4 inline-block">Try the scope planner</Link>
             </div>
           </div>
           <div>
