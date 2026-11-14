@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Header, Footer } from "@/components/ui";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import Tracking from "@/components/Tracking";
 import { CONSENT_DEFAULT_JS } from "@/lib/consent";
 import { flags } from "@/config/flags";
@@ -53,11 +54,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-paper focus:px-4 focus:py-2 focus:text-navy">
           Skip to content
         </a>
-        <Tracking />
+        <SiteChrome><Tracking /></SiteChrome>
         <JsonLd data={organizationGraph()} />
-        <Header />
+        <SiteChrome><Header /></SiteChrome>
         <main id="main">{children}</main>
-        <Footer />
+        <SiteChrome><Footer /></SiteChrome>
       </body>
     </html>
   );

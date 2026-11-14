@@ -16,6 +16,17 @@
   --color-bronze-soft: #f1e6d8;
   --color-ok: #2f6b4f;
   --color-warn: #8a5a12;
+  /* Phase 4 aliases used by the shared admin / walkthrough components (map onto the brand palette above). */
+  --color-char: #142036;
+  --color-char-2: #1d2d4a;
+  --color-char-3: #2b3d5c;
+  --color-cedar: #8a5c30;
+  --color-cedar-soft: #f1e6d8;
+  --color-copper: #8a5c30;
+  --color-bone: #f7f4ee;
+  --color-bone-2: #efeae1;
+  --color-stone: #4b5563;
+  --shadow-card: 0 1px 2px rgba(20, 32, 54, .06), 0 8px 24px -12px rgba(20, 32, 54, .18);
 
   /* Brand stacks preserved. Self-hosted webfonts (next/font) fill in where the system faces are missing. */
   --font-sans: var(--font-inter), ui-sans-serif, "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
@@ -107,3 +118,20 @@ h1 { letter-spacing: -0.02em; }
 .mobile-menu[open] .menu-closed { display: none; }
 .mobile-menu:not([open]) .menu-open { display: none; }
 @media (prefers-reduced-motion: reduce) { .lift, .zoom img, .btn .arrow { transition: none !important; } html { scroll-behavior: auto; } }
+
+/* Phase 4: classes used by the private walkthrough + admin screens (not used by public marketing pages). */
+@layer components {
+.btn-cedar { background: var(--color-bronze); color: #fff; }
+.btn-char { background: var(--color-navy); color: #fff; }
+.btn-char:hover { background: var(--color-navy-2); }
+.btn-cedar:hover { background: #73491f; }
+.btn-cedar:disabled, .btn-outline:disabled { opacity: .45; }
+.btn-outline { border: 1px solid var(--color-navy); color: var(--color-navy); background: #fff; }
+.btn-outline:hover { background: var(--color-navy); color: #fff; }
+.field { width: 100%; min-height: 48px; border: 1px solid var(--color-line); background: #fff; border-radius: 2px; padding: .65rem .85rem; font-size: 16px; color: var(--color-ink); }
+.field:focus { border-color: var(--color-navy); outline: none; box-shadow: 0 0 0 3px rgba(185, 134, 79, .28); }
+.err { color: #a3261b; font-size: 13px; margin-top: .25rem; }
+.choice { border: 1px solid var(--color-line); background: #fff; border-radius: 2px; padding: .75rem .95rem; min-height: 44px; font-size: 15px; font-weight: 500; text-align: left; transition: background-color .12s, border-color .12s; }
+.choice:hover { border-color: var(--color-navy); }
+.choice[aria-pressed="true"], .choice[aria-checked="true"] { background: var(--color-navy); color: #fff; border-color: var(--color-navy); box-shadow: inset 3px 0 0 var(--color-bronze-2); }
+}
