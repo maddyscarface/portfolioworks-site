@@ -215,7 +215,7 @@ export default function Home() {
 
       {/* 8. SAMPLE SCOPES */}
       <Section tone="paper">
-        <Heading eyebrow="Sample scopes" title="What different turns typically include." sub="Illustrative scope tiers to show how we package work. Your price depends on your unit, condition and market. Use the estimator or request a walkthrough." />
+        <Heading eyebrow="Sample scopes" title="What different turns typically include." sub="Illustrative scope tiers to show how we package work. Your price depends on your unit, condition and market. Use the scope planner or request a walkthrough." />
         <div className="grid md:grid-cols-3 gap-6">
           {[
             { k: "wallRepair" as PhotoKey, t: "Light turn", d: "Good condition, normal wear", items: ["Patch & touch-up paint", "Caulk and grout refresh", "Hardware and fixture fixes", "Make-ready clean"] },
@@ -259,7 +259,7 @@ export default function Home() {
 
       {/* 10. ESTIMATOR */}
       <Section tone="paper2" id="estimator">
-        <Heading eyebrow="Unit Turn Estimator" title="See a preliminary range in under a minute." sub="Built from our internal price sheets. It's a planning number, not a quote. Submit the unit for a written scope." />
+        <Heading eyebrow="Unit Turn Scope Planner" title="Plan the turn in under a minute." sub="Pick the rooms and trades to see what the turn involves, timing and access notes. No prices online: submit the unit for a written scope and proposal." />
         <TurnoverEstimator embedded />
       </Section>
 

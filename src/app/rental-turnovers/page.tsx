@@ -34,7 +34,7 @@ export default function Page() {
         aside={<LeadForm funnel="turnover" defaultServices={["rental-turnovers"]} />}
       >
         <Btn href="/request-a-turnover">{site.pathways[0].label}</Btn>
-        <Btn href="/unit-turn-estimator" variant="ghost-light">Unit turn estimator</Btn>
+        <Btn href="/unit-turn-estimator" variant="ghost-light">Unit turn scope planner</Btn>
       </PageHero>
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Rental turnovers", path }]} />
 
@@ -79,8 +79,8 @@ export default function Page() {
               <p className="eyebrow">Pricing framework</p>
               <p className="text-xl text-navy display mt-2">{s.pricing.model}</p>
               <p className="text-slate mt-2 text-sm leading-relaxed">{s.pricing.framework}</p>
-              {s.pricing.illustrativeRange && <p className="text-xs text-slate mt-3">{s.pricing.illustrativeRange}. Planning assumptions are dated on the estimator; the result is not a contractual bid.</p>}
-              <Link href="/unit-turn-estimator" className="text-sm underline mt-4 inline-block">Open the unit turn estimator</Link>
+              {s.pricing.illustrativeRange && <p className="text-xs text-slate mt-3">{s.pricing.illustrativeRange}. Pricing comes only in a written proposal.</p>}
+              <Link href="/unit-turn-estimator" className="text-sm underline mt-4 inline-block">Open the unit turn scope planner</Link>
             </div>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function Page() {
           </div>
         </div>
       </Section>
-      <CtaBand title="Plan the next unit with one coordinator." primary={site.pathways[0]} secondary={{ label: "Unit turn estimator", href: "/unit-turn-estimator" }} />
+      <CtaBand title="Plan the next unit with one coordinator." primary={site.pathways[0]} secondary={{ label: "Unit turn scope planner", href: "/unit-turn-estimator" }} />
     </>
   );
 }

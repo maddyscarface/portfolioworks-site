@@ -12,7 +12,7 @@ export const metadata = pageMeta({
 });
 
 const faq = [
-  { q: "Is the estimator a bid?", a: "No. Any figure shown before a written, approved scope is a planning assumption. Final pricing follows a site walk or a confirmed photo survey and a signed scope." },
+  { q: "Do you show prices online?", a: "No. Pricing comes only in a written proposal after a site walk or a confirmed photo survey, and work starts only under a signed scope." },
   { q: "Can I still hire you for one trade?", a: "Yes. Painting, flooring, carpentry and other trades remain available à la carte. Multi-trade renovations simply put those trades under one scope and one coordinator." },
   { q: "How do change orders work?", a: "Work outside the approved scope is written up with photos, price and schedule impact, and it does not start until you approve it." },
   { q: "Do you serve every town in Massachusetts?", a: "No. Active coverage is the launched Greater Boston towns listed on our service-area pages. Requests outside those towns are reviewed honestly for availability." },
@@ -52,7 +52,7 @@ export default function Page() {
             ["Material specifications", "Products, grades or allowances, colors and substitution rules are written into the scope so later units can match and invoices can be checked."],
             ["Approvals", "Nothing proceeds without a written, approved scope. We name who can approve the original work and who can approve changes, including any dollar threshold you set."],
             ["Change orders", "New work, price and schedule impact are described in writing and signed before that work starts. Verbal adds on site are not how the job runs."],
-            ["Planning figures only", "Estimator ranges and early budgets are planning assumptions with a dated price sheet. They are not contractual bids."],
+            ["Written proposals only", "We don't publish prices or ranges. Any figure comes in a written proposal you approve; nothing is a contractual bid until signed."],
           ].map(([t, d]) => (
             <div key={t} className="card p-6">
               <h2 className="text-xl text-navy">{t}</h2>
