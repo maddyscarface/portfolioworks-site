@@ -30,9 +30,17 @@ export function integrationStatus() {
   };
 }
 
-/* ───── Storage: Upstash Redis REST, with in-memory fallback for local/dev ───── */
+/* ───── Storage: Upstash Redis REST → Supabase/Postgres KV → in-memory (local/dev only) ───── */
 const mem = new Map<string, string>();
-export const kvConfigured = () => Boolean(env("UPSTASH_REDIS_REST_URL") && env("UPSTASH_REDIS_REST_TOKEN"));
+const upstashConfigured = () => Boolean(env("UPSTASH_REDIS_REST_URL") && env("UPSTASH_REDIS_REST_TOKEN"));
+/**
+ * Supabase KV (kv_* RPCs from supabase/migrations/20261115_kv_store_and_hardening.sql, server-only service-role key)
+ * is used only when Upstash is absent, SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are set and SUPABASE_KV is not "0".
+ */
+export const supabaseKvConfigured = () =>
+  !upstashConfigured() && Boolean(env("SUPABASE_URL") && env("SUPABASE_SERVICE_ROLE_KEY")) && env("SUPABASE_KV") !== "0";
+export const kvBackend = (): "upstash" | "supabase" | "memory" => (upstashConfigured() ? "upstash" : supabaseKvConfigured() ? "supabase" : "memory");
+export const kvConfigured = () => kvBackend() !== "memory";
 /**
  * Production guard: never keep leads in process memory on a live site (lost on every serverless
  * recycle, not shared between instances). Set LEAD_ALLOW_MEMORY_STORE=1 only for local/sandbox tests.
@@ -41,12 +49,44 @@ export const memoryStoreBlocked = () =>
   process.env.NODE_ENV === "production" &&
   !kvConfigured() &&
   // specs/03 §6: the memory flag may only relax the guard on non-production deploys (local, Vercel preview/staging).
-  // On the Vercel production environment the 503 guard always holds until Upstash is configured.
+  // On the Vercel production environment the 503 guard always holds until durable storage is configured.
   (process.env.VERCEL_ENV === "production" || process.env.LEAD_ALLOW_MEMORY_STORE !== "1");
-/** Low-level Redis command (Upstash REST, or the in-memory fallback in dev/preview). */
+
+async function kvRpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
+  const url = env("SUPABASE_URL")!.replace(/\/$/, "");
+  const key = env("SUPABASE_SERVICE_ROLE_KEY")!;
+  const res = await fetch(`${url}/rest/v1/rpc/${fn}`, {
+    method: "POST", headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify(args), cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`KV ${fn} failed: ${res.status}`);
+  const text = await res.text();
+  return (text ? JSON.parse(text) : null) as T;
+}
+
+/** Redis command subset used by this app (GET, SET [NX] [EX n], INCR, EXPIRE, LPUSH, LRANGE) on Postgres. */
+async function supabaseCommand(cmd: (string | number)[]): Promise<unknown> {
+  const [op, key, val, ...rest] = cmd.map(String);
+  const exAt = rest.findIndex((x) => x.toUpperCase() === "EX");
+  const ttl = exAt >= 0 ? Number(rest[exAt + 1]) || null : null;
+  switch (op.toUpperCase()) {
+    case "GET": return kvRpc<string | null>("kv_get", { p_key: key });
+    case "SET":
+      if (rest.some((x) => x.toUpperCase() === "NX")) return (await kvRpc<boolean>("kv_setnx", { p_key: key, p_value: val, p_ttl: ttl })) === true ? "OK" : null;
+      await kvRpc("kv_set", { p_key: key, p_value: val, p_ttl: ttl });
+      return "OK";
+    case "INCR": return Number(await kvRpc<number | string>("kv_incr", { p_key: key, p_ttl: null }));
+    case "EXPIRE": return 1; // TTLs are set atomically by kv_incr/kv_set; see rateLimit()
+    case "LPUSH": return Number(await kvRpc<number | string>("kv_lpush", { p_key: key, p_value: val, p_max: 5000 }));
+    case "LRANGE": return (await kvRpc<string[] | null>("kv_lrange", { p_key: key, p_start: Number(val), p_stop: Number(rest[0]) })) ?? [];
+    default: throw new Error(`KV command ${op} not supported on the Supabase backend`);
+  }
+}
+
+/** Low-level Redis command (Upstash REST, Supabase/Postgres KV, or the in-memory fallback in dev/preview). */
 export async function redis(cmd: (string | number)[]): Promise<unknown> {
   const url = env("UPSTASH_REDIS_REST_URL");
   const token = env("UPSTASH_REDIS_REST_TOKEN");
+  if ((!url || !token) && supabaseKvConfigured()) return supabaseCommand(cmd);
   if (!url || !token) {
     const [op, key, val, ...rest] = cmd as string[];
     if (op === "SET") {
@@ -77,6 +117,7 @@ export async function redis(cmd: (string | number)[]): Promise<unknown> {
 
 export async function rateLimit(ip: string, limit = 8, windowSec = 600): Promise<boolean> {
   const key = `rl:${ip}:${Math.floor(Date.now() / 1000 / windowSec)}`;
+  if (supabaseKvConfigured()) return Number(await kvRpc<number | string>("kv_incr", { p_key: key, p_ttl: windowSec })) <= limit;
   const n = Number(await redis(["INCR", key]));
   if (n === 1 && integrationStatus().upstash) await redis(["EXPIRE", key, windowSec]);
   return n <= limit;
