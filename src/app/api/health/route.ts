@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { integrationStatus, memoryStoreBlocked } from "@/lib/integrations";
+import { integrationStatus, kvBackend, memoryStoreBlocked } from "@/lib/integrations";
+import { storageMode } from "@/lib/p4/db";
 import { ghlStatus } from "@/lib/crm/ghl";
 import { intentConfig } from "@/lib/intent";
 import { flags } from "@/config/flags";
@@ -31,7 +32,8 @@ export function GET() {
     ghl: ghlStatus(),
     intent: (({ provider, enabled }) => ({ provider: provider ?? null, enabled }))(intentConfig()),
     site: { noindex: flags.noindex, portal_preview: flags.portalPreview, env: process.env.VERCEL_ENV ?? process.env.NODE_ENV },
-    lead_intake: memoryStoreBlocked() ? "blocked: Upstash not configured in production" : "ok",
+    lead_intake: memoryStoreBlocked() ? "blocked: Upstash or Supabase not configured in production" : "ok",
+    storage: { kv: kvBackend(), phase4: storageMode() },
     note: "Credentials present does not mean the integration is verified. See docs/16-technical-deployment.md.",
   });
 }

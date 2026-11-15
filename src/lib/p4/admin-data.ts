@@ -4,7 +4,7 @@ import { BRAND, flags } from "./flags";
 import { can, type Staff } from "./rbac";
 import { maskEmail } from "./pii";
 import { staffEstimateView } from "../estimator/service";
-import { integrationStatus, listLeads, memoryStoreBlocked } from "../integrations";
+import { integrationStatus, kvBackend, listLeads, memoryStoreBlocked } from "../integrations";
 import { ghlMode, ghlStatus } from "../crm/ghl";
 import { dmStatus } from "../datamoon/config";
 import { measurementProviders } from "../measure/providers";
@@ -96,7 +96,7 @@ export function integrationHealth() {
     storage: storageMode(),
     rows: [
       { name: "Phase 4 persistence (Supabase)", state: p4durable ? "configured" : "fallback", detail: p4durable ? "Supabase REST (p4_* tables)" : `Local ${storageMode()} store: not durable on Vercel; walkthrough storage stays blocked in production` },
-      { name: "Lead store (Upstash Redis)", state: st.upstash ? "configured" : memoryStoreBlocked() ? "blocked" : "memory (dev/preview)", detail: st.upstash ? "Upstash REST" : "Production lead intake returns 503 until Upstash is set (fail-closed)" },
+      { name: "Lead store (Upstash Redis / Supabase Postgres)", state: kvBackend() !== "memory" ? "configured" : memoryStoreBlocked() ? "blocked" : "memory (dev/preview)", detail: kvBackend() === "upstash" ? "Upstash REST" : kvBackend() === "supabase" ? "Supabase Postgres (kv_* RPCs, service role)" : "Production lead intake returns 503 until Upstash or Supabase is set (fail-closed)" },
       { name: "GoHighLevel API v2", state: g.mode === "live" ? "configured" : g.mode, detail: g.mode === "live" ? `Stage ids ${g.stage_ids_set}, workflows ${g.workflows_set}` : "Nothing sent; payloads logged (redacted)" },
       { name: "GHL internal pricing fields", state: flags().ghlInternalPricingFields ? "ON" : "off", detail: "Off = typical range / budget fit / offer guidance are never sent to GHL" },
       { name: "Meta CAPI", state: st.metaCapi ? "configured" : "off", detail: "" },
