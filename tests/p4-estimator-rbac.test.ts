@@ -130,6 +130,22 @@ describe("private estimator", () => {
     expect(verifyAuditChain(rows)).toBe(true);
     expect(JSON.stringify(rows.map((r) => r.detail))).not.toMatch(/\$\d|"rate"|margin_pct/);
   });
+
+  it("audit chain still verifies after a Postgres jsonb round-trip reorders keys, and still detects tampering", async () => {
+    const { db } = await import("@/lib/p4/db");
+    const { audit, verifyAuditChain } = await import("@/lib/p4/audit");
+    await audit("portfolioworks", { actor: "system", action: "test.multi_key", target_type: "project", target_id: "prj_x", detail: { zeta: 1, alpha: "a", mid: { b: 1, a: 2 } } });
+    const rows = await db.list("audit_log", "portfolioworks", {}, { limit: 1000 });
+    // jsonb stores object keys sorted by length then bytes, so read-back key order differs from insertion order.
+    const jsonbOrder = (v: unknown): unknown => Array.isArray(v) ? v.map(jsonbOrder) : v && typeof v === "object"
+      ? Object.fromEntries(Object.keys(v as object).sort((a, b) => a.length - b.length || (a < b ? -1 : a > b ? 1 : 0)).reverse().map((k) => [k, jsonbOrder((v as Record<string, unknown>)[k])]))
+      : v;
+    const roundTripped = rows.map((r) => ({ ...r, detail: jsonbOrder(r.detail) }));
+    expect(roundTripped.some((r, i) => JSON.stringify(r.detail) !== JSON.stringify(rows[i].detail))).toBe(true);
+    expect(verifyAuditChain(roundTripped)).toBe(true);
+    const tampered = roundTripped.map((r, i) => (i === 0 ? { ...r, action: `${String((r as Record<string, unknown>).action)}-edited` } : r));
+    expect(verifyAuditChain(tampered)).toBe(false);
+  });
 });
 
 describe("PortfolioWorks quote placeholders and privacy review", () => {
